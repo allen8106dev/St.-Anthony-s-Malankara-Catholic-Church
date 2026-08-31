@@ -1,3 +1,2 @@
-import type { PropsWithChildren } from 'react'
-
-export function Container({ children }: PropsWithChildren) { return <div className="mx-auto max-w-7xl px-4 py-6">{children}</div> }
+import type { HTMLAttributes, PropsWithChildren } from 'react'
+export function Container({ children, className = '', ...props }: PropsWithChildren<HTMLAttributes<HTMLDivElement>>) { return <div className={`container ${className}`} {...props}>{children}</div> }

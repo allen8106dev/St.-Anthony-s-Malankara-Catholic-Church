@@ -1,0 +1,4 @@
+import { Link } from 'react-router-dom'
+import { Container } from '../ui/Container'
+import { publicNavigation, siteName } from '../../data/siteContent'
+export function PublicFooter() { const year = new Date().getFullYear(); return <footer className="footer"><Container><div className="footer__grid"><div><h2>{siteName}</h2><p>Rooted in faith, gathered in hope, and welcoming all. Public contact and parish details will be added when confirmed.</p></div><div><h3>Explore</h3><ul>{publicNavigation.slice(0, 4).map(item => <li key={item.to}><Link to={item.to}>{item.label}</Link></li>)}</ul></div><div><h3>Visit</h3><p>Address to be confirmed<br />Service schedule forthcoming</p></div><div><h3>Connect</h3><p>Email to be confirmed<br />Phone to be confirmed</p></div></div><div className="footer__bottom"><span>© {year} {siteName}</span><span>All parish details are forthcoming.</span></div></Container></footer> }
