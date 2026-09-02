@@ -6,7 +6,9 @@ from app.db.base import Base
 import app.models  # noqa: F401
 
 config = context.config
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+# Alembic stores this value in ConfigParser, where '%' is interpolation syntax.
+# Preserve URL-encoded password characters while keeping Settings as the URL source.
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.replace("%", "%%"))
 if config.config_file_name: fileConfig(config.config_file_name)
 target_metadata = Base.metadata
 

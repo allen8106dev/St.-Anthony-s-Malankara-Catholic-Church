@@ -29,6 +29,16 @@ A foundation for a public church website and a private administration platform. 
 
 The frontend is served at `http://localhost:5173`; the API health endpoint is `http://localhost:8000/api/v1/health`.
 
+## Administrator bootstrap (Phase 5)
+
+Administrator accounts are never publicly registered. After applying migrations, create the first account from `backend`:
+
+```powershell
+python -m app.cli create-super-admin --email admin@example.org --name "Church Administrator"
+```
+
+The command securely prompts for a 12-character minimum password and does not echo it. Set a strong `SECRET_KEY`, production-only `DATABASE_URL`, explicit `CORS_ORIGINS`, and `COOKIE_SECURE=true` before deployment.
+
 ## Migrations
 
 From `backend`, with `DATABASE_URL` set:
