@@ -55,7 +55,7 @@ export function SettingsPage() {
     <div>
       <div className="admin-page-header">
         <div>
-          <h1>Site Settings</h1>
+          <h1>Settings</h1>
           <p>Manage public church information displayed on the website</p>
         </div>
       </div>

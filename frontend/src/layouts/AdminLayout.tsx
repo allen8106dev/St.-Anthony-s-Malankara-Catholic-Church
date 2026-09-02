@@ -7,9 +7,8 @@ type NavGroup = { label: string; items: NavItem[] }
 
 const navGroups: NavGroup[] = [
   {
-    label: 'Content',
+    label: 'CMS',
     items: [
-      { to: '/admin/content', label: 'Dashboard', roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
       { to: '/admin/content/homepage', label: 'Homepage', roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
       { to: '/admin/content/about', label: 'About', roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
       { to: '/admin/content/events', label: 'Events', roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
@@ -17,7 +16,6 @@ const navGroups: NavGroup[] = [
       { to: '/admin/content/sermons', label: 'Sermons', roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
       { to: '/admin/content/gallery', label: 'Gallery', roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
       { to: '/admin/content/service-times', label: 'Service Times', roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
-      { to: '/admin/content/settings', label: 'Site Settings', roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
     ],
   },
   {
@@ -42,7 +40,7 @@ const topItems: NavItem[] = [
 ]
 
 const bottomItems: NavItem[] = [
-  { to: '/admin/settings', label: 'Admin Settings', roles: ['SUPER_ADMIN'] },
+  { to: '/admin/settings', label: 'Settings', roles: ['SUPER_ADMIN'] },
 ]
 
 export function AdminLayout() {

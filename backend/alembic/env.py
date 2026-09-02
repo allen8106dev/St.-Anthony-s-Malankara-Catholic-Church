@@ -6,14 +6,15 @@ from app.db.base import Base
 import app.models  # noqa: F401
 
 config = context.config
+migration_database_url = settings.migration_database_url
 # Alembic stores this value in ConfigParser, where '%' is interpolation syntax.
 # Preserve URL-encoded password characters while keeping Settings as the URL source.
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.replace("%", "%%"))
+config.set_main_option("sqlalchemy.url", migration_database_url.replace("%", "%%"))
 if config.config_file_name: fileConfig(config.config_file_name)
 target_metadata = Base.metadata
 
 def run_migrations_offline() -> None:
-    context.configure(url=settings.DATABASE_URL, target_metadata=target_metadata, literal_binds=True, dialect_opts={"paramstyle": "named"})
+    context.configure(url=migration_database_url, target_metadata=target_metadata, literal_binds=True, dialect_opts={"paramstyle": "named"})
     with context.begin_transaction(): context.run_migrations()
 
 def run_migrations_online() -> None:

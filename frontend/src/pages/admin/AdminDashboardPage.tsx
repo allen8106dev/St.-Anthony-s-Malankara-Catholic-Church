@@ -42,7 +42,7 @@ export function AdminDashboardPage() {
     <div className="dash-page">
       <header className="dash-header">
         <div>
-          <p className="eyebrow dash-eyebrow">Dashboard</p>
+          <p className="eyebrow dash-eyebrow">Overview</p>
           <h1 className="dash-title">Overview of your church&apos;s activity</h1>
           <p className="dash-subtitle">
             {greeting}{currentUser?.name ? `, ${currentUser.name}` : ''}. Keep an eye on parish operations, content updates, and financial activity.
@@ -129,7 +129,7 @@ export function AdminDashboardPage() {
                 <Link to="/admin/content/sermons" className="dash-content-link"><span className="dash-content-link__icon">🎙</span><span>Sermons</span></Link>
                 <Link to="/admin/content/gallery" className="dash-content-link"><span className="dash-content-link__icon">🖼</span><span>Gallery</span></Link>
                 <Link to="/admin/content/service-times" className="dash-content-link"><span className="dash-content-link__icon">🕐</span><span>Service Times</span></Link>
-                <Link to="/admin/content/settings" className="dash-content-link"><span className="dash-content-link__icon">⚙️</span><span>Site Settings</span></Link>
+                <Link to="/admin/settings" className="dash-content-link"><span className="dash-content-link__icon">⚙️</span><span>Settings</span></Link>
               </div>
             </section>
           )}

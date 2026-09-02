@@ -6,6 +6,38 @@ import { Reveal } from '../../components/animation/Reveal'
 import { usePublicEvents, usePublicAnnouncements, usePublicSermons, usePublicGallery, usePublicSettings } from '../../hooks/usePublicContent'
 import type { PublicAlbum } from '../../hooks/usePublicContent'
 
+function safeGoogleMapsConfig(rawUrl: string | null) {
+  if (!rawUrl) return { safeUrl: null as string | null, embedUrl: null as string | null }
+
+  const trimmed = rawUrl.trim()
+  if (!trimmed) return { safeUrl: null, embedUrl: null }
+
+  try {
+    const url = new URL(trimmed)
+    const protocol = url.protocol.toLowerCase()
+    const hostname = url.hostname.toLowerCase().replace(/^www\./, '')
+
+    if (protocol !== 'http:' && protocol !== 'https:') return { safeUrl: null, embedUrl: null }
+
+    const allowedHosts = new Set(['google.com', 'maps.google.com', 'maps.app.goo.gl', 'goo.gl'])
+    const isGoogleHost = hostname === 'google.com' || hostname.endsWith('.google.com') || allowedHosts.has(hostname)
+    const hasMapsContent = url.pathname.includes('/maps') || url.searchParams.has('q') || url.searchParams.has('ll') || url.searchParams.has('query')
+
+    if (!isGoogleHost || !hasMapsContent) return { safeUrl: null, embedUrl: null }
+
+    const query =
+      url.searchParams.get('q') ??
+      url.searchParams.get('query') ??
+      url.searchParams.get('ll') ??
+      decodeURIComponent((url.pathname.replace(/^\/maps\/(?:place|search)\//, '') || '').replace(/\/+$/, ''))
+
+    const embedUrl = query ? `https://www.google.com/maps?q=${encodeURIComponent(query)}&output=embed` : null
+    return { safeUrl: url.toString(), embedUrl }
+  } catch {
+    return { safeUrl: null, embedUrl: null }
+  }
+}
+
 function GalleryLightboxPublic({ albums }: { albums: PublicAlbum[] }) {
   const images = albums.flatMap(a => a.images)
   const [selected, setSelected] = useState<number | null>(null)
@@ -241,8 +273,9 @@ export function ContactPage() {
   const address = s.address || null
   const phone = s.phone || null
   const email = s.email || null
-  const mapsUrl = s.google_maps_url || null
   const officeHours = s.office_hours || null
+  const { safeUrl, embedUrl } = safeGoogleMapsConfig(s.google_maps_url || null)
+
   return <>
     <PageHeader eyebrow="Visit &amp; contact" title="Come as you are." intro="Find us, reach out, or plan your visit." image={demoImages.sanctuary} />
     <section className="section">
@@ -256,13 +289,39 @@ export function ContactPage() {
             {email && <div><dt>Email</dt><dd><a href={`mailto:${email}`}>{email}</a></dd></div>}
             {officeHours && <div><dt>Office hours</dt><dd>{officeHours}</dd></div>}
           </dl>
-          {mapsUrl && (
-            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="button button--outline" style={{ marginTop: '1rem', display: 'inline-block' }}>
-              Open in Google Maps ↗
+          {safeUrl && (
+            <a href={safeUrl} target="_blank" rel="noopener noreferrer" className="button button--outline" style={{ marginTop: '1rem', display: 'inline-block' }}>
+              View on Google Maps ↗
             </a>
           )}
         </div>
-        <div className="map-placeholder" role="img" aria-label="Map location placeholder">Map location placeholder</div>
+
+        <div className="map-panel" aria-live="polite">
+          {embedUrl ? (
+            <iframe
+              title="Parish location map"
+              src={embedUrl}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
+              className="map-embed"
+            />
+          ) : safeUrl ? (
+            <div className="map-placeholder map-placeholder--fallback" role="img" aria-label="Map location placeholder">
+              <div>
+                <strong>Map location</strong>
+                <span>Google Maps preview is unavailable for this link.</span>
+              </div>
+            </div>
+          ) : (
+            <div className="map-placeholder" role="img" aria-label="Map location placeholder">
+              <div>
+                <strong>Map not configured</strong>
+                <span>Location map has not been set yet.</span>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </section>
     <section className="section section--muted">

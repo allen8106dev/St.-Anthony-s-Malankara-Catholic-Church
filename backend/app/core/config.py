@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Church Platform API"
     ENVIRONMENT: str = "development"
     DATABASE_URL: str
+    ALEMBIC_DATABASE_URL: str | None = None
     SECRET_KEY: str
     CORS_ORIGINS: str = "http://localhost:5173"
     COOKIE_SECURE: bool = False
@@ -20,6 +21,10 @@ class Settings(BaseSettings):
     @property
     def cors_origins(self) -> list[str]:
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
+
+    @property
+    def migration_database_url(self) -> str:
+        return self.ALEMBIC_DATABASE_URL or self.DATABASE_URL
 
     @property
     def is_production(self) -> bool:

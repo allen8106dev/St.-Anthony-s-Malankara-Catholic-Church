@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
 import { Container } from '../../components/ui/Container'
 import { Reveal } from '../../components/animation/Reveal'
-import { usePublicEvents, usePublicServiceTimes, usePublicContent } from '../../hooks/usePublicContent'
-import { ministryPreviews } from '../../data/siteContent'
+import { usePublicEvents, usePublicServiceTimes, usePublicContent, usePublicSettings } from '../../hooks/usePublicContent'
+import { ministryPreviews, siteName } from '../../data/siteContent'
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -10,6 +10,9 @@ export function HomePage() {
   const { data: eventsData } = usePublicEvents({ timeframe: 'upcoming', limit: 3 })
   const { data: serviceTimes } = usePublicServiceTimes()
   const { data: heroContent } = usePublicContent('homepage')
+  const { data: settings } = usePublicSettings()
+  const s = Object.fromEntries((settings ?? []).map(item => [item.key, item.value]))
+  const churchName = s.church_name || siteName
 
   const heroSection = heroContent?.find(s => s.section === 'hero')
   const introSection = heroContent?.find(s => s.section === 'intro')
@@ -28,8 +31,8 @@ export function HomePage() {
       <Container className="hero__content">
         <Reveal>
           <p className="eyebrow">A place to belong</p>
-          <h1 className="display">{heroSection?.heading ?? "Faith, family, and a warm welcome."}</h1>
-          <p className="lede">{heroSection?.body ?? "St. Anthony's Malankara Catholic Church is preparing a home online for prayer, community, and parish life."}</p>
+          <h1 className="display">{heroSection?.heading ?? `Faith, family, and a warm welcome at ${churchName}.`}</h1>
+          <p className="lede">{heroSection?.body ?? `${churchName} is preparing a home online for prayer, community, and parish life.`}</p>
           <div className="actions">
             <Link className="button button--light" to="/about">Discover our parish <span aria-hidden="true">↗</span></Link>
             <Link className="button button--outline" to="/contact">Plan a visit</Link>

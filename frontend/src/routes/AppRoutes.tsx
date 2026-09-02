@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { AdminLayout } from '../layouts/AdminLayout'
 import { PublicLayout } from '../layouts/PublicLayout'
 import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage'
@@ -75,6 +75,7 @@ export function AppRoutes() {
 
           {/* CMS Content */}
           <Route path="content" element={<ContentDashboard />} />
+          <Route path="content/settings" element={<Navigate to="/admin/settings" replace />} />
           <Route path="content/homepage" element={<HomepagePage />} />
           <Route path="content/about" element={<AboutCmsPage />} />
           <Route path="content/events" element={<AdminEventsPage />} />
@@ -91,7 +92,6 @@ export function AppRoutes() {
           <Route path="content/gallery/:albumId" element={<AlbumDetailPage />} />
           <Route path="content/gallery/:albumId/edit" element={<AlbumFormPage />} />
           <Route path="content/service-times" element={<ServiceTimesPage />} />
-          <Route path="content/settings" element={<SettingsPage />} />
 
           {/* Members */}
           <Route path="members" element={<MembersPage />} />

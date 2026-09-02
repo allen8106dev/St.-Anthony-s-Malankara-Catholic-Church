@@ -50,7 +50,7 @@ export function ContentDashboard() {
           <Link to="/admin/content/homepage" className="button button--outline">Edit Homepage</Link>
           <Link to="/admin/content/about" className="button button--outline">Edit About</Link>
           <Link to="/admin/content/service-times" className="button button--outline">Service Times</Link>
-          <Link to="/admin/content/settings" className="button button--outline">Site Settings</Link>
+          <Link to="/admin/settings" className="button button--outline">Settings</Link>
         </div>
       </div>
     </div>
