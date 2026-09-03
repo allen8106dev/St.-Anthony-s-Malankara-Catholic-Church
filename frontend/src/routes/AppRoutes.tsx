@@ -72,12 +72,14 @@ export function AppRoutes() {
         <Route path="*" element={<NotFoundPage />} />
       </Route>
 
+      <Route path="/dashboard" element={<Navigate to="/admin" replace />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/admin/login" element={<LoginPage />} />
 
       <Route element={<AdminRouteGuard />}>
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboardPage />} />
+          <Route path="dashboard" element={<Navigate to="/admin" replace />} />
 
           {/* CMS Content */}
           <Route path="content" element={<ContentDashboard />} />
