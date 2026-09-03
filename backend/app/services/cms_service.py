@@ -6,7 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.models.domain import (
-    AdminUser, Announcement, AnnouncementType, AuditLog, Event, EventStatus,
+    AdminUser, Announcement, AuditLog, Event, EventStatus,
     GalleryAlbum, GalleryImage, PageContent, PublicationStatus, Sermon,
     SermonSeries, ServiceTime, SiteSetting,
 )
@@ -43,7 +43,6 @@ def dashboard(db: Session) -> dict:
         "active_announcements": db.scalar(
             select(func.count(Announcement.id)).where(
                 Announcement.status == PublicationStatus.PUBLISHED,
-                Announcement.published_at <= now,
                 (Announcement.expires_at.is_(None) | (Announcement.expires_at > now)),
             )
         ) or 0,
@@ -110,7 +109,10 @@ def get_announcement(db: Session, ann_id: uuid.UUID) -> Announcement | None:
 
 
 def create_announcement(db: Session, data: AnnouncementCreate, actor: AdminUser) -> Announcement:
-    ann = Announcement(**data.model_dump(), slug=_slug(data.title))
+    values = data.model_dump(exclude={"status"})
+    if data.status == PublicationStatus.PUBLISHED:
+        _validate_announcement_for_publish(values.get("title"), values.get("image_url"), values.get("expires_at"))
+    ann = Announcement(**values, status=data.status, created_by_id=actor.id)
     db.add(ann)
     db.flush()
     _audit(db, actor, "content.announcement.created", "announcement", str(ann.id), {"title": ann.title})
@@ -119,6 +121,8 @@ def create_announcement(db: Session, data: AnnouncementCreate, actor: AdminUser)
 
 def update_announcement(db: Session, ann: Announcement, data: AnnouncementUpdate, actor: AdminUser) -> Announcement:
     changes = data.model_dump(exclude_unset=True)
+    if "expires_at" in changes:
+        _validate_expiry(changes["expires_at"], ann.created_at)
     for k, v in changes.items():
         setattr(ann, k, v)
     db.flush()
@@ -128,12 +132,25 @@ def update_announcement(db: Session, ann: Announcement, data: AnnouncementUpdate
 
 def set_announcement_status(db: Session, ann: Announcement, status: PublicationStatus, actor: AdminUser) -> Announcement:
     old = ann.status
+    if status == PublicationStatus.PUBLISHED:
+        _validate_announcement_for_publish(ann.title, ann.image_url, ann.expires_at)
     ann.status = status
-    if status == PublicationStatus.PUBLISHED and not ann.published_at:
-        ann.published_at = datetime.now(timezone.utc)
     db.flush()
     _audit(db, actor, f"content.announcement.{status.value.lower()}", "announcement", str(ann.id), {"from": old, "to": status})
     return ann
+
+
+def _validate_expiry(expires_at: datetime | None, created_at: datetime | None) -> None:
+    if expires_at is not None and created_at is not None and expires_at < created_at:
+        raise ValueError("Expiry must not be earlier than creation time.")
+
+
+def _validate_announcement_for_publish(title: str | None, image_url: str | None, expires_at: datetime | None) -> None:
+    if not title or not title.strip():
+        raise ValueError("Title is required to publish an announcement.")
+    if not image_url:
+        raise ValueError("Image is required to publish an announcement.")
+    _validate_expiry(expires_at, datetime.now(timezone.utc))
 
 
 # ── Sermons ───────────────────────────────────────────────────────────────────
@@ -226,6 +243,12 @@ def set_album_status(db: Session, album: GalleryAlbum, status: PublicationStatus
     db.flush()
     _audit(db, actor, f"content.album.{status.value.lower()}", "gallery_album", str(album.id), {"from": old, "to": status})
     return album
+
+
+def delete_album(db: Session, album: GalleryAlbum, actor: AdminUser) -> None:
+    _audit(db, actor, "content.album.deleted", "gallery_album", str(album.id), {"title": album.title})
+    db.delete(album)
+    db.flush()
 
 
 def add_image(db: Session, album: GalleryAlbum, data: GalleryImageCreate, actor: AdminUser) -> GalleryImage:

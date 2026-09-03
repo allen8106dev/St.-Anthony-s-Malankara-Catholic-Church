@@ -15,7 +15,7 @@ function fmtDate(iso: string) {
 function MetricCard({ label, value, sub, to, accent }: { label: string; value: string | number; sub?: string; to?: string; accent?: boolean }) {
   const inner = (
     <div className="dash-metric">
-      <span className="dash-metric__value" style={accent ? { color: 'var(--accent)' } : undefined}>{value}</span>
+      <span className="dash-metric__value" style={accent ? { color: 'var(--admin-accent)' } : undefined}>{value}</span>
       <span className="dash-metric__label">{label}</span>
       {sub && <span className="dash-metric__sub">{sub}</span>}
     </div>
@@ -124,12 +124,12 @@ export function AdminDashboardPage() {
                 <Link to="/admin/content" className="text-link" style={{ fontSize: '.85rem' }}>Manage →</Link>
               </div>
               <div className="dash-content-links">
-                <Link to="/admin/content/events" className="dash-content-link"><span className="dash-content-link__icon">📅</span><span>Events</span></Link>
-                <Link to="/admin/content/announcements" className="dash-content-link"><span className="dash-content-link__icon">📢</span><span>Announcements</span></Link>
-                <Link to="/admin/content/sermons" className="dash-content-link"><span className="dash-content-link__icon">🎙</span><span>Sermons</span></Link>
-                <Link to="/admin/content/gallery" className="dash-content-link"><span className="dash-content-link__icon">🖼</span><span>Gallery</span></Link>
-                <Link to="/admin/content/service-times" className="dash-content-link"><span className="dash-content-link__icon">🕐</span><span>Service Times</span></Link>
-                <Link to="/admin/settings" className="dash-content-link"><span className="dash-content-link__icon">⚙️</span><span>Settings</span></Link>
+                <Link to="/admin/content/events" className="dash-content-link"><span className="dash-content-link__icon dash-icon--calendar" aria-hidden="true" /><span>Events</span></Link>
+                <Link to="/admin/content/announcements" className="dash-content-link"><span className="dash-content-link__icon dash-icon--notice" aria-hidden="true" /><span>Announcements</span></Link>
+                <Link to="/admin/content/sermons" className="dash-content-link"><span className="dash-content-link__icon dash-icon--sermon" aria-hidden="true" /><span>Sermons</span></Link>
+                <Link to="/admin/content/gallery" className="dash-content-link"><span className="dash-content-link__icon dash-icon--gallery" aria-hidden="true" /><span>Gallery</span></Link>
+                <Link to="/admin/content/service-times" className="dash-content-link"><span className="dash-content-link__icon dash-icon--clock" aria-hidden="true" /><span>Service Times</span></Link>
+                <Link to="/admin/settings" className="dash-content-link"><span className="dash-content-link__icon dash-icon--settings" aria-hidden="true" /><span>Settings</span></Link>
               </div>
             </section>
           )}

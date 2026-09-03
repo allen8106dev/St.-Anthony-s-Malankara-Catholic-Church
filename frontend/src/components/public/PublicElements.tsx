@@ -16,14 +16,19 @@ export function GalleryLightbox({ albums }: { albums: Album[] }) {
   const closeButton = useRef<HTMLButtonElement>(null)
   useEffect(() => {
     if (selected === null) return
-    closeButton.current?.focus()
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    closeButton.current?.focus({ preventScroll: true })
     const key = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setSelected(null)
       if (event.key === 'ArrowRight') setSelected((index) => index === null ? null : (index + 1) % images.length)
       if (event.key === 'ArrowLeft') setSelected((index) => index === null ? null : (index - 1 + images.length) % images.length)
     }
     window.addEventListener('keydown', key)
-    return () => window.removeEventListener('keydown', key)
+    return () => {
+      document.body.style.overflow = prevOverflow
+      window.removeEventListener('keydown', key)
+    }
   }, [selected, images.length])
   return <>
     <div className="gallery-grid">{images.map((item, index) => <button className="gallery-image" type="button" key={`${item.src}-${index}`} onClick={() => setSelected(index)}><img src={item.src} alt={item.alt} loading="lazy" /></button>)}</div>

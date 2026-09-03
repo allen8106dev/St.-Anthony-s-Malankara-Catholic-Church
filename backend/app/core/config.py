@@ -13,6 +13,14 @@ class Settings(BaseSettings):
     COOKIE_SECURE: bool = False
     SESSION_COOKIE_NAME: str = "church_admin_session"
     SESSION_EXPIRE_MINUTES: int = 480
+    GOOGLE_CLIENT_ID: str | None = None
+    GOOGLE_CLIENT_SECRET: str | None = None
+    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/google/callback"
+    FRONTEND_URL: str = "http://localhost:5173"
+    SUPABASE_URL: str | None = None
+    SUPABASE_SERVICE_ROLE_KEY: str | None = None
+    SUPABASE_STORAGE_BUCKET: str = "church-media"
+    MAX_UPLOAD_BYTES: int = 5 * 1024 * 1024
     model_config = SettingsConfigDict(
         env_file=Path(__file__).resolve().parents[3] / ".env",
         extra="ignore",

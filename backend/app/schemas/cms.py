@@ -2,7 +2,7 @@
 from datetime import date as Date, datetime, time
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from app.models.domain import AnnouncementType, EventStatus, PublicationStatus
+from app.models.domain import EventStatus, PublicationStatus
 
 
 class CmsModel(BaseModel):
@@ -72,10 +72,8 @@ class PaginatedEvents(BaseModel):
 # ── Announcements ─────────────────────────────────────────────────────────────
 class AnnouncementCreate(BaseModel):
     title: str = Field(min_length=1, max_length=250)
-    description: str | None = None
-    type: AnnouncementType = AnnouncementType.GENERAL
+    description: str | None = Field(default=None, max_length=600)
     image_url: str | None = Field(default=None, max_length=2048)
-    published_at: datetime | None = None
     expires_at: datetime | None = None
     status: PublicationStatus = PublicationStatus.DRAFT
 
@@ -89,12 +87,9 @@ class AnnouncementCreate(BaseModel):
 
 class AnnouncementUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=250)
-    description: str | None = None
-    type: AnnouncementType | None = None
+    description: str | None = Field(default=None, max_length=600)
     image_url: str | None = Field(default=None, max_length=2048)
-    published_at: datetime | None = None
     expires_at: datetime | None = None
-    status: PublicationStatus | None = None
 
     @field_validator("image_url")
     @classmethod
@@ -107,11 +102,9 @@ class AnnouncementUpdate(BaseModel):
 class AnnouncementRead(CmsModel):
     id: UUID
     title: str
-    slug: str
     description: str | None
-    type: AnnouncementType
     image_url: str | None
-    published_at: datetime | None
+    created_by_id: UUID
     expires_at: datetime | None
     status: PublicationStatus
     created_at: datetime

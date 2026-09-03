@@ -2,6 +2,9 @@ from collections import defaultdict, deque
 from datetime import UTC, datetime
 from time import monotonic
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.responses import RedirectResponse
+from authlib.integrations.starlette_client import OAuth
+from secrets import token_urlsafe
 from sqlalchemy import select
 from app.api.dependencies import CurrentAdmin, DbSession
 from app.auth.security import password_needs_rehash, verify_password, hash_password
@@ -13,6 +16,10 @@ from app.schemas.auth import AdminUserRead, LoginRequest
 router = APIRouter(prefix="/auth")
 _attempts: dict[str, deque[float]] = defaultdict(deque)
 _WINDOW_SECONDS, _MAX_ATTEMPTS = 60, 10
+_oauth_states: set[str] = set()
+oauth = OAuth()
+if settings.GOOGLE_CLIENT_ID and settings.GOOGLE_CLIENT_SECRET:
+    oauth.register("google", client_id=settings.GOOGLE_CLIENT_ID, client_secret=settings.GOOGLE_CLIENT_SECRET, server_metadata_url="https://accounts.google.com/.well-known/openid-configuration", client_kwargs={"scope": "openid email profile"})
 
 def _check_rate_limit(request: Request) -> None:
     key = request.client.host if request.client else "unknown"
@@ -45,3 +52,33 @@ def logout(request: Request, response: Response, db: DbSession):
 
 @router.get("/me", response_model=AdminUserRead)
 def me(admin: CurrentAdmin): return _read_admin(admin)
+
+@router.get("/google/login")
+async def google_login(request: Request):
+    if not oauth.google:
+        raise HTTPException(503, "Google sign-in is not configured.")
+    state = token_urlsafe(32)
+    _oauth_states.add(state)
+    return await oauth.google.authorize_redirect(request, settings.GOOGLE_REDIRECT_URI, state=state)
+
+@router.get("/google/callback")
+async def google_callback(request: Request, response: Response, db: DbSession):
+    state = request.query_params.get("state")
+    if not state or state not in _oauth_states:
+        raise HTTPException(400, "Invalid OAuth state.")
+    _oauth_states.remove(state)
+    try:
+        token = await oauth.google.authorize_access_token(request)
+        claims = token.get("userinfo") or await oauth.google.parse_id_token(request, token)
+        subject = claims.get("sub") if claims else None
+    except Exception as exc:
+        raise HTTPException(401, "Google sign-in could not be verified.") from exc
+    admin = db.scalar(select(AdminUser).where(AdminUser.auth_subject == f"google:{subject}", AdminUser.is_active.is_(True))) if subject else None
+    if not admin:
+        raise HTTPException(403, "This Google account is not authorized for administration.")
+    admin.last_login_at = datetime.now(UTC)
+    session_token = create_session(db, admin)
+    db.commit()
+    redirect = RedirectResponse(f"{settings.FRONTEND_URL}/admin", status_code=303)
+    redirect.set_cookie(settings.SESSION_COOKIE_NAME, session_token, httponly=True, secure=settings.COOKIE_SECURE or settings.is_production, samesite="lax", max_age=settings.SESSION_EXPIRE_MINUTES * 60, path="/")
+    return redirect

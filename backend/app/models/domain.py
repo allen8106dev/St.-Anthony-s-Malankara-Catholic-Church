@@ -24,8 +24,6 @@ class PaymentStatus(str, enum.Enum): PENDING = "PENDING"; COMPLETED = "COMPLETED
 class PaymentMethod(str, enum.Enum): CASH = "CASH"; BANK_TRANSFER = "BANK_TRANSFER"; UPI = "UPI"; CHEQUE = "CHEQUE"; ONLINE = "ONLINE"; OTHER = "OTHER"
 class PublicationStatus(str, enum.Enum): DRAFT = "DRAFT"; PUBLISHED = "PUBLISHED"; ARCHIVED = "ARCHIVED"
 class EventStatus(str, enum.Enum): DRAFT = "DRAFT"; PUBLISHED = "PUBLISHED"; CANCELLED = "CANCELLED"; COMPLETED = "COMPLETED"
-class AnnouncementType(str, enum.Enum): GENERAL = "GENERAL"; IMPORTANT = "IMPORTANT"; COMMUNITY = "COMMUNITY"; FUNERAL = "FUNERAL"; MARRIAGE = "MARRIAGE"; OTHER = "OTHER"
-
 class Role(Base, Timestamped):
     __tablename__ = "roles"
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -168,13 +166,12 @@ class Announcement(Base, Timestamped):
     __tablename__ = "announcements"
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title: Mapped[str] = mapped_column(String(250), nullable=False)
-    slug: Mapped[str] = mapped_column(String(250), unique=True, index=True, nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
-    type: Mapped[AnnouncementType] = mapped_column(Enum(AnnouncementType, name="announcement_type"), default=AnnouncementType.GENERAL, index=True, nullable=False)
     image_url: Mapped[str | None] = mapped_column(String(2048))
-    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("admin_users.id", ondelete="RESTRICT"), nullable=False, index=True)
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     status: Mapped[PublicationStatus] = mapped_column(Enum(PublicationStatus, name="announcement_status"), default=PublicationStatus.DRAFT, nullable=False)
+    created_by: Mapped[AdminUser] = relationship()
 
 class GalleryAlbum(Base, Timestamped):
     __tablename__ = "gallery_albums"
@@ -187,7 +184,6 @@ class GalleryAlbum(Base, Timestamped):
 
 class GalleryImage(Base):
     __tablename__ = "gallery_images"
-    __table_args__ = (UniqueConstraint("album_id", "sort_order", name="uq_gallery_image_sort_order"),)
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     album_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("gallery_albums.id", ondelete="CASCADE"), nullable=False)
     image_url: Mapped[str] = mapped_column(String(2048), nullable=False)

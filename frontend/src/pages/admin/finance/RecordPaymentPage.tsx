@@ -93,9 +93,9 @@ export function RecordPaymentPage() {
       })
       setShowConfirm(false)
       navigate(`/admin/finance/payments/${created.id}`)
-    } catch (err: unknown) {
+    } catch (err: any) {
       setShowConfirm(false)
-      setError(err instanceof Error ? err.message : 'Failed to record payment.')
+      setError(err.message ?? 'Failed to record payment.')
     }
   }
 

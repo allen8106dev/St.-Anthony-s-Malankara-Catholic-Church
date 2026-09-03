@@ -1,6 +1,5 @@
 export type PublicationStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
 export type EventStatus = 'DRAFT' | 'PUBLISHED' | 'CANCELLED' | 'COMPLETED'
-export type AnnouncementType = 'GENERAL' | 'IMPORTANT' | 'COMMUNITY' | 'FUNERAL' | 'MARRIAGE' | 'OTHER'
 
 export interface CmsDashboard {
   published_events: number
@@ -20,6 +19,7 @@ export interface CmsEvent {
   end_datetime: string | null
   location: string | null
   image_url: string | null
+  details: Record<string, string> | null
   category: string | null
   status: EventStatus
   created_at: string
@@ -33,6 +33,7 @@ export interface EventPayload {
   end_datetime?: string | null
   location?: string | null
   image_url?: string | null
+  details?: Record<string, string> | null
   category?: string | null
   status?: EventStatus
 }
@@ -40,11 +41,9 @@ export interface EventPayload {
 export interface CmsAnnouncement {
   id: string
   title: string
-  slug: string
   description: string | null
-  type: AnnouncementType
   image_url: string | null
-  published_at: string | null
+  created_by_id: string
   expires_at: string | null
   status: PublicationStatus
   created_at: string
@@ -54,9 +53,7 @@ export interface CmsAnnouncement {
 export interface AnnouncementPayload {
   title: string
   description?: string | null
-  type?: AnnouncementType
   image_url?: string | null
-  published_at?: string | null
   expires_at?: string | null
   status?: PublicationStatus
 }

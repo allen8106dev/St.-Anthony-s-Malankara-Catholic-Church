@@ -2,8 +2,6 @@ from datetime import date, datetime, time
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 
-from app.models.domain import AnnouncementType
-
 class PublicModel(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -19,7 +17,7 @@ class Paginated(BaseModel):
 class PublicEvent(PublicModel):
     id: UUID; slug: str; title: str; description: str | None; start_datetime: datetime; end_datetime: datetime | None; location: str | None; image_url: str | None; category: str | None
 class PublicAnnouncement(PublicModel):
-    id: UUID; slug: str; title: str; description: str | None; type: AnnouncementType; image_url: str | None; published_at: datetime | None; expires_at: datetime | None
+    id: UUID; title: str; description: str | None; image_url: str; expires_at: datetime | None
 class PublicGalleryImage(PublicModel):
     id: UUID; image_url: str; alt_text: str; caption: str | None; sort_order: int
 class PublicGalleryAlbum(PublicModel):

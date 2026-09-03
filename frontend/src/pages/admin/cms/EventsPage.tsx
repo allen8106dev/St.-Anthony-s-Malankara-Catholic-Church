@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useAdminEvents, useAdminEvent, useCreateEvent, useUpdateEvent, usePublishEvent } from '../../../hooks/useCms'
 import { CmsStatusBadge, PublishActions, UnsavedBanner, FormSection, Field } from '../../../components/admin/CmsShared'
-import { Pagination, SkeletonRows } from '../../../components/admin/AdminShared'
-import { ConfirmDialog } from '../../../components/admin/AdminShared'
+import { ConfirmDialog, Pagination, SkeletonRows } from '../../../components/admin/AdminShared'
+import { ImageUploader } from '../../../components/admin/ImageUploader'
 import type { EventPayload } from '../../../types/cms'
 
 const STATUSES = [
@@ -211,12 +211,12 @@ export function EventFormPage() {
                 <input value={form.category ?? ''} onChange={e => set('category', e.target.value)} maxLength={100} />
               </Field>
             </div>
-            <Field label="Image URL" helper="Paste an absolute https:// URL for the event image.">
-              <input type="url" value={form.image_url ?? ''} onChange={e => set('image_url', e.target.value)} maxLength={2048} />
-            </Field>
-            {form.image_url && (
-              <img src={form.image_url} alt="Preview" className="cms-image-preview" onError={e => (e.currentTarget.style.display = 'none')} />
-            )}
+            <ImageUploader
+              value={form.image_url ?? ''}
+              onChange={val => set('image_url', val)}
+              label="Event Image"
+              helper="Upload a JPG, PNG, WebP, or GIF image (max 5 MB)."
+            />
           </FormSection>
 
           {error && <p className="admin-form-error" role="alert">{error}</p>}

@@ -51,7 +51,7 @@ export function PublicFooter() {
             )}
           </div>
         </div>
-        <div className="footer__bottom"><span>© {year} {churchName}</span><span>Serving the parish community.</span></div>
+        <div className="footer__bottom"><span>© {year} {churchName}</span><span>Serving the parish community.</span><Link className="footer__admin-link" to="/login">Admin Login</Link></div>
       </Container>
     </footer>
   )

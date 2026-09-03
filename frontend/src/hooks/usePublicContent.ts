@@ -6,9 +6,8 @@ interface PublicEvent {
   start_datetime: string; end_datetime: string | null; location: string | null
   image_url: string | null; category: string | null
 }
-interface PublicAnnouncement {
-  id: string; slug: string; title: string; description: string | null
-  type: string; image_url: string | null; published_at: string | null; expires_at: string | null
+export interface PublicAnnouncement {
+  id: string; title: string; description: string | null; image_url: string | null; expires_at: string | null
 }
 interface PublicGalleryImage { id: string; image_url: string; alt_text: string; caption: string | null; sort_order: number }
 interface PublicAlbum { id: string; title: string; description: string | null; cover_image_url: string | null; images: PublicGalleryImage[] }
@@ -81,4 +80,4 @@ export function usePublicServiceTimes() {
   })
 }
 
-export type { PublicEvent, PublicAnnouncement, PublicAlbum, PublicSermon, PublicContent, PublicSetting }
+export type { PublicEvent, PublicAlbum, PublicSermon, PublicContent, PublicSetting }

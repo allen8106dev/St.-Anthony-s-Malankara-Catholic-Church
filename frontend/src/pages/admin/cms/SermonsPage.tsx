@@ -6,6 +6,7 @@ import {
 } from '../../../hooks/useCms'
 import { CmsStatusBadge, PublishActions, UnsavedBanner, FormSection, Field } from '../../../components/admin/CmsShared'
 import { Pagination, SkeletonRows, ConfirmDialog } from '../../../components/admin/AdminShared'
+import { ImageUploader } from '../../../components/admin/ImageUploader'
 import type { SermonPayload } from '../../../types/cms'
 
 export function SermonsPage() {
@@ -208,12 +209,12 @@ export function SermonFormPage() {
             <Field label="Video URL" helper="YouTube or other video URL. No file uploads — use an external host.">
               <input type="url" value={form.video_url ?? ''} onChange={e => set('video_url', e.target.value)} maxLength={2048} />
             </Field>
-            <Field label="Thumbnail URL">
-              <input type="url" value={form.thumbnail_url ?? ''} onChange={e => set('thumbnail_url', e.target.value)} maxLength={2048} />
-            </Field>
-            {form.thumbnail_url && (
-              <img src={form.thumbnail_url} alt="Thumbnail preview" className="cms-image-preview" onError={e => (e.currentTarget.style.display = 'none')} />
-            )}
+            <ImageUploader
+              value={form.thumbnail_url ?? ''}
+              onChange={val => set('thumbnail_url', val)}
+              label="Thumbnail Image"
+              helper="Upload sermon thumbnail (max 5 MB)."
+            />
           </FormSection>
 
           <FormSection title="Series">

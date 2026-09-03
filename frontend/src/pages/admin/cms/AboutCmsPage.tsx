@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAdminPageContent, useUpsertPageContent } from '../../../hooks/useCms'
 import { Field } from '../../../components/admin/CmsShared'
+import { ImageUploader } from '../../../components/admin/ImageUploader'
 import type { PageContent, PageContentPayload } from '../../../types/cms'
 
 const PAGE = 'about'
@@ -11,7 +12,7 @@ const SECTIONS = [
     fields: [
       { field: 'heading' as keyof PageContentPayload, label: 'Page title' },
       { field: 'body' as keyof PageContentPayload, label: 'Introduction text', type: 'textarea' as const },
-      { field: 'image_url' as keyof PageContentPayload, label: 'Header image URL', type: 'url' as const },
+      { field: 'image_url' as keyof PageContentPayload, label: 'Header Image', type: 'url' as const },
     ],
   },
   {
@@ -33,7 +34,7 @@ const SECTIONS = [
     fields: [
       { field: 'heading' as keyof PageContentPayload, label: 'Name and title' },
       { field: 'body' as keyof PageContentPayload, label: 'Bio / message', type: 'textarea' as const },
-      { field: 'image_url' as keyof PageContentPayload, label: 'Photo URL', type: 'url' as const },
+      { field: 'image_url' as keyof PageContentPayload, label: 'Pastor / Priest Photo', type: 'url' as const },
     ],
   },
   {
@@ -41,7 +42,7 @@ const SECTIONS = [
     fields: [
       { field: 'heading' as keyof PageContentPayload, label: 'Heading' },
       { field: 'body' as keyof PageContentPayload, label: 'Address, phone, email, directions', type: 'textarea' as const },
-      { field: 'image_url' as keyof PageContentPayload, label: 'Map image URL', type: 'url' as const },
+      { field: 'image_url' as keyof PageContentPayload, label: 'Map / Location Image', type: 'url' as const },
     ],
   },
 ]
@@ -88,20 +89,23 @@ function SectionEditor({
       <h2 className="cms-form-section__title">{sectionDef.label}</h2>
       <form onSubmit={handleSave}>
         {sectionDef.fields.map(f => (
-          <Field key={f.field} label={f.label}>
-            {f.type === 'textarea' ? (
-              <textarea value={(form[f.field] as string) ?? ''} onChange={e => set(f.field, e.target.value)} rows={4} />
-            ) : f.type === 'url' ? (
-              <>
-                <input type="url" value={(form[f.field] as string) ?? ''} onChange={e => set(f.field, e.target.value)} maxLength={2048} />
-                {form[f.field] && (
-                  <img src={form[f.field] as string} alt="Preview" className="cms-image-preview" onError={e => (e.currentTarget.style.display = 'none')} />
-                )}
-              </>
-            ) : (
-              <input value={(form[f.field] as string) ?? ''} onChange={e => set(f.field, e.target.value)} maxLength={300} />
-            )}
-          </Field>
+          f.field === 'image_url' ? (
+            <ImageUploader
+              key={f.field}
+              value={(form[f.field] as string) ?? ''}
+              onChange={val => set(f.field, val)}
+              label={f.label}
+              helper="Upload image (JPG, PNG, WebP, GIF, max 5 MB)"
+            />
+          ) : (
+            <Field key={f.field} label={f.label}>
+              {f.type === 'textarea' ? (
+                <textarea value={(form[f.field] as string) ?? ''} onChange={e => set(f.field, e.target.value)} rows={4} />
+              ) : (
+                <input value={(form[f.field] as string) ?? ''} onChange={e => set(f.field, e.target.value)} maxLength={300} />
+              )}
+            </Field>
+          )
         ))}
         <div className="admin-form-actions" style={{ marginTop: '1rem' }}>
           <button type="submit" className="button button--primary" disabled={saving || !dirty}>

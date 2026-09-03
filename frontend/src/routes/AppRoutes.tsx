@@ -1,11 +1,11 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useParams } from 'react-router-dom'
 import { AdminLayout } from '../layouts/AdminLayout'
 import { PublicLayout } from '../layouts/PublicLayout'
 import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage'
 import { LoginPage } from '../pages/LoginPage'
 import { AdminRouteGuard } from './ProtectedRoute'
 import { HomePage } from '../pages/public/HomePage'
-import { AboutPage, AnnouncementsPage, ContactPage, DonatePage, EventsPage, GalleryPage, MinistriesPage, NotFoundPage, SermonsPage } from '../pages/public/PublicPages'
+import { AboutPage, AlbumDetailPage, AnnouncementsPage, ContactPage, DonatePage, EventsPage, GalleryPage, MinistriesPage, NotFoundPage, SermonsPage } from '../pages/public/PublicPages'
 import { MembersPage } from '../pages/admin/MembersPage'
 import { MemberDetailPage } from '../pages/admin/MemberDetailPage'
 import { AddMemberPage } from '../pages/admin/AddMemberPage'
@@ -18,7 +18,7 @@ import { ContentDashboard } from '../pages/admin/cms/ContentDashboard'
 import { EventsPage as AdminEventsPage, EventFormPage } from '../pages/admin/cms/EventsPage'
 import { AnnouncementsPage as AdminAnnouncementsPage, AnnouncementFormPage } from '../pages/admin/cms/AnnouncementsPage'
 import { SermonsPage as AdminSermonsPage, SermonFormPage } from '../pages/admin/cms/SermonsPage'
-import { GalleryPage as AdminGalleryPage, AlbumFormPage, AlbumDetailPage } from '../pages/admin/cms/GalleryPage'
+import { GalleryPage as AdminGalleryPage, AlbumFormPage, AlbumEditorPage } from '../pages/admin/cms/GalleryPage'
 import { ServiceTimesPage } from '../pages/admin/cms/ServiceTimesPage'
 import { HomepagePage } from '../pages/admin/cms/HomepagePage'
 import { AboutCmsPage } from '../pages/admin/cms/AboutCmsPage'
@@ -32,6 +32,11 @@ import { FinanceOverviewPage } from '../pages/admin/finance/FinanceOverviewPage'
 import { PaymentDetailPage } from '../pages/admin/finance/PaymentDetailPage'
 import { PaymentsPage } from '../pages/admin/finance/PaymentsPage'
 import { RecordPaymentPage } from '../pages/admin/finance/RecordPaymentPage'
+
+function AlbumEditRedirect() {
+  const { albumId } = useParams<{ albumId: string }>()
+  return <Navigate to={`/admin/content/gallery/${albumId}`} replace />
+}
 
 function DonationsPlaceholder() {
   return (
@@ -61,6 +66,7 @@ export function AppRoutes() {
         <Route path="/announcements" element={<AnnouncementsPage />} />
         <Route path="/sermons" element={<SermonsPage />} />
         <Route path="/gallery" element={<GalleryPage />} />
+        <Route path="/gallery/:albumId" element={<AlbumDetailPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/donate" element={<DonatePage />} />
         <Route path="*" element={<NotFoundPage />} />
@@ -83,14 +89,16 @@ export function AppRoutes() {
           <Route path="content/events/:eventId/edit" element={<EventFormPage />} />
           <Route path="content/announcements" element={<AdminAnnouncementsPage />} />
           <Route path="content/announcements/new" element={<AnnouncementFormPage />} />
+          <Route path="announcements/new" element={<AnnouncementFormPage />} />
           <Route path="content/announcements/:announcementId/edit" element={<AnnouncementFormPage />} />
           <Route path="content/sermons" element={<AdminSermonsPage />} />
           <Route path="content/sermons/new" element={<SermonFormPage />} />
           <Route path="content/sermons/:sermonId/edit" element={<SermonFormPage />} />
           <Route path="content/gallery" element={<AdminGalleryPage />} />
           <Route path="content/gallery/new" element={<AlbumFormPage />} />
-          <Route path="content/gallery/:albumId" element={<AlbumDetailPage />} />
-          <Route path="content/gallery/:albumId/edit" element={<AlbumFormPage />} />
+          <Route path="content/gallery/:albumId" element={<AlbumEditorPage />} />
+          {/* Redirect old /edit URL to the unified editor */}
+          <Route path="content/gallery/:albumId/edit" element={<AlbumEditRedirect />} />
           <Route path="content/service-times" element={<ServiceTimesPage />} />
 
           {/* Members */}

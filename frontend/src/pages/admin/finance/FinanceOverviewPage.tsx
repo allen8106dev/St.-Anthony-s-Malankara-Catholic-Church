@@ -69,7 +69,7 @@ export function FinanceOverviewPage() {
       {/* Quick Links / Sections */}
       <div className="finance-section-links">
         <div className="finance-quick-card">
-          <div>
+          <div className="finance-quick-card__content">
             <h3>Dues Management</h3>
             <p>Assign and track membership, feast, and maintenance contributions.</p>
           </div>
@@ -81,7 +81,7 @@ export function FinanceOverviewPage() {
         </div>
 
         <div className="finance-quick-card">
-          <div>
+          <div className="finance-quick-card__content">
             <h3>Payments & Receipts</h3>
             <p>Review recorded transactions, search payment history, and void errors.</p>
           </div>

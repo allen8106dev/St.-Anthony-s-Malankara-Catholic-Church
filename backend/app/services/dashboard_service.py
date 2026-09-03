@@ -31,7 +31,6 @@ def admin_dashboard(db: Session, include_finance: bool) -> AdminDashboard:
     active_announcements = db.scalar(
         select(func.count(Announcement.id)).where(
             Announcement.status == PublicationStatus.PUBLISHED,
-            Announcement.published_at <= now,
             (Announcement.expires_at.is_(None) | (Announcement.expires_at > now)),
         )
     ) or 0

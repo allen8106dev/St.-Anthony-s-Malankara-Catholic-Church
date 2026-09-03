@@ -1,10 +1,39 @@
 import { Link } from 'react-router-dom'
 import { Container } from '../../components/ui/Container'
 import { Reveal } from '../../components/animation/Reveal'
-import { usePublicEvents, usePublicServiceTimes, usePublicContent, usePublicSettings } from '../../hooks/usePublicContent'
-import { ministryPreviews, siteName } from '../../data/siteContent'
+import { usePublicEvents, usePublicServiceTimes, usePublicContent, usePublicSettings, usePublicAnnouncements } from '../../hooks/usePublicContent'
+import { demoImages, ministryPreviews, siteName } from '../../data/siteContent'
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+function AnnouncementTicker() {
+  const { data } = usePublicAnnouncements(10)
+  const items = data?.items ?? []
+  if (items.length === 0) return null
+
+  const displayItems = items.length < 3 ? [...items, ...items, ...items, ...items] : [...items, ...items]
+
+  return (
+    <div className="announcement-ticker" role="region" aria-label="Parish announcements">
+      <div className="announcement-ticker__viewport">
+        <div className="announcement-ticker__track">
+          {displayItems.map((item, idx) => (
+            <Link
+              key={`${item.id}-${idx}`}
+              to={`/announcements#announcement-${item.id}`}
+              className="announcement-ticker__item"
+              title={`View announcement: ${item.title}`}
+            >
+              <span className="announcement-ticker__badge">Announcement</span>
+              <span className="announcement-ticker__title">{item.title}</span>
+              <span className="announcement-ticker__sep" aria-hidden="true">✦</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export function HomePage() {
   const { data: eventsData } = usePublicEvents({ timeframe: 'upcoming', limit: 3 })
@@ -24,9 +53,7 @@ export function HomePage() {
 
   return <>
     <section className="hero">
-      {heroSection?.image_url && (
-        <img src={heroSection.image_url} alt="" className="hero__bg-img" aria-hidden="true" />
-      )}
+      <img src={heroSection?.image_url || demoImages.sanctuary.src} alt="" className="hero__bg-img" aria-hidden="true" />
       <div className="hero__art" aria-hidden="true" />
       <Container className="hero__content">
         <Reveal>
@@ -69,6 +96,8 @@ export function HomePage() {
       </Container>
     </section>
 
+    <AnnouncementTicker />
+
     <section className="section">
       <Container className="intro-grid">
         <Reveal>
@@ -82,10 +111,17 @@ export function HomePage() {
       </Container>
     </section>
 
+    <div className="marquee" aria-label="Welcome to the parish">
+      <div className="marquee__track"><span>Welcome to our parish</span><span aria-hidden="true">✦</span><span>Prayer · Community · Belonging</span><span aria-hidden="true">✦</span><span>Welcome to our parish</span><span aria-hidden="true">✦</span></div>
+    </div>
+
     <section className="section--tight">
       <Container>
         <Reveal>
-          <div className="photo-placeholder feature-image" role="img" aria-label="Parish photograph" />
+          <figure className="feature-image">
+            <img src={demoImages.gathering.src} alt={demoImages.gathering.alt} loading="lazy" />
+            <figcaption>Life shared in community</figcaption>
+          </figure>
         </Reveal>
       </Container>
     </section>
@@ -99,7 +135,7 @@ export function HomePage() {
           </div>
           <Link className="text-link" to="/events">View all events <span aria-hidden="true">→</span></Link>
         </div>
-        <div className="event-grid">
+        <div className="event-grid event-grid--track">
           {upcomingEvents.length > 0 ? (
             upcomingEvents.map((event, index) => (
               <Reveal key={event.id} delay={index * .07}>
@@ -130,7 +166,7 @@ export function HomePage() {
       <Container>
         <Reveal>
           <article className="sermon">
-            <div className="sermon__art photo-placeholder" role="img" aria-label="Sermon artwork" />
+            <div className="sermon__art"><img src={demoImages.prayer.src} alt="" loading="lazy" /></div>
             <div className="sermon__body">
               <p className="eyebrow">Latest message</p>
               <h2 className="heading">Messages that meet us where we are.</h2>
@@ -176,9 +212,9 @@ export function HomePage() {
         </div>
         <Reveal>
           <div className="gallery" aria-label="Parish photographs">
-            <div className="photo-placeholder" />
-            <div className="photo-placeholder" />
-            <div className="photo-placeholder" />
+            <img src={demoImages.sanctuary.src} alt={demoImages.sanctuary.alt} loading="lazy" />
+            <img src={demoImages.prayer.src} alt={demoImages.prayer.alt} loading="lazy" />
+            <img src={demoImages.community.src} alt={demoImages.community.alt} loading="lazy" />
           </div>
         </Reveal>
       </Container>
@@ -187,7 +223,7 @@ export function HomePage() {
     <section className="section--tight">
       <Container>
         <article className="visit">
-          <div className="visit__map" role="img" aria-label="Location" />
+          <div className="visit__map"><img src={demoImages.architecture.src} alt={demoImages.architecture.alt} loading="lazy" /></div>
           <div className="visit__body">
             <p className="eyebrow">Find your way</p>
             <h2 className="heading heading--small">{visitSection?.heading ?? "Come as you are."}</h2>

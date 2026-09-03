@@ -104,7 +104,7 @@ All CMS routes are under `/api/v1/admin/cms` and require a valid session with `c
 
 ### Media / image storage
 
-Images are stored as validated absolute `https://` URLs. No binary data is stored in PostgreSQL. File upload functionality is deferred to a future phase using Supabase Storage or equivalent. All image URL fields are validated to reject non-HTTP(S) schemes (e.g. `javascript:`, `data:`, `ftp:`).
+Images remain represented by validated absolute `https://` URLs in PostgreSQL, preserving existing records. Authenticated CMS image uploads are validated server-side and stored in the public Supabase Storage bucket configured by `SUPABASE_STORAGE_BUCKET`; the service-role key is backend-only. Create that bucket as public, restrict object creation to the service role, and do not expose the service-role key in Vite variables. Google OAuth uses the exact callback `GOOGLE_REDIRECT_URI`, and an administrator must be explicitly linked by setting `admin_users.auth_subject` to `google:<Google subject>`; email alone never authorizes an account. All image URL fields reject non-HTTP(S) schemes (e.g. `javascript:`, `data:`, `ftp:`).
 
 ### Audit logging
 

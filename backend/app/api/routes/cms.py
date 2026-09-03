@@ -1,7 +1,7 @@
 """CMS admin routes — all require content:manage permission."""
 import uuid
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from app.api.dependencies import DbSession, require_permission
 from app.auth.permissions import Permission
 from app.models.domain import AdminUser, EventStatus, PublicationStatus
@@ -17,9 +17,14 @@ from app.schemas.cms import (
     SettingRead, SettingUpsert,
 )
 from app.services import cms_service as svc
+from app.services.storage_service import upload_image
 
 router = APIRouter(prefix="/admin/cms")
 ContentManage = Annotated[AdminUser, Depends(require_permission(Permission.CONTENT_MANAGE))]
+
+@router.post("/uploads/image")
+async def upload_cms_image(_: ContentManage, file: UploadFile = File(...)):
+    return {"url": await upload_image(file)}
 
 
 # ── Dashboard ─────────────────────────────────────────────────────────────────
@@ -123,7 +128,10 @@ def get_announcement(ann_id: uuid.UUID, db: DbSession, _: ContentManage):
 def update_announcement(ann_id: uuid.UUID, data: AnnouncementUpdate, db: DbSession, actor: ContentManage):
     ann = svc.get_announcement(db, ann_id)
     if not ann: raise HTTPException(404, "Announcement not found.")
-    ann = svc.update_announcement(db, ann, data, actor)
+    try:
+        ann = svc.update_announcement(db, ann, data, actor)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
     db.commit(); db.refresh(ann)
     return ann
 
@@ -132,7 +140,10 @@ def update_announcement(ann_id: uuid.UUID, data: AnnouncementUpdate, db: DbSessi
 def publish_announcement(ann_id: uuid.UUID, db: DbSession, actor: ContentManage):
     ann = svc.get_announcement(db, ann_id)
     if not ann: raise HTTPException(404, "Announcement not found.")
-    ann = svc.set_announcement_status(db, ann, PublicationStatus.PUBLISHED, actor)
+    try:
+        ann = svc.set_announcement_status(db, ann, PublicationStatus.PUBLISHED, actor)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
     db.commit(); db.refresh(ann)
     return ann
 
@@ -292,6 +303,14 @@ def archive_album(album_id: uuid.UUID, db: DbSession, actor: ContentManage):
     svc.set_album_status(db, album, PublicationStatus.ARCHIVED, actor)
     db.commit()
     return svc.get_album(db, album_id)
+
+
+@router.delete("/gallery/{album_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_album(album_id: uuid.UUID, db: DbSession, actor: ContentManage):
+    album = svc.get_album(db, album_id)
+    if not album: raise HTTPException(404, "Album not found.")
+    svc.delete_album(db, album, actor)
+    db.commit()
 
 
 @router.post("/gallery/{album_id}/images", response_model=GalleryImageRead, status_code=status.HTTP_201_CREATED)

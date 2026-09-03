@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { demoImages, ministries } from '../../data/siteContent'
 import { Cta, EmptyPublicState, MinistryCard, PageHeader } from '../../components/public/PublicElements'
 import { Reveal } from '../../components/animation/Reveal'
 import { usePublicEvents, usePublicAnnouncements, usePublicSermons, usePublicGallery, usePublicSettings } from '../../hooks/usePublicContent'
+import { AnnouncementVisual } from '../../components/public/AnnouncementVisual'
 import type { PublicAlbum } from '../../hooks/usePublicContent'
 
 function safeGoogleMapsConfig(rawUrl: string | null) {
@@ -42,17 +43,25 @@ function GalleryLightboxPublic({ albums }: { albums: PublicAlbum[] }) {
   const images = albums.flatMap(a => a.images)
   const [selected, setSelected] = useState<number | null>(null)
   const closeBtn = useRef<HTMLButtonElement>(null)
+
   useEffect(() => {
     if (selected === null) return
-    closeBtn.current?.focus()
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    closeBtn.current?.focus({ preventScroll: true })
+
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setSelected(null)
       if (e.key === 'ArrowRight') setSelected(i => i === null ? null : (i + 1) % images.length)
       if (e.key === 'ArrowLeft') setSelected(i => i === null ? null : (i - 1 + images.length) % images.length)
     }
     window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
+    return () => {
+      document.body.style.overflow = prevOverflow
+      window.removeEventListener('keydown', handler)
+    }
   }, [selected, images.length])
+
   if (images.length === 0) return null
   return <>
     <div className="gallery-grid">{images.map((img, i) => <button className="gallery-image" type="button" key={img.id} onClick={() => setSelected(i)}><img src={img.image_url} alt={img.alt_text} loading="lazy" /></button>)}</div>
@@ -116,75 +125,30 @@ export function EventsPage() {
 }
 export function AnnouncementsPage() {
   const { data, isLoading } = usePublicAnnouncements(50)
+  const location = useLocation()
   const items = data?.items ?? []
-  const general = items.filter(a => a.type !== 'FUNERAL' && a.type !== 'MARRIAGE')
-  const funeralItems = items.filter(a => a.type === 'FUNERAL')
-  const marriageItems = items.filter(a => a.type === 'MARRIAGE')
-  const [featured, ...rest] = general
+
+  useEffect(() => {
+    if (location.hash && !isLoading && items.length > 0) {
+      const el = document.querySelector(location.hash)
+      if (el) {
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }, 120)
+      }
+    }
+  }, [location.hash, isLoading, items.length])
+
+  const renderGroup = (group: typeof items) => group.length > 0 && <div className="announcement-grid">{group.map((item, i) => <Reveal key={item.id} delay={i * .08}><AnnouncementVisual item={item} /></Reveal>)}</div>
   return <>
     <PageHeader eyebrow="Parish news" title="Notices, shared with care." intro="Current parish announcements." />
     <section className="section">
       <div className="container">
         {isLoading && <p role="status" style={{ color: 'var(--muted)' }}>Loading…</p>}
         {!isLoading && items.length === 0 && <EmptyPublicState title="No announcements" detail="Parish notices will appear here when published." />}
-        {featured && (
-          <article className="featured-note">
-            <p className="eyebrow">Featured · {featured.type}</p>
-            <h2 className="heading">{featured.title}</h2>
-            <p>{featured.description ?? ''}</p>
-          </article>
-        )}
-        <div className="announcement-grid">
-          {rest.map((item, i) => (
-            <Reveal key={item.id} delay={i * .08}>
-              <article className="announcement">
-                <p className="eyebrow">{item.type}{item.published_at ? ` · ${new Date(item.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}` : ''}</p>
-                <h3>{item.title}</h3>
-                <p>{item.description ?? ''}</p>
-              </article>
-            </Reveal>
-          ))}
-        </div>
+        {renderGroup(items)}
       </div>
     </section>
-    {funeralItems.length > 0 && (
-      <section className="section section--muted">
-        <div className="container">
-          <p className="eyebrow">Funeral &amp; Memorial Notices</p>
-          <h2 className="heading heading--small">Remembering our departed.</h2>
-          <div className="announcement-grid">
-            {funeralItems.map((item, i) => (
-              <Reveal key={item.id} delay={i * .08}>
-                <article className="announcement">
-                  <p className="eyebrow">{item.published_at ? new Date(item.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}</p>
-                  <h3>{item.title}</h3>
-                  <p>{item.description ?? ''}</p>
-                </article>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-    )}
-    {marriageItems.length > 0 && (
-      <section className="section">
-        <div className="container">
-          <p className="eyebrow">Marriages &amp; Weddings</p>
-          <h2 className="heading heading--small">Celebrating new beginnings.</h2>
-          <div className="announcement-grid">
-            {marriageItems.map((item, i) => (
-              <Reveal key={item.id} delay={i * .08}>
-                <article className="announcement">
-                  <p className="eyebrow">{item.published_at ? new Date(item.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}</p>
-                  <h3>{item.title}</h3>
-                  <p>{item.description ?? ''}</p>
-                </article>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-    )}
   </>
 }
 export function SermonsPage() {
@@ -238,7 +202,7 @@ export function SermonsPage() {
   </>
 }
 export function GalleryPage() {
-  const { data, isLoading } = usePublicGallery(20)
+  const { data, isLoading } = usePublicGallery(50)
   const items = data?.items ?? []
   return <>
     <PageHeader eyebrow="Gallery" title="Moments held close." intro="Parish photo albums." image={demoImages.architecture} />
@@ -248,20 +212,56 @@ export function GalleryPage() {
         {!isLoading && items.length === 0 && <EmptyPublicState title="No albums yet" detail="Parish photo albums will appear here when published." />}
         <div className="album-list">
           {items.map(album => (
-            <article key={album.id} className="album">
+            <Link key={album.id} to={`/gallery/${album.id}`} className="album" style={{ display: 'block', textDecoration: 'none' }}>
               {album.cover_image_url
                 ? <img src={album.cover_image_url} alt={album.title} loading="lazy" />
                 : <div style={{ position: 'absolute', inset: 0, background: 'var(--primary)' }} />}
               <div>
-                <p className="eyebrow">Album</p>
+                <p className="eyebrow">{album.images.length} photo{album.images.length !== 1 ? 's' : ''}</p>
                 <h2>{album.title}</h2>
-                <p>{album.description ?? ''}</p>
+                {album.description && <p>{album.description}</p>}
               </div>
-            </article>
+            </Link>
           ))}
         </div>
-        {items.some(a => a.images.length > 0) && (
-          <GalleryLightboxPublic albums={items} />
+      </div>
+    </section>
+  </>
+}
+
+export function AlbumDetailPage() {
+  const { albumId } = useParams<{ albumId: string }>()
+  const { data, isLoading } = usePublicGallery(50)
+  const album = data?.items.find(a => a.id === albumId)
+
+  return <>
+    <PageHeader
+      eyebrow="Album"
+      title={album?.title ?? 'Photo Album'}
+      intro={album?.description ?? 'Moments and memories from parish life.'}
+      image={album?.cover_image_url ? { src: album.cover_image_url, alt: album.title } : demoImages.architecture}
+    />
+    <section className="section">
+      <div className="container">
+        <div style={{ marginBottom: '2rem' }}>
+          <Link to="/gallery" className="text-link" style={{ fontSize: '.95rem' }}>
+            ← Back to Gallery
+          </Link>
+        </div>
+
+        {isLoading && <p role="status" style={{ color: 'var(--muted)' }}>Loading album…</p>}
+        {!isLoading && !album && (
+          <EmptyPublicState title="Album not found" detail="The requested album could not be found or has not been published." />
+        )}
+
+        {album && (
+          <>
+            {album.images.length === 0 ? (
+              <EmptyPublicState title="No photos yet" detail="Photos will appear here once added to this album." />
+            ) : (
+              <GalleryLightboxPublic albums={[album]} />
+            )}
+          </>
         )}
       </div>
     </section>

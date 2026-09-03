@@ -273,6 +273,17 @@ export function usePublishAlbum() {
   })
 }
 
+export function useDeleteAlbum() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => apiClient.delete(`${BASE}/gallery/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['cms', 'albums'] })
+      qc.invalidateQueries({ queryKey: cmsKeys.publicGallery })
+    },
+  })
+}
+
 export function useAddImage(albumId: string) {
   const qc = useQueryClient()
   return useMutation({
@@ -289,6 +300,15 @@ export function useRemoveImage(albumId: string) {
       qc.invalidateQueries({ queryKey: cmsKeys.album(albumId) })
       qc.invalidateQueries({ queryKey: cmsKeys.publicGallery })
     },
+  })
+}
+
+export function useReorderImage(albumId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ imageId, sort_order }: { imageId: string; sort_order: number }) =>
+      apiClient.patch(`${BASE}/gallery/${albumId}/images/${imageId}`, { sort_order }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: cmsKeys.album(albumId) }),
   })
 }
 

@@ -347,6 +347,22 @@ def test_create_album(client):
     assert data["images"] == []
 
 
+def test_delete_album(client):
+    tc, _ = client
+    login(tc)
+    album = tc.post("/api/v1/admin/cms/gallery", json={"title": "To Delete"}).json()
+    aid = album["id"]
+    tc.post(f"/api/v1/admin/cms/gallery/{aid}/images", json={
+        "image_url": "https://example.com/delete_test.jpg",
+        "alt_text": "Sample",
+        "sort_order": 0,
+    })
+    r = tc.delete(f"/api/v1/admin/cms/gallery/{aid}")
+    assert r.status_code == 204
+    get_r = tc.get(f"/api/v1/admin/cms/gallery/{aid}")
+    assert get_r.status_code == 404
+
+
 def test_add_and_remove_image(client):
     tc, _ = client
     login(tc)

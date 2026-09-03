@@ -14,12 +14,10 @@ def events(db: Session, offset: int, limit: int, timeframe: str | None, category
     elif timeframe == "past": stmt = stmt.where(Event.start_datetime < now)
     if category: stmt = stmt.where(Event.category == category)
     return paged(db, stmt.order_by(Event.start_datetime), offset, limit)
-def announcements(db: Session, offset: int, limit: int, announcement_types: list | None):
+def announcements(db: Session, offset: int, limit: int):
     now = datetime.now(timezone.utc)
-    stmt = select(Announcement).where(Announcement.status == PublicationStatus.PUBLISHED, Announcement.published_at <= now, (Announcement.expires_at.is_(None) | (Announcement.expires_at > now)))
-    if announcement_types:
-        stmt = stmt.where(Announcement.type.in_(announcement_types))
-    return paged(db, stmt.order_by(Announcement.published_at.desc()), offset, limit)
+    stmt = select(Announcement).where(Announcement.status == PublicationStatus.PUBLISHED, (Announcement.expires_at.is_(None) | (Announcement.expires_at > now)))
+    return paged(db, stmt.order_by(Announcement.created_at.desc()), offset, limit)
 def albums(db: Session, offset: int, limit: int): return paged(db, select(GalleryAlbum).options(selectinload(GalleryAlbum.images)).where(GalleryAlbum.status == PublicationStatus.PUBLISHED).order_by(GalleryAlbum.created_at.desc()), offset, limit)
 def sermons(db: Session, offset: int, limit: int, series_id, speaker: str | None):
     stmt = select(Sermon).where(Sermon.status == PublicationStatus.PUBLISHED)
