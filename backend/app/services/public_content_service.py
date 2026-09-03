@@ -19,6 +19,9 @@ def announcements(db: Session, offset: int, limit: int):
     stmt = select(Announcement).where(Announcement.status == PublicationStatus.PUBLISHED, (Announcement.expires_at.is_(None) | (Announcement.expires_at > now)))
     return paged(db, stmt.order_by(Announcement.created_at.desc()), offset, limit)
 def albums(db: Session, offset: int, limit: int): return paged(db, select(GalleryAlbum).options(selectinload(GalleryAlbum.images)).where(GalleryAlbum.status == PublicationStatus.PUBLISHED).order_by(GalleryAlbum.created_at.desc()), offset, limit)
+def album_by_id(db: Session, album_id):
+    from uuid import UUID
+    return db.scalar(select(GalleryAlbum).options(selectinload(GalleryAlbum.images)).where(GalleryAlbum.id == album_id, GalleryAlbum.status == PublicationStatus.PUBLISHED))
 def sermons(db: Session, offset: int, limit: int, series_id, speaker: str | None):
     stmt = select(Sermon).where(Sermon.status == PublicationStatus.PUBLISHED)
     if series_id: stmt = stmt.where(Sermon.series_id == series_id)

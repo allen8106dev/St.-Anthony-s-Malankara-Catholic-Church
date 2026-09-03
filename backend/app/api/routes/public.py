@@ -1,6 +1,6 @@
 from typing import Annotated, Literal
 from uuid import UUID
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 from app.api.dependencies import DbSession
 from app.schemas.public import PageMeta, PublicAnnouncement, PublicContent, PublicEvent, PublicGalleryAlbum, PublicSermon, PublicServiceTime, PublicSetting
 from app.services import public_content_service as service
@@ -19,6 +19,12 @@ def list_announcements(db: DbSession, offset: Offset = 0, limit: Limit = 20):
 @router.get("/gallery", response_model=dict)
 def list_gallery(db: DbSession, offset: Offset = 0, limit: Limit = 20):
     items, total = service.albums(db, offset, limit); return page([PublicGalleryAlbum.model_validate(x).model_dump() for x in items], total, offset, limit)
+@router.get("/gallery/{album_id}", response_model=PublicGalleryAlbum)
+def get_gallery_album(album_id: UUID, db: DbSession):
+    album = service.album_by_id(db, album_id)
+    if not album:
+        raise HTTPException(status_code=404, detail="Album not found")
+    return PublicGalleryAlbum.model_validate(album)
 @router.get("/sermons", response_model=dict)
 def list_sermons(db: DbSession, offset: Offset = 0, limit: Limit = 20, series_id: UUID | None = None, speaker: str | None = None):
     items, total = service.sermons(db, offset, limit, series_id, speaker); return page([PublicSermon.model_validate(x).model_dump() for x in items], total, offset, limit)

@@ -4,11 +4,11 @@ import {
   useAdminAlbums, useAdminAlbum, useCreateAlbum, useUpdateAlbum,
   usePublishAlbum, useDeleteAlbum, useAddImage, useRemoveImage, useReorderImage,
 } from '../../../hooks/useCms'
-import { CmsStatusBadge, PublishActions, UnsavedBanner, FormSection, Field } from '../../../components/admin/CmsShared'
+import { CmsStatusBadge, PublishActions, FormSection, Field } from '../../../components/admin/CmsShared'
 import { ConfirmDialog } from '../../../components/admin/AdminShared'
 import { ImageUploader } from '../../../components/admin/ImageUploader'
 import { apiClient } from '../../../services/apiClient'
-import type { AlbumPayload, GalleryImage } from '../../../types/cms'
+import type { AlbumPayload } from '../../../types/cms'
 
 // ── Album List ────────────────────────────────────────────────────────────────
 export function GalleryPage() {
@@ -155,7 +155,17 @@ export function AlbumFormPage() {
   )
 }
 
-// ── Upload queue item ──────────────────────────────────────────────────────────
+// ── Display image (existing or pending-add) ───────────────────────────────────
+interface DisplayImage {
+  id: string            // real DB id for existing; tempId for pending adds
+  image_url: string
+  alt_text: string
+  caption: string | null
+  sort_order: number
+  isPending?: true      // marks images not yet persisted to DB
+}
+
+// ── Upload queue item ─────────────────────────────────────────────────────────
 interface QueueItem {
   id: string
   file: File
@@ -167,31 +177,50 @@ interface QueueItem {
 // ── Unified Album Editor ───────────────────────────────────────────────────────
 export function AlbumEditorPage() {
   const { albumId } = useParams<{ albumId: string }>()
+  const navigate = useNavigate()
   const { data: album, isLoading } = useAdminAlbum(albumId)
   const update = useUpdateAlbum(albumId ?? '')
   const publish = usePublishAlbum()
+  const deleteAlbum = useDeleteAlbum()
   const addImage = useAddImage(albumId ?? '')
   const removeImage = useRemoveImage(albumId ?? '')
   const reorderImage = useReorderImage(albumId ?? '')
 
-  // ── Album form state
+  // ── Album metadata form state
   const [form, setForm] = useState<AlbumPayload>({ title: '', description: '', cover_image_url: '' })
   const [dirty, setDirty] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
   const [confirmPublish, setConfirmPublish] = useState<'publish' | 'unpublish' | 'archive' | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
   const titleFocusedRef = useRef(false)
 
+  // ── Local image display state (deferred — only flushed on Save)
+  const [displayImages, setDisplayImages] = useState<DisplayImage[]>([])
+  const [pendingRemoveIds, setPendingRemoveIds] = useState<Set<string>>(new Set())
+  const [pendingAdds, setPendingAdds] = useState<{ tempId: string; url: string; alt_text: string }[]>([])
+
+  // ── Upload queue (visual feedback only)
+  const [queue, setQueue] = useState<QueueItem[]>([])
+  const [imgDropOver, setImgDropOver] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [removeTarget, setRemoveTarget] = useState<string | null>(null)
+
+  // ── Drag-reorder refs
+  const dragSrcId = useRef<string | null>(null)
+
+  // Sync form + displayImages when album loads
   useEffect(() => {
     if (album) {
       setForm({ title: album.title, description: album.description ?? '', cover_image_url: album.cover_image_url ?? '' })
+      setDisplayImages([...album.images].sort((a, b) => a.sort_order - b.sort_order))
+      setPendingRemoveIds(new Set())
+      setPendingAdds([])
       setDirty(false)
       if (!titleFocusedRef.current && album.title === 'Untitled Album') {
         titleFocusedRef.current = true
-        setTimeout(() => {
-          titleInputRef.current?.focus()
-          titleInputRef.current?.select()
-        }, 50)
+        setTimeout(() => { titleInputRef.current?.focus(); titleInputRef.current?.select() }, 50)
       }
     }
   }, [album])
@@ -201,37 +230,13 @@ export function AlbumEditorPage() {
     setDirty(true)
   }
 
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault()
-    setSaveError('')
-    try {
-      await update.mutateAsync({
-        ...form,
-        description: form.description || null,
-        cover_image_url: form.cover_image_url || null,
-      })
-      setDirty(false)
-    } catch (err: unknown) {
-      setSaveError(err instanceof Error ? err.message : 'Failed to save.')
-    }
-  }
-
-  // ── Image drag-to-reorder state (local optimistic ordering)
-  const [orderedImages, setOrderedImages] = useState<GalleryImage[]>([])
-  const dragSrcId = useRef<string | null>(null)
-
-  useEffect(() => {
-    if (album) setOrderedImages([...album.images].sort((a, b) => a.sort_order - b.sort_order))
-  }, [album])
-
-  function handleDragStart(id: string) {
-    dragSrcId.current = id
-  }
+  // ── Drag-to-reorder (local only — flushed on Save)
+  function handleDragStart(id: string) { dragSrcId.current = id }
 
   function handleDragOver(e: DragEvent<HTMLDivElement>, targetId: string) {
     e.preventDefault()
     if (!dragSrcId.current || dragSrcId.current === targetId) return
-    setOrderedImages(prev => {
+    setDisplayImages(prev => {
       const srcIdx = prev.findIndex(i => i.id === dragSrcId.current)
       const tgtIdx = prev.findIndex(i => i.id === targetId)
       if (srcIdx === -1 || tgtIdx === -1) return prev
@@ -240,25 +245,12 @@ export function AlbumEditorPage() {
       next.splice(tgtIdx, 0, moved)
       return next
     })
+    setDirty(true)
   }
 
-  async function handleDrop() {
-    if (!dragSrcId.current) return
-    dragSrcId.current = null
-    // Persist new sort_order for every image based on current position
-    await Promise.all(
-      orderedImages.map((img, idx) =>
-        reorderImage.mutateAsync({ imageId: img.id, sort_order: idx })
-      )
-    )
-  }
+  function handleDrop() { dragSrcId.current = null }
 
-  // ── Multi-file upload queue
-  const [queue, setQueue] = useState<QueueItem[]>([])
-  const [imgDropOver, setImgDropOver] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const [removeTarget, setRemoveTarget] = useState<string | null>(null)
-
+  // ── Upload files: upload to storage immediately (to get URL), but queue add for Save
   const uploadFiles = useCallback(async (files: File[]) => {
     const imageFiles = files.filter(f => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(f.type))
     if (!imageFiles.length) return
@@ -278,12 +270,19 @@ export function AlbumEditorPage() {
         const { data } = await apiClient.post<{ url: string }>('/admin/cms/uploads/image', fd, {
           headers: { 'Content-Type': 'multipart/form-data' },
         })
-        await addImage.mutateAsync({
+        // Queue the add — do NOT call addImage.mutateAsync yet
+        const tempId = item.id
+        const newImg: DisplayImage = {
+          id: tempId,
           image_url: data.url,
           alt_text: item.file.name.replace(/\.[^.]+$/, ''),
           caption: null,
-          sort_order: orderedImages.length + items.indexOf(item),
-        })
+          sort_order: 0,
+          isPending: true,
+        }
+        setDisplayImages(prev => [...prev, newImg])
+        setPendingAdds(prev => [...prev, { tempId, url: data.url, alt_text: newImg.alt_text }])
+        setDirty(true)
         setQueue(prev => prev.map(q => q.id === item.id ? { ...q, status: 'done' } : q))
       } catch (err) {
         setQueue(prev => prev.map(q => q.id === item.id ? {
@@ -292,18 +291,81 @@ export function AlbumEditorPage() {
       }
     }))
 
-    // Auto-clear successful items after a short delay
     setTimeout(() => {
       setQueue(prev => prev.filter(q => q.status !== 'done'))
       items.forEach(i => URL.revokeObjectURL(i.preview))
     }, 1800)
-  }, [addImage, orderedImages.length])
+  }, [])
 
   function handleImgDrop(e: DragEvent<HTMLDivElement>) {
     e.preventDefault()
     setImgDropOver(false)
-    const files = Array.from(e.dataTransfer.files)
-    void uploadFiles(files)
+    void uploadFiles(Array.from(e.dataTransfer.files))
+  }
+
+  // ── Remove image (local only — flushed on Save)
+  function confirmRemove() {
+    if (!removeTarget) return
+    const img = displayImages.find(i => i.id === removeTarget)
+    if (!img) { setRemoveTarget(null); return }
+    if (img.isPending) {
+      // Not yet in DB — just remove from local state
+      setPendingAdds(prev => prev.filter(a => a.tempId !== removeTarget))
+    } else {
+      // Existing DB image — mark for deletion on Save
+      setPendingRemoveIds(prev => new Set([...prev, removeTarget]))
+    }
+    setDisplayImages(prev => prev.filter(i => i.id !== removeTarget))
+    setDirty(true)
+    setRemoveTarget(null)
+  }
+
+  // ── Save: persist all queued changes
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault()
+    setSaveError('')
+    setSaving(true)
+    try {
+      // 1. Save album metadata
+      await update.mutateAsync({
+        ...form,
+        description: form.description || null,
+        cover_image_url: form.cover_image_url || null,
+      })
+
+      // 2. Remove pending removes
+      for (const id of pendingRemoveIds) {
+        await removeImage.mutateAsync(id)
+      }
+
+      // 3. Add pending adds — collect tempId → real ID mapping
+      const tempToReal = new Map<string, string>()
+      for (const add of pendingAdds) {
+        const result = await addImage.mutateAsync({
+          image_url: add.url,
+          alt_text: add.alt_text,
+          caption: null,
+          sort_order: 0,
+        })
+        tempToReal.set(add.tempId, result.id)
+      }
+
+      // 4. Persist final sort order for all remaining images
+      const finalOrder = displayImages
+        .filter(img => !pendingRemoveIds.has(img.id))
+        .map(img => img.isPending ? tempToReal.get(img.id) ?? img.id : img.id)
+
+      await Promise.all(finalOrder.map((id, idx) => reorderImage.mutateAsync({ imageId: id, sort_order: idx })))
+
+      // 5. Clear pending state
+      setPendingRemoveIds(new Set())
+      setPendingAdds([])
+      setDirty(false)
+    } catch (err: unknown) {
+      setSaveError(err instanceof Error ? err.message : 'Failed to save.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (isLoading) return <p role="status">Loading…</p>
@@ -311,12 +373,13 @@ export function AlbumEditorPage() {
 
   return (
     <div>
+      {/* ── Header: all action buttons in one row ── */}
       <div className="admin-page-header">
         <div>
           <h1>{album.title}</h1>
           <CmsStatusBadge status={album.status} />
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '.65rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem', flexWrap: 'wrap' }}>
           <PublishActions
             status={album.status}
             onPublish={() => setConfirmPublish('publish')}
@@ -325,13 +388,21 @@ export function AlbumEditorPage() {
             loading={publish.isPending}
           />
           <Link to="/admin/content/gallery" className="button button--outline">← All Albums</Link>
+          <button
+            type="button"
+            className="button button--ghost"
+            style={{ color: '#dc2626' }}
+            onClick={() => setConfirmDelete(true)}
+          >
+            Delete
+          </button>
         </div>
       </div>
 
-      <UnsavedBanner dirty={dirty} />
+      {dirty && <div className="cms-unsaved-banner" role="status">You have unsaved changes — click Save Changes to apply.</div>}
 
       <div className="gallery-editor-layout">
-        {/* ── Left: album metadata form ────────────────────────────── */}
+        {/* ── Left: album metadata form ── */}
         <div className="gallery-editor-form">
           <form className="cms-form" onSubmit={handleSave}>
             <FormSection title="Album details">
@@ -352,18 +423,18 @@ export function AlbumEditorPage() {
             {saveError && <p className="admin-form-error" role="alert">{saveError}</p>}
 
             <div className="admin-form-actions">
-              <button type="submit" className="button button--primary" disabled={update.isPending || !dirty}>
-                {update.isPending ? 'Saving…' : 'Save Changes'}
+              <button type="submit" className="button button--primary" disabled={saving || !dirty}>
+                {saving ? 'Saving…' : 'Save Changes'}
               </button>
             </div>
           </form>
         </div>
 
-        {/* ── Right: image upload + drag-reorder panel ─────────────── */}
+        {/* ── Right: image upload + drag-reorder panel ── */}
         <div className="gallery-upload-panel">
           <h3 className="gallery-upload-panel__title">
             Images
-            <span className="gallery-upload-panel__count">{orderedImages.length}</span>
+            <span className="gallery-upload-panel__count">{displayImages.length}</span>
           </h3>
 
           {/* Drop zone */}
@@ -417,12 +488,12 @@ export function AlbumEditorPage() {
           )}
 
           {/* Image grid — drag to reorder */}
-          {orderedImages.length > 0 ? (
+          {displayImages.length > 0 ? (
             <div className="gallery-image-grid" onDrop={handleDrop} onDragOver={e => e.preventDefault()}>
-              {orderedImages.map((img, idx) => (
+              {displayImages.map((img, idx) => (
                 <div
                   key={img.id}
-                  className="gallery-image-card"
+                  className={`gallery-image-card${img.isPending ? ' gallery-image-card--pending' : ''}`}
                   draggable
                   onDragStart={() => handleDragStart(img.id)}
                   onDragOver={e => handleDragOver(e, img.id)}
@@ -433,6 +504,7 @@ export function AlbumEditorPage() {
                   </span>
                   <div className="gallery-image-card__drag-handle" aria-hidden="true">⠿</div>
                   <img src={img.image_url} alt={img.alt_text} className="gallery-image-card__img" />
+                  {img.isPending && <span className="gallery-image-card__pending-badge">Unsaved</span>}
                   {img.alt_text && (
                     <div className="gallery-image-card__meta">
                       <span>{img.alt_text}</span>
@@ -454,13 +526,13 @@ export function AlbumEditorPage() {
         </div>
       </div>
 
-      {/* Confirm remove */}
+      {/* Confirm remove image */}
       {removeTarget && (
         <ConfirmDialog
           title="Remove image?"
-          message="This image will be permanently removed from the album."
+          message="This image will be removed. Click Save Changes to apply."
           confirmLabel="Remove"
-          onConfirm={() => void removeImage.mutateAsync(removeTarget).then(() => setRemoveTarget(null))}
+          onConfirm={confirmRemove}
           onCancel={() => setRemoveTarget(null)}
         />
       )}
@@ -477,6 +549,17 @@ export function AlbumEditorPage() {
           confirmLabel={confirmPublish.charAt(0).toUpperCase() + confirmPublish.slice(1)}
           onConfirm={() => void publish.mutateAsync({ id: albumId!, action: confirmPublish }).then(() => setConfirmPublish(null))}
           onCancel={() => setConfirmPublish(null)}
+        />
+      )}
+
+      {/* Confirm delete album */}
+      {confirmDelete && (
+        <ConfirmDialog
+          title="Delete Album?"
+          message={`Are you sure you want to delete "${album.title}"? All images inside it will also be deleted. This cannot be undone.`}
+          confirmLabel="Delete Album"
+          onConfirm={() => void deleteAlbum.mutateAsync(albumId!).then(() => navigate('/admin/content/gallery'))}
+          onCancel={() => setConfirmDelete(false)}
         />
       )}
     </div>

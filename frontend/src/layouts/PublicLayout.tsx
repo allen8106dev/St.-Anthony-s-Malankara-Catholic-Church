@@ -12,11 +12,19 @@ const pageMeta: Record<string, { title: string; description: string }> = {
   '/contact': { title: 'Visit & contact', description: 'Plan a visit or contact the parish.' }, '/donate': { title: 'Give', description: 'Learn about future giving opportunities.' },
 }
 
+function getPageMeta(pathname: string): { title: string; description: string } {
+  if (pageMeta[pathname]) return pageMeta[pathname]
+  if (pathname.startsWith('/gallery/')) return { title: 'Photo Album', description: 'Explore parish moments.' }
+  if (pathname.startsWith('/events/')) return { title: 'Event Details', description: 'Discover upcoming parish events.' }
+  if (pathname.startsWith('/sermons/')) return { title: 'Message', description: 'Browse reflections and messages.' }
+  return { title: 'Page not found', description: 'The requested page is unavailable.' }
+}
+
 export function PublicLayout() {
   const location = useLocation()
 
   useEffect(() => {
-    const meta = pageMeta[location.pathname] ?? { title: 'Page not found', description: 'The requested page is unavailable.' }
+    const meta = getPageMeta(location.pathname)
     document.title = `${meta.title} | St. Anthony's Malankara Catholic Church`
     document.querySelector('meta[name="description"]')?.setAttribute('content', meta.description)
     if (!location.hash) window.scrollTo({ top: 0, left: 0, behavior: 'auto' })

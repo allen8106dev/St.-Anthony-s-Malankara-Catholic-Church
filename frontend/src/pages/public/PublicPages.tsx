@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { demoImages, ministries } from '../../data/siteContent'
 import { Cta, EmptyPublicState, MinistryCard, PageHeader } from '../../components/public/PublicElements'
 import { Reveal } from '../../components/animation/Reveal'
-import { usePublicEvents, usePublicAnnouncements, usePublicSermons, usePublicGallery, usePublicSettings } from '../../hooks/usePublicContent'
+import { usePublicEvents, usePublicAnnouncements, usePublicSermons, usePublicGallery, usePublicAlbum, usePublicSettings } from '../../hooks/usePublicContent'
 import { AnnouncementVisual } from '../../components/public/AnnouncementVisual'
 import type { PublicAlbum } from '../../hooks/usePublicContent'
 
@@ -65,7 +66,13 @@ function GalleryLightboxPublic({ albums }: { albums: PublicAlbum[] }) {
   if (images.length === 0) return null
   return <>
     <div className="gallery-grid">{images.map((img, i) => <button className="gallery-image" type="button" key={img.id} onClick={() => setSelected(i)}><img src={img.image_url} alt={img.alt_text} loading="lazy" /></button>)}</div>
-    {selected !== null && <div className="lightbox" role="dialog" aria-modal="true" aria-label="Image preview" onMouseDown={() => setSelected(null)}><button ref={closeBtn} className="lightbox__close" type="button" onClick={() => setSelected(null)}>Close <span aria-hidden="true">×</span></button><img src={images[selected].image_url} alt={images[selected].alt_text} onMouseDown={e => e.stopPropagation()} /></div>}
+    {selected !== null && createPortal(
+      <div className="lightbox" role="dialog" aria-modal="true" aria-label="Image preview" onMouseDown={() => setSelected(null)}>
+        <button ref={closeBtn} className="lightbox__close" type="button" onClick={() => setSelected(null)}>Close <span aria-hidden="true">×</span></button>
+        <img src={images[selected].image_url} alt={images[selected].alt_text} onMouseDown={e => e.stopPropagation()} />
+      </div>,
+      document.body
+    )}
   </>
 }
 
@@ -231,8 +238,15 @@ export function GalleryPage() {
 
 export function AlbumDetailPage() {
   const { albumId } = useParams<{ albumId: string }>()
-  const { data, isLoading } = usePublicGallery(50)
-  const album = data?.items.find(a => a.id === albumId)
+  const { data: album, isLoading, isError } = usePublicAlbum(albumId)
+
+  useEffect(() => {
+    if (album?.title) {
+      document.title = `${album.title} | St. Anthony's Malankara Catholic Church`
+    } else if (isError) {
+      document.title = `Album Not Found | St. Anthony's Malankara Catholic Church`
+    }
+  }, [album?.title, isError])
 
   return <>
     <PageHeader
@@ -250,7 +264,7 @@ export function AlbumDetailPage() {
         </div>
 
         {isLoading && <p role="status" style={{ color: 'var(--muted)' }}>Loading album…</p>}
-        {!isLoading && !album && (
+        {!isLoading && isError && (
           <EmptyPublicState title="Album not found" detail="The requested album could not be found or has not been published." />
         )}
 

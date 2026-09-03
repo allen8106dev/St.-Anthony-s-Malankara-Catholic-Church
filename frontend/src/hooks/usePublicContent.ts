@@ -48,6 +48,15 @@ export function usePublicGallery(limit = 20) {
   })
 }
 
+export function usePublicAlbum(albumId: string | undefined) {
+  return useQuery({
+    queryKey: ['public', 'gallery', 'album', albumId],
+    queryFn: () => apiClient.get<PublicAlbum>(`/public/gallery/${albumId}`).then(r => r.data),
+    enabled: !!albumId,
+    staleTime: 60_000,
+  })
+}
+
 export function usePublicSermons(limit = 20) {
   return useQuery({
     queryKey: ['public', 'sermons', limit],

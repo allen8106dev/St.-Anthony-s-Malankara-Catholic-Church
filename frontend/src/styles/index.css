@@ -517,8 +517,6 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
 .status-overdue { color: #991b1b; background: #fef2f2; border: 1px solid #fecaca; }
 .status-waived, .status-other { color: #6b21a8; background: #faf5ff; border: 1px solid #e9d5ff; }
 .payment-method-badge { background: #f8fafc; border: 1px solid var(--admin-border); color: var(--admin-text-muted); font-size: .72rem; }
-.cms-publish-actions { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: .5rem; }
-
 /* Admin Pagination - Smooth Geometry */
 .admin-pagination { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; font-size: .88rem; color: var(--admin-text-muted); }
 .admin-pagination-controls { display: flex; gap: .4rem; }
@@ -638,7 +636,7 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
 .cms-sidebar-section:last-child { border-bottom: 0; }
 .cms-sidebar-section h3 { margin: 0 0 .75rem; font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--admin-text-muted); }
 .cms-sidebar-status { margin: 0 0 .85rem; font-size: .9rem; color: var(--admin-text); }
-.cms-publish-actions { display: flex; flex-direction: column; gap: .6rem; }
+.cms-publish-actions { display: inline-flex; flex-direction: row; align-items: center; gap: .6rem; flex-wrap: wrap; }
 .cms-archive-btn { color: #dc2626!important; }
 .cms-unsaved-banner { padding: .75rem 1.15rem; margin-bottom: 1.25rem; background: #fefce8; border: 1px solid #fef08a; border-radius: var(--admin-radius-input); font-size: .88rem; color: #854d0e; font-weight: 500; }
 
@@ -683,6 +681,10 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
 .cms-image-item__caption { display: block; color: var(--admin-text-muted); font-size: .78rem; margin-top: .15rem; }
 .cms-image-item__remove { position: absolute; top: .45rem; right: .45rem; width: 1.8rem; height: 1.8rem; border: 0; border-radius: 50%; background: rgba(220, 38, 38, 0.9); color: #fff; font-size: 1.1rem; line-height: 1; cursor: pointer; display: grid; place-items: center; transition: transform .15s ease, background-color .15s ease; }
 .cms-image-item__remove:hover { transform: scale(1.1); background: #b91c1c; }
+
+/* Publish Actions side-by-side flex layout */
+.cms-publish-actions { display: inline-flex !important; flex-direction: row !important; align-items: center !important; gap: 0.5rem !important; flex-wrap: nowrap !important; }
+.cms-publish-actions .button { margin: 0 !important; white-space: nowrap !important; }
 
 /* ── Unified Gallery Album Editor ───────────────────────────────────────── */
 .gallery-editor-layout { display: grid; grid-template-columns: 22rem 1fr; gap: 2rem; align-items: start; }
@@ -729,8 +731,9 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
 .gallery-image-card__drag-handle { position: absolute; top: .35rem; left: 2.75rem; width: 1.5rem; height: 1.5rem; border-radius: .35rem; background: rgba(15,23,42,.65); color: #fff; display: grid; place-items: center; font-size: .9rem; line-height: 1; pointer-events: none; opacity: 0; transition: opacity .15s ease; z-index: 2; }
 .gallery-image-card:hover .gallery-image-card__drag-handle { opacity: 1; }
 .gallery-image-card__remove { position: absolute; top: .35rem; right: .35rem; width: 1.6rem; height: 1.6rem; border: 0; border-radius: 50%; background: rgba(220, 38, 38, 0.85); color: #fff; font-size: 1rem; line-height: 1; cursor: pointer; display: grid; place-items: center; transition: transform .15s ease, background-color .15s ease; opacity: 0; z-index: 2; }
-.gallery-image-card:hover .gallery-image-card__remove { opacity: 1; }
 .gallery-image-card__remove:hover { transform: scale(1.12); background: #b91c1c; }
+.gallery-image-card--pending { border: 2px dashed #f59e0b; }
+.gallery-image-card__pending-badge { position: absolute; bottom: .35rem; left: .35rem; background: #f59e0b; color: #ffffff; font-size: .65rem; font-weight: 700; text-transform: uppercase; padding: .1rem .4rem; border-radius: 4px; z-index: 2; }
 
 /* Announcement visual preview card in editor */
 .cms-preview-panel { position: sticky; top: 1.5rem; padding: 1.35rem; background: #ffffff; border: 1px solid var(--admin-border); border-radius: var(--admin-radius-card); box-shadow: var(--admin-shadow-card); }
