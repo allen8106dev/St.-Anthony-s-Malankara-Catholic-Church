@@ -10,7 +10,9 @@ class Settings(BaseSettings):
     ALEMBIC_DATABASE_URL: str | None = None
     SECRET_KEY: str
     CORS_ORIGINS: str = "http://localhost:5173"
+    CORS_ORIGIN_REGEX: str | None = None
     COOKIE_SECURE: bool = False
+    COOKIE_SAMESITE: str | None = None
     SESSION_COOKIE_NAME: str = "church_admin_session"
     SESSION_EXPIRE_MINUTES: int = 480
     GOOGLE_CLIENT_ID: str | None = None
@@ -28,7 +30,30 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins(self) -> list[str]:
-        return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
+        raw_val = self.CORS_ORIGINS.strip()
+        origins: list[str] = []
+        items = raw_val.strip("[]").split(",") if raw_val else []
+        for origin in items:
+            cleaned = origin.strip().strip("'\"").rstrip("/")
+            if cleaned and cleaned not in origins:
+                origins.append(cleaned)
+        if self.FRONTEND_URL:
+            fe = self.FRONTEND_URL.strip().strip("'\"").rstrip("/")
+            if fe and fe not in origins:
+                origins.append(fe)
+        return origins
+
+    @property
+    def cookie_secure(self) -> bool:
+        return self.COOKIE_SECURE or self.is_production
+
+    @property
+    def cookie_samesite(self) -> str:
+        if self.COOKIE_SAMESITE:
+            val = self.COOKIE_SAMESITE.strip().strip("'\"").lower()
+            if val in ("lax", "strict", "none"):
+                return val
+        return "none" if self.cookie_secure else "lax"
 
     @property
     def migration_database_url(self) -> str:
@@ -42,6 +67,8 @@ class Settings(BaseSettings):
     def production_security(self):
         if "*" in self.cors_origins:
             raise ValueError("CORS_ORIGINS must not contain '*' when credentialed cookies are enabled.")
+        if self.cookie_samesite == "none" and not self.cookie_secure:
+            raise ValueError("COOKIE_SAMESITE='none' requires COOKIE_SECURE=true.")
         if self.is_production and (not self.COOKIE_SECURE or self.SECRET_KEY.startswith("replace-with-")):
             raise ValueError("Production requires a non-placeholder secret and COOKIE_SECURE=true.")
         return self

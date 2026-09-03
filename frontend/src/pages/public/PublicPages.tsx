@@ -240,14 +240,6 @@ export function AlbumDetailPage() {
   const { albumId } = useParams<{ albumId: string }>()
   const { data: album, isLoading, isError } = usePublicAlbum(albumId)
 
-  useEffect(() => {
-    if (album?.title) {
-      document.title = `${album.title} | St. Anthony's Malankara Catholic Church`
-    } else if (isError) {
-      document.title = `Album Not Found | St. Anthony's Malankara Catholic Church`
-    }
-  }, [album?.title, isError])
-
   return <>
     <PageHeader
       eyebrow="Album"

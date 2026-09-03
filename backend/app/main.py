@@ -7,5 +7,12 @@ from app.core.exceptions import application_exception_handler
 
 app = FastAPI(title=settings.PROJECT_NAME, openapi_url="/api/v1/openapi.json")
 app.add_exception_handler(Exception, application_exception_handler)
-app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_origin_regex=settings.CORS_ORIGIN_REGEX,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(api_router, prefix="/api/v1")

@@ -42,13 +42,13 @@ def login(data: LoginRequest, request: Request, response: Response, db: DbSessio
     admin.last_login_at = datetime.now(UTC)
     token = create_session(db, admin)
     db.commit()
-    response.set_cookie(settings.SESSION_COOKIE_NAME, token, httponly=True, secure=settings.COOKIE_SECURE or settings.is_production, samesite="lax", max_age=settings.SESSION_EXPIRE_MINUTES * 60, path="/")
+    response.set_cookie(settings.SESSION_COOKIE_NAME, token, httponly=True, secure=settings.cookie_secure, samesite=settings.cookie_samesite, max_age=settings.SESSION_EXPIRE_MINUTES * 60, path="/")
     return _read_admin(admin)
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 def logout(request: Request, response: Response, db: DbSession):
     revoke_session(db, request.cookies.get(settings.SESSION_COOKIE_NAME)); db.commit()
-    response.delete_cookie(settings.SESSION_COOKIE_NAME, path="/")
+    response.delete_cookie(settings.SESSION_COOKIE_NAME, path="/", httponly=True, secure=settings.cookie_secure, samesite=settings.cookie_samesite)
 
 @router.get("/me", response_model=AdminUserRead)
 def me(admin: CurrentAdmin): return _read_admin(admin)
@@ -79,6 +79,6 @@ async def google_callback(request: Request, response: Response, db: DbSession):
     admin.last_login_at = datetime.now(UTC)
     session_token = create_session(db, admin)
     db.commit()
-    redirect = RedirectResponse(f"{settings.FRONTEND_URL}/admin", status_code=303)
-    redirect.set_cookie(settings.SESSION_COOKIE_NAME, session_token, httponly=True, secure=settings.COOKIE_SECURE or settings.is_production, samesite="lax", max_age=settings.SESSION_EXPIRE_MINUTES * 60, path="/")
+    redirect = RedirectResponse(f"{settings.FRONTEND_URL.rstrip('/')}/admin", status_code=303)
+    redirect.set_cookie(settings.SESSION_COOKIE_NAME, session_token, httponly=True, secure=settings.cookie_secure, samesite=settings.cookie_samesite, max_age=settings.SESSION_EXPIRE_MINUTES * 60, path="/")
     return redirect
