@@ -8,7 +8,7 @@ const pageMeta: Record<string, { title: string; description: string }> = {
   '/': { title: "St. Anthony's Malankara Catholic Church", description: 'A welcoming online home for prayer, community, and parish life.' },
   '/about': { title: 'About', description: 'Learn about the parish.' }, '/ministries': { title: 'Ministries', description: 'Explore parish ministries.' },
   '/events': { title: 'Events', description: 'Discover upcoming parish events.' }, '/announcements': { title: 'Announcements', description: 'Read parish announcements.' },
-  '/sermons': { title: 'Messages', description: 'Browse reflections and messages.' }, '/gallery': { title: 'Gallery', description: 'Explore parish moments.' },
+  '/gallery': { title: 'Gallery', description: 'Explore parish moments.' },
   '/contact': { title: 'Visit & contact', description: 'Plan a visit or contact the parish.' }, '/donate': { title: 'Give', description: 'Learn about future giving opportunities.' },
 }
 
@@ -16,7 +16,6 @@ function getPageMeta(pathname: string): { title: string; description: string } {
   if (pageMeta[pathname]) return pageMeta[pathname]
   if (pathname.startsWith('/gallery/')) return { title: 'Photo Album', description: 'Explore parish moments.' }
   if (pathname.startsWith('/events/')) return { title: 'Event Details', description: 'Discover upcoming parish events.' }
-  if (pathname.startsWith('/sermons/')) return { title: 'Message', description: 'Browse reflections and messages.' }
   return { title: 'Page not found', description: 'The requested page is unavailable.' }
 }
 

@@ -2,7 +2,7 @@ from typing import Annotated, Literal
 from uuid import UUID
 from fastapi import APIRouter, HTTPException, Query
 from app.api.dependencies import DbSession
-from app.schemas.public import PageMeta, PublicAnnouncement, PublicContent, PublicEvent, PublicGalleryAlbum, PublicSermon, PublicServiceTime, PublicSetting
+from app.schemas.public import PageMeta, PublicAnnouncement, PublicContent, PublicEvent, PublicGalleryAlbum, PublicServiceTime, PublicSetting
 from app.services import public_content_service as service
 
 router = APIRouter(prefix="/public")
@@ -25,9 +25,6 @@ def get_gallery_album(album_id: UUID, db: DbSession):
     if not album:
         raise HTTPException(status_code=404, detail="Album not found")
     return PublicGalleryAlbum.model_validate(album)
-@router.get("/sermons", response_model=dict)
-def list_sermons(db: DbSession, offset: Offset = 0, limit: Limit = 20, series_id: UUID | None = None, speaker: str | None = None):
-    items, total = service.sermons(db, offset, limit, series_id, speaker); return page([PublicSermon.model_validate(x).model_dump() for x in items], total, offset, limit)
 @router.get("/content", response_model=list[PublicContent])
 def list_content(db: DbSession, page: str | None = None): return service.content(db, page)
 @router.get("/settings", response_model=list[PublicSetting])

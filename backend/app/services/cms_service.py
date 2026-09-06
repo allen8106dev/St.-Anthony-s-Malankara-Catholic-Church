@@ -7,13 +7,13 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.models.domain import (
     AdminUser, Announcement, AuditLog, Event, EventStatus,
-    GalleryAlbum, GalleryImage, PageContent, PublicationStatus, Sermon,
-    SermonSeries, ServiceTime, SiteSetting,
+    GalleryAlbum, GalleryImage, PageContent, PublicationStatus,
+    ServiceTime, SiteSetting,
 )
 from app.schemas.cms import (
     AlbumCreate, AlbumUpdate, AnnouncementCreate, AnnouncementUpdate,
     EventCreate, EventUpdate, GalleryImageCreate, GalleryImageUpdate,
-    PageContentUpdate, SermonCreate, SermonSeriesCreate, SermonUpdate,
+    PageContentUpdate,
     ServiceTimeCreate, ServiceTimeUpdate, SettingUpsert,
 )
 
@@ -46,7 +46,6 @@ def dashboard(db: Session) -> dict:
                 (Announcement.expires_at.is_(None) | (Announcement.expires_at > now)),
             )
         ) or 0,
-        "total_sermons": db.scalar(select(func.count(Sermon.id))) or 0,
         "gallery_albums": db.scalar(select(func.count(GalleryAlbum.id))) or 0,
         "service_times": db.scalar(select(func.count(ServiceTime.id)).where(ServiceTime.is_active.is_(True))) or 0,
     }
@@ -151,60 +150,6 @@ def _validate_announcement_for_publish(title: str | None, image_url: str | None,
     if not image_url:
         raise ValueError("Image is required to publish an announcement.")
     _validate_expiry(expires_at, datetime.now(timezone.utc))
-
-
-# ── Sermons ───────────────────────────────────────────────────────────────────
-def list_sermon_series(db: Session) -> list[SermonSeries]:
-    return db.scalars(select(SermonSeries).order_by(SermonSeries.title)).all()
-
-
-def create_sermon_series(db: Session, data: SermonSeriesCreate, actor: AdminUser) -> SermonSeries:
-    series = SermonSeries(**data.model_dump())
-    db.add(series)
-    db.flush()
-    _audit(db, actor, "content.series.created", "sermon_series", str(series.id), {"title": series.title})
-    return series
-
-
-def list_sermons(db: Session, page: int, page_size: int, search: str | None, status: PublicationStatus | None, series_id: uuid.UUID | None):
-    stmt = select(Sermon).options(selectinload(Sermon.series))
-    if search:
-        stmt = stmt.where(Sermon.title.ilike(f"%{search}%"))
-    if status:
-        stmt = stmt.where(Sermon.status == status)
-    if series_id:
-        stmt = stmt.where(Sermon.series_id == series_id)
-    stmt = stmt.order_by(Sermon.date.desc())
-    return _paged(db, stmt, page, page_size)
-
-
-def get_sermon(db: Session, sermon_id: uuid.UUID) -> Sermon | None:
-    return db.scalar(select(Sermon).options(selectinload(Sermon.series)).where(Sermon.id == sermon_id))
-
-
-def create_sermon(db: Session, data: SermonCreate, actor: AdminUser) -> Sermon:
-    sermon = Sermon(**data.model_dump(), slug=_slug(data.title))
-    db.add(sermon)
-    db.flush()
-    _audit(db, actor, "content.sermon.created", "sermon", str(sermon.id), {"title": sermon.title})
-    return sermon
-
-
-def update_sermon(db: Session, sermon: Sermon, data: SermonUpdate, actor: AdminUser) -> Sermon:
-    changes = data.model_dump(exclude_unset=True)
-    for k, v in changes.items():
-        setattr(sermon, k, v)
-    db.flush()
-    _audit(db, actor, "content.sermon.updated", "sermon", str(sermon.id), {"fields": list(changes)})
-    return sermon
-
-
-def set_sermon_status(db: Session, sermon: Sermon, status: PublicationStatus, actor: AdminUser) -> Sermon:
-    old = sermon.status
-    sermon.status = status
-    db.flush()
-    _audit(db, actor, f"content.sermon.{status.value.lower()}", "sermon", str(sermon.id), {"from": old, "to": status})
-    return sermon
 
 
 # ── Gallery ───────────────────────────────────────────────────────────────────

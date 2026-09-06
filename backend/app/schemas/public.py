@@ -22,8 +22,6 @@ class PublicGalleryImage(PublicModel):
     id: UUID; image_url: str; alt_text: str; caption: str | None; sort_order: int
 class PublicGalleryAlbum(PublicModel):
     id: UUID; title: str; description: str | None; cover_image_url: str | None; images: list[PublicGalleryImage] = []
-class PublicSermon(PublicModel):
-    id: UUID; slug: str; title: str; speaker_name: str | None; date: date; scripture_reference: str | None; description: str | None; video_url: str | None; thumbnail_url: str | None
 class PublicContent(PublicModel):
     page: str; section: str; heading: str | None; body: str | None; image_url: str | None
 class PublicSetting(PublicModel): key: str; value: str

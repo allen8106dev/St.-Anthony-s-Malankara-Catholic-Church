@@ -5,7 +5,6 @@ export interface CmsDashboard {
   published_events: number
   draft_events: number
   active_announcements: number
-  total_sermons: number
   gallery_albums: number
   service_times: number
 }
@@ -55,41 +54,6 @@ export interface AnnouncementPayload {
   description?: string | null
   image_url?: string | null
   expires_at?: string | null
-  status?: PublicationStatus
-}
-
-export interface SermonSeries {
-  id: string
-  title: string
-  description: string | null
-}
-
-export interface CmsSermon {
-  id: string
-  title: string
-  slug: string
-  speaker_name: string | null
-  date: string
-  scripture_reference: string | null
-  description: string | null
-  video_url: string | null
-  thumbnail_url: string | null
-  series_id: string | null
-  series: SermonSeries | null
-  status: PublicationStatus
-  created_at: string
-  updated_at: string
-}
-
-export interface SermonPayload {
-  title: string
-  speaker_name?: string | null
-  date: string
-  scripture_reference?: string | null
-  description?: string | null
-  video_url?: string | null
-  thumbnail_url?: string | null
-  series_id?: string | null
   status?: PublicationStatus
 }
 

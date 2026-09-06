@@ -2,7 +2,7 @@
 from datetime import datetime, timezone
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
-from app.models.domain import Announcement, Event, EventStatus, GalleryAlbum, PageContent, PublicationStatus, Sermon, ServiceTime, SiteSetting
+from app.models.domain import Announcement, Event, EventStatus, GalleryAlbum, PageContent, PublicationStatus, ServiceTime, SiteSetting
 
 def paged(db: Session, statement, offset: int, limit: int):
     total = db.scalar(select(func.count()).select_from(statement.order_by(None).subquery())) or 0
@@ -22,11 +22,6 @@ def albums(db: Session, offset: int, limit: int): return paged(db, select(Galler
 def album_by_id(db: Session, album_id):
     from uuid import UUID
     return db.scalar(select(GalleryAlbum).options(selectinload(GalleryAlbum.images)).where(GalleryAlbum.id == album_id, GalleryAlbum.status == PublicationStatus.PUBLISHED))
-def sermons(db: Session, offset: int, limit: int, series_id, speaker: str | None):
-    stmt = select(Sermon).where(Sermon.status == PublicationStatus.PUBLISHED)
-    if series_id: stmt = stmt.where(Sermon.series_id == series_id)
-    if speaker: stmt = stmt.where(Sermon.speaker_name.ilike(f"%{speaker}%"))
-    return paged(db, stmt.order_by(Sermon.date.desc()), offset, limit)
 def content(db: Session, page: str | None):
     stmt = select(PageContent).where(PageContent.status == PublicationStatus.PUBLISHED)
     if page: stmt = stmt.where(PageContent.page == page)

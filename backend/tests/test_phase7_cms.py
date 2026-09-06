@@ -4,7 +4,7 @@ import pytest
 from datetime import datetime, timezone, timedelta
 from app.models.domain import (
     Event, EventStatus, Announcement, PublicationStatus, GalleryAlbum,
-    GalleryImage, Sermon, ServiceTime, PageContent, SiteSetting, RoleName,
+    GalleryImage, ServiceTime, PageContent, SiteSetting, RoleName,
 )
 
 PASSWORD = "CorrectHorseBattery1"
@@ -30,7 +30,6 @@ def test_cms_requires_authentication(client):
     assert tc.get("/api/v1/admin/cms/dashboard").status_code == 401
     assert tc.get("/api/v1/admin/cms/events").status_code == 401
     assert tc.get("/api/v1/admin/cms/announcements").status_code == 401
-    assert tc.get("/api/v1/admin/cms/sermons").status_code == 401
     assert tc.get("/api/v1/admin/cms/gallery").status_code == 401
     assert tc.get("/api/v1/admin/cms/service-times").status_code == 401
     assert tc.get("/api/v1/admin/cms/settings").status_code == 401
@@ -74,7 +73,6 @@ def test_dashboard_returns_counts(client):
     assert "published_events" in data
     assert "draft_events" in data
     assert "active_announcements" in data
-    assert "total_sermons" in data
     assert "gallery_albums" in data
     assert "service_times" in data
 
@@ -269,67 +267,6 @@ def test_announcement_validation(client):
     assert tc.post("/api/v1/admin/cms/announcements", json={
         "title": "Bad", "image_url": "not-a-url"
     }).status_code == 422
-
-
-# ── Sermons CRUD ──────────────────────────────────────────────────────────────
-def test_create_sermon(client):
-    tc, _ = client
-    login(tc)
-    r = tc.post("/api/v1/admin/cms/sermons", json={
-        "title": "A Reflection on Hope",
-        "speaker_name": "Fr. Thomas",
-        "date": "2026-08-16",
-        "description": "A message of hope.",
-    })
-    assert r.status_code == 201
-    data = r.json()
-    assert data["title"] == "A Reflection on Hope"
-    assert data["status"] == "DRAFT"
-    assert data["series"] is None
-
-
-def test_sermon_with_series(client):
-    tc, _ = client
-    login(tc)
-    series = tc.post("/api/v1/admin/cms/sermon-series", json={"title": "Advent Series"}).json()
-    r = tc.post("/api/v1/admin/cms/sermons", json={
-        "title": "Advent Week 1",
-        "date": "2026-12-01",
-        "series_id": series["id"],
-    })
-    assert r.status_code == 201
-    assert r.json()["series"]["title"] == "Advent Series"
-
-
-def test_sermon_publish_unpublish(client):
-    tc, _ = client
-    login(tc)
-    s = tc.post("/api/v1/admin/cms/sermons", json={
-        "title": "Pub Sermon", "date": "2026-08-01"
-    }).json()
-    sid = s["id"]
-
-    # draft not public
-    pub = tc.get("/api/v1/public/sermons")
-    assert not any(x["id"] == sid for x in pub.json()["items"])
-
-    tc.post(f"/api/v1/admin/cms/sermons/{sid}/publish")
-    pub = tc.get("/api/v1/public/sermons")
-    assert any(x["id"] == sid for x in pub.json()["items"])
-
-    tc.post(f"/api/v1/admin/cms/sermons/{sid}/unpublish")
-    pub = tc.get("/api/v1/public/sermons")
-    assert not any(x["id"] == sid for x in pub.json()["items"])
-
-
-def test_sermon_url_validation(client):
-    tc, _ = client
-    login(tc)
-    r = tc.post("/api/v1/admin/cms/sermons", json={
-        "title": "Bad URL", "date": "2026-08-01",
-        "video_url": "javascript:void(0)",
-    })
-    assert r.status_code == 422
 
 
 # ── Gallery CRUD ──────────────────────────────────────────────────────────────
@@ -601,19 +538,6 @@ def test_public_event_no_admin_fields(client):
     item = next(e for e in pub.json()["items"] if e["id"] == ev["id"])
     assert "status" not in item
     assert "created_at" not in item
-    assert "updated_at" not in item
-
-
-def test_public_sermon_no_admin_fields(client):
-    tc, _ = client
-    login(tc)
-    s = tc.post("/api/v1/admin/cms/sermons", json={
-        "title": "Field Sermon", "date": "2026-08-01"
-    }).json()
-    tc.post(f"/api/v1/admin/cms/sermons/{s['id']}/publish")
-    pub = tc.get("/api/v1/public/sermons")
-    item = next(x for x in pub.json()["items"] if x["id"] == s["id"])
-    assert "status" not in item
     assert "updated_at" not in item
 
 

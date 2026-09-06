@@ -5,7 +5,7 @@ import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage'
 import { LoginPage } from '../pages/LoginPage'
 import { AdminRouteGuard } from './ProtectedRoute'
 import { HomePage } from '../pages/public/HomePage'
-import { AboutPage, AlbumDetailPage, AnnouncementsPage, ContactPage, DonatePage, EventsPage, GalleryPage, MinistriesPage, NotFoundPage, SermonsPage } from '../pages/public/PublicPages'
+import { AboutPage, AlbumDetailPage, AnnouncementsPage, ContactPage, DonatePage, EventsPage, GalleryPage, MinistriesPage, NotFoundPage } from '../pages/public/PublicPages'
 import { MembersPage } from '../pages/admin/MembersPage'
 import { MemberDetailPage } from '../pages/admin/MemberDetailPage'
 import { AddMemberPage } from '../pages/admin/AddMemberPage'
@@ -17,7 +17,6 @@ import { EditFamilyPage } from '../pages/admin/EditFamilyPage'
 import { ContentDashboard } from '../pages/admin/cms/ContentDashboard'
 import { EventsPage as AdminEventsPage, EventFormPage } from '../pages/admin/cms/EventsPage'
 import { AnnouncementsPage as AdminAnnouncementsPage, AnnouncementFormPage } from '../pages/admin/cms/AnnouncementsPage'
-import { SermonsPage as AdminSermonsPage, SermonFormPage } from '../pages/admin/cms/SermonsPage'
 import { GalleryPage as AdminGalleryPage, AlbumFormPage, AlbumEditorPage } from '../pages/admin/cms/GalleryPage'
 import { ServiceTimesPage } from '../pages/admin/cms/ServiceTimesPage'
 import { HomepagePage } from '../pages/admin/cms/HomepagePage'
@@ -64,7 +63,6 @@ export function AppRoutes() {
         <Route path="/ministries" element={<MinistriesPage />} />
         <Route path="/events" element={<EventsPage />} />
         <Route path="/announcements" element={<AnnouncementsPage />} />
-        <Route path="/sermons" element={<SermonsPage />} />
         <Route path="/gallery" element={<GalleryPage />} />
         <Route path="/gallery/:albumId" element={<AlbumDetailPage />} />
         <Route path="/contact" element={<ContactPage />} />
@@ -93,9 +91,6 @@ export function AppRoutes() {
           <Route path="content/announcements/new" element={<AnnouncementFormPage />} />
           <Route path="announcements/new" element={<AnnouncementFormPage />} />
           <Route path="content/announcements/:announcementId/edit" element={<AnnouncementFormPage />} />
-          <Route path="content/sermons" element={<AdminSermonsPage />} />
-          <Route path="content/sermons/new" element={<SermonFormPage />} />
-          <Route path="content/sermons/:sermonId/edit" element={<SermonFormPage />} />
           <Route path="content/gallery" element={<AdminGalleryPage />} />
           <Route path="content/gallery/new" element={<AlbumFormPage />} />
           <Route path="content/gallery/:albumId" element={<AlbumEditorPage />} />

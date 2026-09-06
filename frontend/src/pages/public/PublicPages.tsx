@@ -4,7 +4,7 @@ import { Link, useLocation, useParams } from 'react-router-dom'
 import { demoImages, ministries } from '../../data/siteContent'
 import { Cta, EmptyPublicState, MinistryCard, PageHeader } from '../../components/public/PublicElements'
 import { Reveal } from '../../components/animation/Reveal'
-import { usePublicEvents, usePublicAnnouncements, usePublicSermons, usePublicGallery, usePublicAlbum, usePublicSettings } from '../../hooks/usePublicContent'
+import { usePublicEvents, usePublicAnnouncements, usePublicGallery, usePublicAlbum, usePublicSettings } from '../../hooks/usePublicContent'
 import { AnnouncementVisual } from '../../components/public/AnnouncementVisual'
 import type { PublicAlbum } from '../../hooks/usePublicContent'
 
@@ -156,56 +156,6 @@ export function AnnouncementsPage() {
         {renderGroup(items)}
       </div>
     </section>
-  </>
-}
-export function SermonsPage() {
-  const { data, isLoading } = usePublicSermons(20)
-  const items = data?.items ?? []
-  const [featured, ...rest] = items
-  return <>
-    <PageHeader eyebrow="Messages" title="Reflections for the journey." intro="Homilies and reflections from the parish." image={demoImages.prayer} />
-    {isLoading && <section className="section"><div className="container"><p role="status" style={{ color: 'var(--muted)' }}>Loading…</p></div></section>}
-    {!isLoading && items.length === 0 && <section className="section"><div className="container"><EmptyPublicState title="No sermons yet" detail="Homilies and reflections will appear here when published." /></div></section>}
-    {featured && (
-      <section className="section">
-        <div className="container">
-          <article className="featured-sermon">
-            {featured.thumbnail_url
-              ? <img src={featured.thumbnail_url} alt={featured.title} />
-              : <div style={{ background: 'var(--surface-muted)', minHeight: '25rem' }} />}
-            <div>
-              <p className="eyebrow">Featured message</p>
-              <h2 className="heading">{featured.title}</h2>
-              <p>{featured.description ?? ''}</p>
-              {featured.video_url
-                ? <a className="button button--primary" href={featured.video_url} target="_blank" rel="noopener noreferrer">Watch <span aria-hidden="true">↗</span></a>
-                : <span className="quiet">Video coming soon</span>}
-            </div>
-          </article>
-        </div>
-      </section>
-    )}
-    {rest.length > 0 && (
-      <section className="section section--muted">
-        <div className="container">
-          <p className="eyebrow">Archive</p><h2 className="heading heading--small">More reflections</h2>
-          <div className="card-grid">
-            {rest.map(s => (
-              <article key={s.id} className="content-card">
-                {s.thumbnail_url && <img src={s.thumbnail_url} alt={s.title} loading="lazy" />}
-                <div>
-                  <p className="eyebrow">{new Date(s.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
-                  <h3>{s.title}</h3>
-                  <p>{s.description ?? ''}</p>
-                  <p className="quiet">{s.speaker_name}{s.scripture_reference ? ` · ${s.scripture_reference}` : ''}</p>
-                  {s.video_url && <a className="text-link" href={s.video_url} target="_blank" rel="noopener noreferrer">Watch <span aria-hidden="true">→</span></a>}
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-    )}
   </>
 }
 export function GalleryPage() {

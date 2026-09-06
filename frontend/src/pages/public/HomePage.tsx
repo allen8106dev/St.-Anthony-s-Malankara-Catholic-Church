@@ -162,22 +162,6 @@ export function HomePage() {
       </Container>
     </section>
 
-    <section className="section--tight">
-      <Container>
-        <Reveal>
-          <article className="sermon">
-            <div className="sermon__art"><img src={demoImages.prayer.src} alt="" loading="lazy" /></div>
-            <div className="sermon__body">
-              <p className="eyebrow">Latest message</p>
-              <h2 className="heading">Messages that meet us where we are.</h2>
-              <p>Homilies, reflections, and recordings will live here.</p>
-              <Link className="button button--light" to="/sermons">Explore messages <span aria-hidden="true">↗</span></Link>
-            </div>
-          </article>
-        </Reveal>
-      </Container>
-    </section>
-
     <section className="section ministries">
       <Container>
         <div className="section-head">

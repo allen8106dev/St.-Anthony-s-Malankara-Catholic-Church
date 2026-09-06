@@ -119,81 +119,6 @@ class PaginatedAnnouncements(BaseModel):
     pages: int
 
 
-# ── Sermons ───────────────────────────────────────────────────────────────────
-class SermonSeriesCreate(BaseModel):
-    title: str = Field(min_length=1, max_length=250)
-    description: str | None = None
-
-
-class SermonSeriesRead(CmsModel):
-    id: UUID
-    title: str
-    description: str | None
-
-
-class SermonCreate(BaseModel):
-    title: str = Field(min_length=1, max_length=250)
-    speaker_name: str | None = Field(default=None, max_length=200)
-    date: Date
-    scripture_reference: str | None = Field(default=None, max_length=500)
-    description: str | None = None
-    video_url: str | None = Field(default=None, max_length=2048)
-    thumbnail_url: str | None = Field(default=None, max_length=2048)
-    series_id: UUID | None = None
-    status: PublicationStatus = PublicationStatus.DRAFT
-
-    @field_validator("video_url", "thumbnail_url")
-    @classmethod
-    def validate_url(cls, v: str | None) -> str | None:
-        if v and not (v.startswith("http://") or v.startswith("https://")):
-            raise ValueError("URL must be absolute")
-        return v
-
-
-class SermonUpdate(BaseModel):
-    title: str | None = Field(default=None, min_length=1, max_length=250)
-    speaker_name: str | None = Field(default=None, max_length=200)
-    date: Date | None = None
-    scripture_reference: str | None = Field(default=None, max_length=500)
-    description: str | None = None
-    video_url: str | None = Field(default=None, max_length=2048)
-    thumbnail_url: str | None = Field(default=None, max_length=2048)
-    series_id: UUID | None = None
-    status: PublicationStatus | None = None
-
-    @field_validator("video_url", "thumbnail_url")
-    @classmethod
-    def validate_url(cls, v: str | None) -> str | None:
-        if v and not (v.startswith("http://") or v.startswith("https://")):
-            raise ValueError("URL must be absolute")
-        return v
-
-
-class SermonRead(CmsModel):
-    id: UUID
-    title: str
-    slug: str
-    speaker_name: str | None
-    date: Date
-    scripture_reference: str | None
-    description: str | None
-    video_url: str | None
-    thumbnail_url: str | None
-    series_id: UUID | None
-    series: SermonSeriesRead | None
-    status: PublicationStatus
-    created_at: datetime
-    updated_at: datetime
-
-
-class PaginatedSermons(BaseModel):
-    items: list[SermonRead]
-    total: int
-    page: int
-    page_size: int
-    pages: int
-
-
 # ── Gallery ───────────────────────────────────────────────────────────────────
 class GalleryImageCreate(BaseModel):
     image_url: str = Field(max_length=2048)
@@ -351,6 +276,5 @@ class CmsDashboard(BaseModel):
     published_events: int
     draft_events: int
     active_announcements: int
-    total_sermons: int
     gallery_albums: int
     service_times: int

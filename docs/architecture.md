@@ -13,9 +13,9 @@ Authentication and domain modules are intentionally only scaffolded in Phase 1. 
 
 The PostgreSQL domain is split into public content and private administration data. Private tables are `admin_users`, `roles`, `families`, `members`, `member_relationships`, `dues`, `payments`, and `donations`. They have no public routes. Future `/api/v1/admin/*` routes must use server-side authorization dependencies; role assignment is data-driven through `Role` rather than route-local checks.
 
-Public content tables are `events`, `announcements`, `gallery_albums`, `gallery_images`, `sermon_series`, `sermons`, `page_content`, `site_settings`, and `service_times`. Only published/active, intentionally projected fields are returned under `/api/v1/public/*`. Public response schemas deliberately omit status and administrative timestamps where they are not needed.
+Public content tables are `events`, `announcements`, `gallery_albums`, `gallery_images`, `page_content`, `site_settings`, and `service_times`. Only published/active, intentionally projected fields are returned under `/api/v1/public/*`. Public response schemas deliberately omit status and administrative timestamps where they are not needed.
 
-Families may have many members, but a member may be independent; removing a family sets its members' `family_id` to null. Member and financial foreign keys use `RESTRICT`, preserving accounting history and favouring status-based archival over deletion. Gallery images cascade when their album record is removed; external image objects are never deleted by the database. Sermon-series removal sets a sermon's series to null.
+Families may have many members, but a member may be independent; removing a family sets its members' `family_id` to null. Member and financial foreign keys use `RESTRICT`, preserving accounting history and favouring status-based archival over deletion. Gallery images cascade when their album record is removed; external image objects are never deleted by the database.
 
 Dues express an obligation for a member or family. Payments record settlement activity and may be linked to a due. Donations are intentionally separate, may be anonymous, and are not linked to a member. Every currency column is PostgreSQL `NUMERIC(12,2)` with database checks preventing negative or zero amounts as applicable. Timestamps are timezone-aware and application data is stored/queried in UTC.
 
@@ -45,7 +45,6 @@ Phase 7 delivers the full church content management system, allowing authorized 
 | About page sections | `/admin/content/about` | `/api/v1/public/content?page=about` |
 | Events | `/admin/content/events` | `/api/v1/public/events` |
 | Announcements | `/admin/content/announcements` | `/api/v1/public/announcements` |
-| Sermons | `/admin/content/sermons` | `/api/v1/public/sermons` |
 | Gallery albums & images | `/admin/content/gallery` | `/api/v1/public/gallery` |
 | Service times | `/admin/content/service-times` | `/api/v1/public/service-times` |
 | Site settings | `/admin/content/settings` | `/api/v1/public/settings` |
@@ -86,10 +85,6 @@ All CMS routes are under `/api/v1/admin/cms` and require a valid session with `c
 | GET/POST | `/admin/cms/announcements` | List / create |
 | GET/PATCH | `/admin/cms/announcements/{id}` | Get / update |
 | POST | `/admin/cms/announcements/{id}/publish\|unpublish\|archive` | Status transitions |
-| GET/POST | `/admin/cms/sermon-series` | List / create series |
-| GET/POST | `/admin/cms/sermons` | List / create sermons |
-| GET/PATCH | `/admin/cms/sermons/{id}` | Get / update |
-| POST | `/admin/cms/sermons/{id}/publish\|unpublish\|archive` | Status transitions |
 | GET/POST | `/admin/cms/gallery` | List / create albums |
 | GET/PATCH | `/admin/cms/gallery/{id}` | Get / update album |
 | POST | `/admin/cms/gallery/{id}/publish\|unpublish\|archive` | Status transitions |
@@ -116,15 +111,15 @@ All CMS mutations write to `audit_logs`: content created, updated, published, un
 
 ### Frontend hooks (`src/hooks/useCms.ts`)
 
-`useCmsDashboard`, `useAdminEvents`, `useAdminEvent`, `useCreateEvent`, `useUpdateEvent`, `usePublishEvent`, `useAdminAnnouncements`, `useAdminAnnouncement`, `useCreateAnnouncement`, `useUpdateAnnouncement`, `usePublishAnnouncement`, `useSermonSeries`, `useCreateSermonSeries`, `useAdminSermons`, `useAdminSermon`, `useCreateSermon`, `useUpdateSermon`, `usePublishSermon`, `useAdminAlbums`, `useAdminAlbum`, `useCreateAlbum`, `useUpdateAlbum`, `usePublishAlbum`, `useAddImage`, `useRemoveImage`, `useAdminServiceTimes`, `useCreateServiceTime`, `useUpdateServiceTime`, `useDeleteServiceTime`, `useAdminPageContent`, `useUpsertPageContent`, `useAdminSettings`, `useUpsertSetting`.
+`useCmsDashboard`, `useAdminEvents`, `useAdminEvent`, `useCreateEvent`, `useUpdateEvent`, `usePublishEvent`, `useAdminAnnouncements`, `useAdminAnnouncement`, `useCreateAnnouncement`, `useUpdateAnnouncement`, `usePublishAnnouncement`, `useAdminAlbums`, `useAdminAlbum`, `useCreateAlbum`, `useUpdateAlbum`, `usePublishAlbum`, `useAddImage`, `useRemoveImage`, `useAdminServiceTimes`, `useCreateServiceTime`, `useUpdateServiceTime`, `useDeleteServiceTime`, `useAdminPageContent`, `useUpsertPageContent`, `useAdminSettings`, `useUpsertSetting`.
 
-Public hooks are in `src/hooks/usePublicContent.ts`: `usePublicEvents`, `usePublicAnnouncements`, `usePublicGallery`, `usePublicSermons`, `usePublicContent`, `usePublicSettings`, `usePublicServiceTimes`.
+Public hooks are in `src/hooks/usePublicContent.ts`: `usePublicEvents`, `usePublicAnnouncements`, `usePublicGallery`, `usePublicContent`, `usePublicSettings`, `usePublicServiceTimes`.
 
 Cache invalidation: publishing/unpublishing any content invalidates both the admin query and the corresponding public query key so the public website reflects changes immediately.
 
 ### siteContent.ts
 
-The file is retained for purely structural/static data: navigation links, demo ministry previews (not yet CMS-managed), and demo images used on static public pages (About, Ministries, Contact, Donate, Sermons, Gallery). Homepage dynamic content (hero, intro, visit, CTA, service times, events) is now database-backed. The public Events, Announcements, Sermons, and Gallery pages consume live API data with graceful empty states.
+The file is retained for purely structural/static data: navigation links, demo ministry previews (not yet CMS-managed), and demo images used on static public pages (About, Ministries, Contact, Donate, Gallery). Homepage dynamic content (hero, intro, visit, CTA, service times, events) is now database-backed. The public Events, Announcements, and Gallery pages consume live API data with graceful empty states.
 
 ## Member and family management (Phase 6)
 

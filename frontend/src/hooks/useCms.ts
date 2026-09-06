@@ -2,8 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '../services/apiClient'
 import type {
   AlbumPayload, AnnouncementPayload, CmsAlbum, CmsAnnouncement, CmsDashboard,
-  CmsEvent, CmsSermon, CmsServiceTime, EventPayload, GalleryImage, ImagePayload,
-  PageContent, PageContentPayload, Paginated, SermonPayload, SermonSeries,
+  CmsEvent, CmsServiceTime, EventPayload, GalleryImage, ImagePayload,
+  PageContent, PageContentPayload, Paginated,
   ServiceTimePayload, SiteSetting,
 } from '../types/cms'
 
@@ -15,9 +15,6 @@ export const cmsKeys = {
   event: (id: string) => ['cms', 'event', id] as const,
   announcements: (p: object) => ['cms', 'announcements', p] as const,
   announcement: (id: string) => ['cms', 'announcement', id] as const,
-  sermonSeries: ['cms', 'sermon-series'] as const,
-  sermons: (p: object) => ['cms', 'sermons', p] as const,
-  sermon: (id: string) => ['cms', 'sermon', id] as const,
   albums: (p: object) => ['cms', 'albums', p] as const,
   album: (id: string) => ['cms', 'album', id] as const,
   serviceTimes: ['cms', 'service-times'] as const,
@@ -25,7 +22,6 @@ export const cmsKeys = {
   settings: ['cms', 'settings'] as const,
   publicEvents: ['public', 'events'] as const,
   publicAnnouncements: ['public', 'announcements'] as const,
-  publicSermons: ['public', 'sermons'] as const,
   publicGallery: ['public', 'gallery'] as const,
   publicServiceTimes: ['public', 'service-times'] as const,
   publicContent: (page: string) => ['public', 'content', page] as const,
@@ -144,78 +140,6 @@ export function usePublishAnnouncement() {
       qc.invalidateQueries({ queryKey: cmsKeys.announcement(id) })
       qc.invalidateQueries({ queryKey: ['cms', 'announcements'] })
       qc.invalidateQueries({ queryKey: cmsKeys.publicAnnouncements })
-    },
-  })
-}
-
-// ── Sermon Series ─────────────────────────────────────────────────────────────
-export function useSermonSeries() {
-  return useQuery({
-    queryKey: cmsKeys.sermonSeries,
-    queryFn: () => apiClient.get<SermonSeries[]>(`${BASE}/sermon-series`).then(r => r.data),
-  })
-}
-
-export function useCreateSermonSeries() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (data: { title: string; description?: string }) =>
-      apiClient.post<SermonSeries>(`${BASE}/sermon-series`, data).then(r => r.data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: cmsKeys.sermonSeries }),
-  })
-}
-
-// ── Sermons ───────────────────────────────────────────────────────────────────
-export function useAdminSermons(params: { page?: number; search?: string; status?: string; series_id?: string }) {
-  return useQuery({
-    queryKey: cmsKeys.sermons(params),
-    queryFn: () => {
-      const p: Record<string, string | number> = { page: params.page ?? 1, page_size: 25 }
-      if (params.search) p.search = params.search
-      if (params.status) p.status = params.status
-      if (params.series_id) p.series_id = params.series_id
-      return apiClient.get<Paginated<CmsSermon>>(`${BASE}/sermons`, { params: p }).then(r => r.data)
-    },
-    placeholderData: prev => prev,
-  })
-}
-
-export function useAdminSermon(id: string | undefined) {
-  return useQuery({
-    queryKey: cmsKeys.sermon(id ?? ''),
-    queryFn: () => apiClient.get<CmsSermon>(`${BASE}/sermons/${id}`).then(r => r.data),
-    enabled: !!id,
-  })
-}
-
-export function useCreateSermon() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (data: SermonPayload) => apiClient.post<CmsSermon>(`${BASE}/sermons`, data).then(r => r.data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['cms', 'sermons'] }),
-  })
-}
-
-export function useUpdateSermon(id: string) {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (data: Partial<SermonPayload>) => apiClient.patch<CmsSermon>(`${BASE}/sermons/${id}`, data).then(r => r.data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: cmsKeys.sermon(id) })
-      qc.invalidateQueries({ queryKey: ['cms', 'sermons'] })
-    },
-  })
-}
-
-export function usePublishSermon() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: ({ id, action }: { id: string; action: 'publish' | 'unpublish' | 'archive' }) =>
-      apiClient.post<CmsSermon>(`${BASE}/sermons/${id}/${action}`).then(r => r.data),
-    onSuccess: (_, { id }) => {
-      qc.invalidateQueries({ queryKey: cmsKeys.sermon(id) })
-      qc.invalidateQueries({ queryKey: ['cms', 'sermons'] })
-      qc.invalidateQueries({ queryKey: cmsKeys.publicSermons })
     },
   })
 }

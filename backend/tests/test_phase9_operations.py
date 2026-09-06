@@ -260,7 +260,7 @@ def test_public_endpoints_no_member_data(client):
     tc, _ = client
     # No login — unauthenticated
     for path in ["/api/v1/public/events", "/api/v1/public/announcements",
-                 "/api/v1/public/sermons", "/api/v1/public/gallery",
+                 "/api/v1/public/gallery",
                  "/api/v1/public/settings", "/api/v1/public/service-times"]:
         r = tc.get(path)
         assert r.status_code == 200

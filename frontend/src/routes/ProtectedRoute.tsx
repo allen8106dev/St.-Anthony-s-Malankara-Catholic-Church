@@ -17,7 +17,6 @@ const routeRoles: Record<string, AdminRole[]> = {
   '/admin/content/events': ['SUPER_ADMIN', 'CONTENT_ADMIN'],
   '/admin/content/announcements': ['SUPER_ADMIN', 'CONTENT_ADMIN'],
   '/admin/announcements': ['SUPER_ADMIN', 'CONTENT_ADMIN'],
-  '/admin/content/sermons': ['SUPER_ADMIN', 'CONTENT_ADMIN'],
   '/admin/content/gallery': ['SUPER_ADMIN', 'CONTENT_ADMIN'],
   '/admin/content/service-times': ['SUPER_ADMIN', 'CONTENT_ADMIN'],
   '/admin/content/settings': ['SUPER_ADMIN', 'CONTENT_ADMIN'],

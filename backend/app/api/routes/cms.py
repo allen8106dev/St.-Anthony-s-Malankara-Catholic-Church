@@ -11,8 +11,7 @@ from app.schemas.cms import (
     CmsDashboard, EventCreate, EventRead, EventUpdate,
     GalleryImageCreate, GalleryImageRead, GalleryImageUpdate,
     PageContentRead, PageContentUpdate,
-    PaginatedAlbums, PaginatedAnnouncements, PaginatedEvents, PaginatedSermons,
-    SermonCreate, SermonRead, SermonSeriesCreate, SermonSeriesRead, SermonUpdate,
+    PaginatedAlbums, PaginatedAnnouncements, PaginatedEvents,
     ServiceTimeCreate, ServiceTimeRead, ServiceTimeUpdate,
     SettingRead, SettingUpsert,
 )
@@ -164,83 +163,6 @@ def archive_announcement(ann_id: uuid.UUID, db: DbSession, actor: ContentManage)
     ann = svc.set_announcement_status(db, ann, PublicationStatus.ARCHIVED, actor)
     db.commit(); db.refresh(ann)
     return ann
-
-
-# ── Sermon Series ─────────────────────────────────────────────────────────────
-@router.get("/sermon-series", response_model=list[SermonSeriesRead])
-def list_sermon_series(db: DbSession, _: ContentManage):
-    return svc.list_sermon_series(db)
-
-
-@router.post("/sermon-series", response_model=SermonSeriesRead, status_code=status.HTTP_201_CREATED)
-def create_sermon_series(data: SermonSeriesCreate, db: DbSession, actor: ContentManage):
-    series = svc.create_sermon_series(db, data, actor)
-    db.commit(); db.refresh(series)
-    return series
-
-
-# ── Sermons ───────────────────────────────────────────────────────────────────
-@router.get("/sermons", response_model=PaginatedSermons)
-def list_sermons(
-    db: DbSession, _: ContentManage,
-    page: int = Query(1, ge=1),
-    page_size: int = Query(25, ge=1, le=100),
-    search: str | None = Query(None, max_length=200),
-    status: PublicationStatus | None = None,
-    series_id: uuid.UUID | None = None,
-):
-    items, total, pages = svc.list_sermons(db, page, page_size, search, status, series_id)
-    return {"items": items, "total": total, "page": page, "page_size": page_size, "pages": pages}
-
-
-@router.post("/sermons", response_model=SermonRead, status_code=status.HTTP_201_CREATED)
-def create_sermon(data: SermonCreate, db: DbSession, actor: ContentManage):
-    sermon = svc.create_sermon(db, data, actor)
-    db.commit()
-    return svc.get_sermon(db, sermon.id)
-
-
-@router.get("/sermons/{sermon_id}", response_model=SermonRead)
-def get_sermon(sermon_id: uuid.UUID, db: DbSession, _: ContentManage):
-    sermon = svc.get_sermon(db, sermon_id)
-    if not sermon: raise HTTPException(404, "Sermon not found.")
-    return sermon
-
-
-@router.patch("/sermons/{sermon_id}", response_model=SermonRead)
-def update_sermon(sermon_id: uuid.UUID, data: SermonUpdate, db: DbSession, actor: ContentManage):
-    sermon = svc.get_sermon(db, sermon_id)
-    if not sermon: raise HTTPException(404, "Sermon not found.")
-    svc.update_sermon(db, sermon, data, actor)
-    db.commit()
-    return svc.get_sermon(db, sermon_id)
-
-
-@router.post("/sermons/{sermon_id}/publish", response_model=SermonRead)
-def publish_sermon(sermon_id: uuid.UUID, db: DbSession, actor: ContentManage):
-    sermon = svc.get_sermon(db, sermon_id)
-    if not sermon: raise HTTPException(404, "Sermon not found.")
-    svc.set_sermon_status(db, sermon, PublicationStatus.PUBLISHED, actor)
-    db.commit()
-    return svc.get_sermon(db, sermon_id)
-
-
-@router.post("/sermons/{sermon_id}/unpublish", response_model=SermonRead)
-def unpublish_sermon(sermon_id: uuid.UUID, db: DbSession, actor: ContentManage):
-    sermon = svc.get_sermon(db, sermon_id)
-    if not sermon: raise HTTPException(404, "Sermon not found.")
-    svc.set_sermon_status(db, sermon, PublicationStatus.DRAFT, actor)
-    db.commit()
-    return svc.get_sermon(db, sermon_id)
-
-
-@router.post("/sermons/{sermon_id}/archive", response_model=SermonRead)
-def archive_sermon(sermon_id: uuid.UUID, db: DbSession, actor: ContentManage):
-    sermon = svc.get_sermon(db, sermon_id)
-    if not sermon: raise HTTPException(404, "Sermon not found.")
-    svc.set_sermon_status(db, sermon, PublicationStatus.ARCHIVED, actor)
-    db.commit()
-    return svc.get_sermon(db, sermon_id)
 
 
 # ── Gallery ───────────────────────────────────────────────────────────────────

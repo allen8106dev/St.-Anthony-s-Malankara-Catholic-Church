@@ -11,10 +11,6 @@ export interface PublicAnnouncement {
 }
 interface PublicGalleryImage { id: string; image_url: string; alt_text: string; caption: string | null; sort_order: number }
 interface PublicAlbum { id: string; title: string; description: string | null; cover_image_url: string | null; images: PublicGalleryImage[] }
-interface PublicSermon {
-  id: string; slug: string; title: string; speaker_name: string | null; date: string
-  scripture_reference: string | null; description: string | null; video_url: string | null; thumbnail_url: string | null
-}
 interface PublicContent { page: string; section: string; heading: string | null; body: string | null; image_url: string | null }
 interface PublicServiceTime { id: string; day_of_week: number; start_time: string; end_time: string | null; service_name: string; location: string | null; description: string | null; sort_order: number; is_active: boolean }
 interface PublicSetting { key: string; value: string }
@@ -57,14 +53,6 @@ export function usePublicAlbum(albumId: string | undefined) {
   })
 }
 
-export function usePublicSermons(limit = 20) {
-  return useQuery({
-    queryKey: ['public', 'sermons', limit],
-    queryFn: () => apiClient.get<Paged<PublicSermon>>('/public/sermons', { params: { limit } }).then(r => r.data),
-    staleTime: 120_000,
-  })
-}
-
 export function usePublicContent(page: string) {
   return useQuery({
     queryKey: ['public', 'content', page],
@@ -89,4 +77,4 @@ export function usePublicServiceTimes() {
   })
 }
 
-export type { PublicEvent, PublicAlbum, PublicSermon, PublicContent, PublicSetting }
+export type { PublicEvent, PublicAlbum, PublicContent, PublicSetting }

@@ -126,7 +126,6 @@ export function AdminDashboardPage() {
               <div className="dash-content-links">
                 <Link to="/admin/content/events" className="dash-content-link"><span className="dash-content-link__icon dash-icon--calendar" aria-hidden="true" /><span>Events</span></Link>
                 <Link to="/admin/content/announcements" className="dash-content-link"><span className="dash-content-link__icon dash-icon--notice" aria-hidden="true" /><span>Announcements</span></Link>
-                <Link to="/admin/content/sermons" className="dash-content-link"><span className="dash-content-link__icon dash-icon--sermon" aria-hidden="true" /><span>Sermons</span></Link>
                 <Link to="/admin/content/gallery" className="dash-content-link"><span className="dash-content-link__icon dash-icon--gallery" aria-hidden="true" /><span>Gallery</span></Link>
                 <Link to="/admin/content/service-times" className="dash-content-link"><span className="dash-content-link__icon dash-icon--clock" aria-hidden="true" /><span>Service Times</span></Link>
                 <Link to="/admin/settings" className="dash-content-link"><span className="dash-content-link__icon dash-icon--settings" aria-hidden="true" /><span>Settings</span></Link>
@@ -143,7 +142,6 @@ export function AdminDashboardPage() {
                 <>
                   <Link to="/admin/content/announcements/new" className="button button--primary dash-action-btn">+ New Announcement</Link>
                   <Link to="/admin/content/events/new" className="button button--outline dash-action-btn">+ New Event</Link>
-                  <Link to="/admin/content/sermons/new" className="button button--outline dash-action-btn">+ Add Sermon</Link>
                 </>
               )}
               {canSeeMembers && (

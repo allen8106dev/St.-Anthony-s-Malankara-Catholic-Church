@@ -193,28 +193,6 @@ class GalleryImage(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     album: Mapped[GalleryAlbum] = relationship(back_populates="images")
 
-class SermonSeries(Base, Timestamped):
-    __tablename__ = "sermon_series"
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    title: Mapped[str] = mapped_column(String(250), unique=True, nullable=False)
-    description: Mapped[str | None] = mapped_column(Text)
-    sermons: Mapped[list["Sermon"]] = relationship(back_populates="series")
-
-class Sermon(Base, Timestamped):
-    __tablename__ = "sermons"
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    series_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("sermon_series.id", ondelete="SET NULL"), index=True)
-    title: Mapped[str] = mapped_column(String(250), nullable=False)
-    slug: Mapped[str] = mapped_column(String(250), unique=True, index=True, nullable=False)
-    speaker_name: Mapped[str | None] = mapped_column(String(200))
-    date: Mapped[date] = mapped_column(Date, index=True, nullable=False)
-    scripture_reference: Mapped[str | None] = mapped_column(String(500))
-    description: Mapped[str | None] = mapped_column(Text)
-    video_url: Mapped[str | None] = mapped_column(String(2048))
-    thumbnail_url: Mapped[str | None] = mapped_column(String(2048))
-    status: Mapped[PublicationStatus] = mapped_column(Enum(PublicationStatus, name="sermon_status"), default=PublicationStatus.DRAFT, nullable=False)
-    series: Mapped[SermonSeries | None] = relationship(back_populates="sermons")
-
 class PageContent(Base, Timestamped):
     __tablename__ = "page_content"
     __table_args__ = (UniqueConstraint("page", "section", name="uq_page_content_section"),)
