@@ -1,43 +1,11 @@
 import { Link } from 'react-router-dom'
 import { Container } from '../../components/ui/Container'
 import { Reveal } from '../../components/animation/Reveal'
-import { usePublicEvents, usePublicServiceTimes, usePublicContent, usePublicSettings, usePublicAnnouncements, usePublicGallery } from '../../hooks/usePublicContent'
+import { usePublicEvents, usePublicContent, usePublicSettings, usePublicGallery } from '../../hooks/usePublicContent'
 import { demoImages, ministryPreviews, siteName } from '../../data/siteContent'
-
-const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-
-function AnnouncementTicker() {
-  const { data } = usePublicAnnouncements(10)
-  const items = data?.items ?? []
-  if (items.length === 0) return null
-
-  const displayItems = items.length < 3 ? [...items, ...items, ...items, ...items] : [...items, ...items]
-
-  return (
-    <div className="announcement-ticker" role="region" aria-label="Parish announcements">
-      <div className="announcement-ticker__viewport">
-        <div className="announcement-ticker__track">
-          {displayItems.map((item, idx) => (
-            <Link
-              key={`${item.id}-${idx}`}
-              to={`/announcements#announcement-${item.id}`}
-              className="announcement-ticker__item"
-              title={`View announcement: ${item.title}`}
-            >
-              <span className="announcement-ticker__badge">Announcement</span>
-              <span className="announcement-ticker__title">{item.title}</span>
-              <span className="announcement-ticker__sep" aria-hidden="true">✦</span>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
 
 export function HomePage() {
   const { data: eventsData } = usePublicEvents({ timeframe: 'upcoming', limit: 3 })
-  const { data: serviceTimes } = usePublicServiceTimes()
   const { data: heroContent } = usePublicContent('homepage')
   const { data: settings } = usePublicSettings()
   const { data: galleryData } = usePublicGallery(10)
@@ -46,11 +14,9 @@ export function HomePage() {
 
   const heroSection = heroContent?.find(s => s.section === 'hero')
   const introSection = heroContent?.find(s => s.section === 'intro')
-  const visitSection = heroContent?.find(s => s.section === 'visit')
   const ctaSection = heroContent?.find(s => s.section === 'cta')
 
   const upcomingEvents = eventsData?.items ?? []
-  const activeServiceTimes = serviceTimes ?? []
 
   // Collect images from all albums (most recently added first) and take 3
   const allGalleryImages = (galleryData?.items ?? []).flatMap(album => album.images)
@@ -72,36 +38,6 @@ export function HomePage() {
         </Reveal>
       </Container>
     </section>
-
-    <section className="schedule">
-      <Container>
-        <div className="schedule__panel">
-          <div className="schedule__intro">
-            <p className="eyebrow">Gather with us</p>
-            <h2>Service times</h2>
-          </div>
-          <div className="schedule__list">
-            {activeServiceTimes.length > 0 ? (
-              activeServiceTimes.slice(0, 3).map(st => (
-                <div className="schedule__item" key={st.id}>
-                  <p>{DAYS[st.day_of_week]}</p>
-                  <strong>{st.start_time.slice(0, 5)}</strong>
-                  <p>{st.service_name}{st.location ? ` · ${st.location}` : ''}</p>
-                </div>
-              ))
-            ) : (
-              <div className="schedule__item">
-                <p>Schedule</p>
-                <strong>To be confirmed</strong>
-                <p>Service times will appear here</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </Container>
-    </section>
-
-    <AnnouncementTicker />
 
     <section className="section">
       <Container className="intro-grid">
@@ -201,9 +137,6 @@ export function HomePage() {
         </div>
         <Reveal>
           <div className="gallery" aria-label="Parish photographs">
-            <img src={demoImages.sanctuary.src} alt={demoImages.sanctuary.alt} loading="lazy" />
-            <img src={demoImages.prayer.src} alt={demoImages.prayer.alt} loading="lazy" />
-            <img src={demoImages.community.src} alt={demoImages.community.alt} loading="lazy" />
             {previewImages.length > 0 ? (
               previewImages.map(img => (
                 <img key={img.id} src={img.image_url} alt={img.alt_text} loading="lazy" />
@@ -217,20 +150,6 @@ export function HomePage() {
             )}
           </div>
         </Reveal>
-      </Container>
-    </section>
-
-    <section className="section--tight">
-      <Container>
-        <article className="visit">
-          <div className="visit__map"><img src={demoImages.architecture.src} alt={demoImages.architecture.alt} loading="lazy" /></div>
-          <div className="visit__body">
-            <p className="eyebrow">Find your way</p>
-            <h2 className="heading heading--small">{visitSection?.heading ?? "Come as you are."}</h2>
-            <p>{visitSection?.body ?? "Visitor information and directions will be shared here."}</p>
-            <Link className="text-link" to="/contact">Plan your visit <span aria-hidden="true">→</span></Link>
-          </div>
-        </article>
       </Container>
     </section>
 
