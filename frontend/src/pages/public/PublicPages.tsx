@@ -5,7 +5,7 @@ import { demoImages, ministries } from '../../data/siteContent'
 import { Cta, EmptyPublicState, MinistryCard, PageHeader } from '../../components/public/PublicElements'
 import { LoadingState } from '../../components/ui/Feedback'
 import { Reveal } from '../../components/animation/Reveal'
-import { usePublicEvents, usePublicAnnouncements, usePublicGallery, usePublicAlbum, usePublicSettings, usePublicServiceTimes } from '../../hooks/usePublicContent'
+import { usePublicEvents, usePublicAnnouncements, usePublicGallery, usePublicAlbum, usePublicSettings, usePublicServiceTimes, usePublicContent } from '../../hooks/usePublicContent'
 import { AnnouncementVisual } from '../../components/public/AnnouncementVisual'
 import type { PublicAlbum } from '../../hooks/usePublicContent'
 
@@ -77,7 +77,274 @@ function GalleryLightboxPublic({ albums }: { albums: PublicAlbum[] }) {
   </>
 }
 
-export function AboutPage() { return <><PageHeader eyebrow="About the parish" title="A home being prepared with care." intro="This page uses clearly marked demo content, ready to be replaced by the parish's confirmed story and history." image={demoImages.sanctuary} /><section className="section"><div className="container prose-grid"><Reveal><p className="eyebrow">Who we are</p><h2 className="heading">A parish story will live here.</h2></Reveal><Reveal delay={.1}><p className="lede">The future About page can hold the real history, spiritual heritage, leadership, and community life of St. Anthony's Malankara Catholic Church. Until that information is supplied, this is intentional placeholder copy—not a claim about the parish.</p><blockquote>“A space for real stories, shared faithfully when they are ready.”</blockquote></Reveal></div></section><section className="section--tight"><div className="container split-image"><img src={demoImages.gathering.src} alt={demoImages.gathering.alt} /><div><p className="eyebrow">Faith & community</p><h2 className="heading heading--small">Made for reflection, welcome, and belonging.</h2><p>Rich text, photographs, quotations, and a future parish timeline can be arranged here without changing the page structure.</p></div></div></section><Cta title="Come and discover parish life." /></> }
+const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+export function AboutPage() {
+  const location = useLocation()
+  const { data: serviceTimesData, isLoading: loadingServices } = usePublicServiceTimes()
+  const { data: aboutContent } = usePublicContent('about')
+  const { data: settings } = usePublicSettings()
+  const s = Object.fromEntries((settings ?? []).map(item => [item.key, item.value]))
+  const churchName = s.church_name || "St. Anthony's Malankara Catholic Church"
+
+  const pastorSection = aboutContent?.find(item => item.section === 'pastor')
+  const historySection = aboutContent?.find(item => item.section === 'history')
+  const introSection = aboutContent?.find(item => item.section === 'intro')
+
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace('#', '')
+      const el = document.getElementById(id)
+      if (el) {
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth' })
+        }, 80)
+      }
+    }
+  }, [location.hash])
+
+  const activeServices = (serviceTimesData ?? []).filter(st => st.is_active)
+
+  return (
+    <>
+      <PageHeader
+        eyebrow="About our parish"
+        title={introSection?.heading || "Faith, fellowship, and sacred tradition."}
+        intro={introSection?.body || "Discover our Holy Qurbana timings, meet our parish priest, and explore our historic Malankara Catholic heritage."}
+        image={introSection?.image_url ? { src: introSection.image_url, alt: churchName } : demoImages.sanctuary}
+      />
+
+      {/* 1. Timings Section */}
+      <section id="timings" className="section about-section">
+        <div className="container">
+          <div className="section-head">
+            <div>
+              <p className="eyebrow">Worship & Prayer</p>
+              <h2 className="heading">Service Timings</h2>
+            </div>
+            <Link className="text-link" to="/contact">Directions & visit details <span aria-hidden="true">→</span></Link>
+          </div>
+
+          <Reveal>
+            <p className="lede">
+              All are warmly welcome to join our parish in celebration of the Holy Qurbana, communal prayers, and liturgical feasts.
+            </p>
+          </Reveal>
+
+          {loadingServices ? (
+            <LoadingState text="Loading service timings…" />
+          ) : activeServices.length > 0 ? (
+            <div className="timings-grid">
+              {activeServices
+                .slice()
+                .sort((a, b) => a.sort_order - b.sort_order || a.day_of_week - b.day_of_week)
+                .map((st, i) => (
+                  <Reveal key={st.id} delay={i * 0.06}>
+                    <article className={`timing-card ${st.day_of_week === 0 ? 'timing-card--featured' : ''}`}>
+                      <div>
+                        <span className="timing-card__day">
+                          <span aria-hidden="true">✦</span> {DAYS_OF_WEEK[st.day_of_week] ?? 'Weekly'}
+                        </span>
+                        <h3 className="timing-card__title">{st.service_name}</h3>
+                        <div className="timing-card__time">
+                          <span aria-hidden="true">⏱</span> {st.start_time}{st.end_time ? ` – ${st.end_time}` : ''}
+                        </div>
+                        {st.description && <p className="timing-card__desc">{st.description}</p>}
+                      </div>
+                      {st.location && (
+                        <div className="timing-card__location">
+                          <span aria-hidden="true">📍</span> {st.location}
+                        </div>
+                      )}
+                    </article>
+                  </Reveal>
+                ))}
+            </div>
+          ) : (
+            <div className="timings-grid">
+              <Reveal delay={0}>
+                <article className="timing-card timing-card--featured">
+                  <div>
+                    <span className="timing-card__day"><span aria-hidden="true">✦</span> Sunday</span>
+                    <h3 className="timing-card__title">Holy Qurbana</h3>
+                    <div className="timing-card__time"><span aria-hidden="true">⏱</span> 9:00 AM & 9:45 AM</div>
+                    <p className="timing-card__desc">Morning Prayer (Sapra) at 9:00 AM, followed by solemn Holy Qurbana in the West Syriac tradition. Concludes with Sunday School and Agape fellowship.</p>
+                  </div>
+                  <div className="timing-card__location"><span aria-hidden="true">📍</span> Main Sanctuary</div>
+                </article>
+              </Reveal>
+              <Reveal delay={0.06}>
+                <article className="timing-card">
+                  <div>
+                    <span className="timing-card__day"><span aria-hidden="true">✦</span> Friday</span>
+                    <h3 className="timing-card__title">St. Anthony Novena & Prayer</h3>
+                    <div className="timing-card__time"><span aria-hidden="true">⏱</span> 6:30 PM</div>
+                    <p className="timing-card__desc">Evening Prayer (Ramsho), Holy Mass, and perpetual novena prayers through the intercession of St. Anthony of Padua.</p>
+                  </div>
+                  <div className="timing-card__location"><span aria-hidden="true">📍</span> Chapel / Sanctuary</div>
+                </article>
+              </Reveal>
+              <Reveal delay={0.12}>
+                <article className="timing-card">
+                  <div>
+                    <span className="timing-card__day"><span aria-hidden="true">✦</span> Saturday</span>
+                    <h3 className="timing-card__title">Evening Prayer & Memorial</h3>
+                    <div className="timing-card__time"><span aria-hidden="true">⏱</span> 6:00 PM</div>
+                    <p className="timing-card__desc">Evening prayer in preparation for the Lord's Day, with prayerful remembrance of departed parish faithful.</p>
+                  </div>
+                  <div className="timing-card__location"><span aria-hidden="true">📍</span> Main Sanctuary</div>
+                </article>
+              </Reveal>
+              <Reveal delay={0.18}>
+                <article className="timing-card">
+                  <div>
+                    <span className="timing-card__day"><span aria-hidden="true">✦</span> Feast Days</span>
+                    <h3 className="timing-card__title">Solemn Feasts & Perunnal</h3>
+                    <div className="timing-card__time"><span aria-hidden="true">⏱</span> Announced seasonally</div>
+                    <p className="timing-card__desc">Annual parish feast of St. Anthony of Padua, Danaha, Holy Week, and solemnities of the liturgical calendar.</p>
+                  </div>
+                  <div className="timing-card__location"><span aria-hidden="true">📍</span> Church Campus</div>
+                </article>
+              </Reveal>
+            </div>
+          )}
+
+          <Reveal delay={0.2}>
+            <div className="timings-note">
+              <p>
+                <strong>Sacramental Needs:</strong> For Holy Confession, house blessings, baptisms, or sick visits, please contact the Vicar directly.
+              </p>
+              <Link to="/contact" className="button button--primary" style={{ fontSize: '.84rem' }}>
+                Contact parish office <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* 2. Our Priest Section */}
+      <section id="priest" className="section section--muted about-section">
+        <div className="container">
+          <Reveal>
+            <p className="eyebrow">Pastoral Leadership</p>
+            <h2 className="heading">Our Priest</h2>
+          </Reveal>
+
+          <Reveal delay={0.1}>
+            <div className="priest-card" style={{ marginTop: '2.5rem' }}>
+              <div className="priest-card__photo-wrap">
+                <img
+                  src={pastorSection?.image_url || demoImages.prayer.src}
+                  alt={pastorSection?.heading || "Rev. Father Vicar"}
+                  className="priest-card__photo"
+                  loading="lazy"
+                />
+              </div>
+              <div className="priest-card__info">
+                <span className="priest-card__role">Vicar & Spiritual Shepherd</span>
+                <h3 className="priest-card__name">{pastorSection?.heading || "Rev. Father Vicar"}</h3>
+                <blockquote className="priest-card__quote">
+                  “May the peace of Christ fill our homes and hearts as we walk together in faith, prayer, and selfless love.”
+                </blockquote>
+                <p className="priest-card__bio">
+                  {pastorSection?.body ||
+                    `Welcome to ${churchName}. As Vicar, it is my joy to shepherd this community in the sacred traditions of the Malankara Syrian Catholic Church. We are united in the Holy Eucharist and committed to caring for every family, empowering our youth, and extending compassionate service. You and your family will always find a warm home here.`}
+                </p>
+                <div className="actions">
+                  <Link to="/contact" className="button button--primary">
+                    Reach Out to Our Vicar <span aria-hidden="true">→</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* 3. History Section */}
+      <section id="history" className="section about-section">
+        <div className="container">
+          <div className="section-head">
+            <div>
+              <p className="eyebrow">Our Heritage</p>
+              <h2 className="heading">Parish History</h2>
+            </div>
+          </div>
+
+          <div className="history-grid">
+            <Reveal>
+              <div className="history-text">
+                <p className="lede" style={{ marginBottom: '1.25rem' }}>
+                  {historySection?.heading || "Rooted in apostolic antiquity, reunited in Catholic communion."}
+                </p>
+                {historySection?.body ? (
+                  <p style={{ whiteSpace: 'pre-line' }}>{historySection.body}</p>
+                ) : (
+                  <>
+                    <p>
+                      <strong>The Malankara Catholic Church</strong> inherits the ancient faith of the Saint Thomas Christians (Nasranis) of India, tracing unbroken roots to the apostolic witness of St. Thomas in 52 AD along the Malabar coast.
+                    </p>
+                    <p>
+                      Through centuries of trials, the church preserved its venerable <strong>West Syriac (Antiochene) liturgical rite</strong>, distinguished by deep biblical imagery, rich poetic hymns, and profound reverence for the Holy Mysteries.
+                    </p>
+                    <p>
+                      On <strong>September 20, 1930</strong>, through the historic Reunion Movement guided by the <strong>Servant of God Archbishop Geevarghese Mar Ivanios</strong>, the church entered into full communion with the Holy See of Rome, creating an autonomous Eastern Catholic church sui iuris.
+                    </p>
+                    <p>
+                      Founded under the celestial patronage of <strong>St. Anthony of Padua</strong>, our parish community was established to gather faithful families, sustain heritage in the diaspora, and nurture new generations in vibrant Christian life and charitable works.
+                    </p>
+                  </>
+                )}
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.12}>
+              <div className="history-milestones">
+                <article className="history-milestone">
+                  <div className="history-milestone__header">
+                    <h4>Apostolic Dawn</h4>
+                    <span className="history-milestone__badge">AD 52</span>
+                  </div>
+                  <p>St. Thomas the Apostle brings the Gospel to India, sowing seeds of the vibrant Nasrani Christian faith.</p>
+                </article>
+
+                <article className="history-milestone">
+                  <div className="history-milestone__header">
+                    <h4>West Syriac Rite</h4>
+                    <span className="history-milestone__badge">Liturgical Rite</span>
+                  </div>
+                  <p>Adoption of the Antiochene liturgical tradition, celebrated with solemn chants, incense, and profound reverence.</p>
+                </article>
+
+                <article className="history-milestone">
+                  <div className="history-milestone__header">
+                    <h4>The Reunion</h4>
+                    <span className="history-milestone__badge">1930</span>
+                  </div>
+                  <p>Historic reunion with the universal Catholic Church led by Servant of God Archbishop Geevarghese Mar Ivanios.</p>
+                </article>
+
+                <article className="history-milestone">
+                  <div className="history-milestone__header">
+                    <h4>St. Anthony's Parish</h4>
+                    <span className="history-milestone__badge">Community</span>
+                  </div>
+                  <p>Our parish established under the patronage of St. Anthony, growing as a beacon of prayer, Sunday school, and fellowship.</p>
+                </article>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      <Cta
+        title="Come worship and grow in community."
+        label="Plan a visit or get in touch"
+        to="/contact"
+      />
+    </>
+  )
+}
 export function MinistriesPage() { return <><PageHeader eyebrow="Parish life" title="Many ways to grow together." intro="These ministry entries are fictional placeholders, designed for the real ministries the parish will later share." image={demoImages.hands} /><section className="section"><div className="container card-grid">{ministries.map((item, index) => <Reveal key={item.id} delay={index * .08}><MinistryCard ministry={item} /></Reveal>)}</div></section><Cta title="Find a way to connect." to="/contact" label="Get in touch" /></> }
 export function EventsPage() {
   const { data: upcomingData, isLoading: loadingUp } = usePublicEvents({ timeframe: 'upcoming', limit: 20 })
@@ -224,7 +491,6 @@ export function AlbumDetailPage() {
     </section>
   </>
 }
-const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
 export function ContactPage() {
   const { data: settings } = usePublicSettings()

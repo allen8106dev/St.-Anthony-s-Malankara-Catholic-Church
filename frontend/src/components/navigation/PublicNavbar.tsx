@@ -19,16 +19,66 @@ export function PublicNavbar() {
       <Link className="brand" to="/" aria-label={`${churchName} home`}><span className="brand__mark" aria-hidden="true">✦</span><span>{churchName}</span></Link>
       <button className="nav__toggle" type="button" aria-expanded={open} aria-controls="public-navigation" onClick={() => setOpen(!open)}><span aria-hidden="true">{open ? '×' : '☰'}</span><span className="sr-only">{open ? 'Close' : 'Open'} navigation</span></button>
       <nav id="public-navigation" className={`nav__links ${open ? 'nav__links--open' : ''}`} aria-label="Public navigation">
-        {publicNavigation.map((item) =>
-          item.to === '/announcements' ? (
-            <NavLink key={item.to} to={item.to} onClick={() => setOpen(false)} className="nav__announcements-link">
-              {item.label}
-              {hasAnnouncements && <span className="nav__announcement-dot" aria-label="New announcements" />}
-            </NavLink>
-          ) : (
+        {publicNavigation.map((item) => {
+          if (item.to === '/announcements') {
+            return (
+              <NavLink key={item.to} to={item.to} onClick={() => setOpen(false)} className="nav__announcements-link">
+                {item.label}
+                {hasAnnouncements && <span className="nav__announcement-dot" aria-label="New announcements" />}
+              </NavLink>
+            )
+          }
+
+          if (item.to === '/about') {
+            return (
+              <div key={item.to} className="nav__item nav__item--dropdown">
+                <NavLink to={item.to} onClick={() => setOpen(false)} className="nav__link nav__link--has-dropdown">
+                  {item.label}
+                  <span className="nav__caret" aria-hidden="true">▾</span>
+                </NavLink>
+                <div className="nav__dropdown-menu" role="menu" aria-label="About sections">
+                  <Link
+                    to="/about#timings"
+                    onClick={() => {
+                      setOpen(false)
+                      document.getElementById('timings')?.scrollIntoView({ behavior: 'smooth' })
+                    }}
+                    className="nav__dropdown-item"
+                    role="menuitem"
+                  >
+                    Timings
+                  </Link>
+                  <Link
+                    to="/about#priest"
+                    onClick={() => {
+                      setOpen(false)
+                      document.getElementById('priest')?.scrollIntoView({ behavior: 'smooth' })
+                    }}
+                    className="nav__dropdown-item"
+                    role="menuitem"
+                  >
+                    Our Priest
+                  </Link>
+                  <Link
+                    to="/about#history"
+                    onClick={() => {
+                      setOpen(false)
+                      document.getElementById('history')?.scrollIntoView({ behavior: 'smooth' })
+                    }}
+                    className="nav__dropdown-item"
+                    role="menuitem"
+                  >
+                    History
+                  </Link>
+                </div>
+              </div>
+            )
+          }
+
+          return (
             <NavLink key={item.to} to={item.to} onClick={() => setOpen(false)}>{item.label}</NavLink>
           )
-        )}
+        })}
         <NavLink className="button button--primary" to="/donate" onClick={() => setOpen(false)}>Donate <span aria-hidden="true">↗</span></NavLink>
       </nav>
     </Container>
