@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { demoImages, ministries } from '../../data/siteContent'
 import { Cta, EmptyPublicState, MinistryCard, PageHeader } from '../../components/public/PublicElements'
+import { LoadingState } from '../../components/ui/Feedback'
 import { Reveal } from '../../components/animation/Reveal'
 import { usePublicEvents, usePublicAnnouncements, usePublicGallery, usePublicAlbum, usePublicSettings, usePublicServiceTimes } from '../../hooks/usePublicContent'
 import { AnnouncementVisual } from '../../components/public/AnnouncementVisual'
@@ -88,7 +89,7 @@ export function EventsPage() {
     <section className="section">
       <div className="container">
         <div className="section-head"><div><p className="eyebrow">Calendar</p><h2 className="heading">Upcoming events</h2></div></div>
-        {loadingUp && <p role="status" style={{ color: 'var(--muted)' }}>Loading…</p>}
+        {loadingUp && <LoadingState text="Loading upcoming events…" />}
         {!loadingUp && upcoming.length === 0 && <EmptyPublicState title="No upcoming events" detail="Check back soon for parish gatherings." />}
         <div className="card-grid">
           {upcoming.map((ev, i) => (
@@ -151,7 +152,7 @@ export function AnnouncementsPage() {
     <PageHeader eyebrow="Parish news" title="Notices, shared with care." intro="Current parish announcements." />
     <section className="section">
       <div className="container">
-        {isLoading && <p role="status" style={{ color: 'var(--muted)' }}>Loading…</p>}
+        {isLoading && <LoadingState text="Loading parish announcements…" />}
         {!isLoading && items.length === 0 && <EmptyPublicState title="No announcements" detail="Parish notices will appear here when published." />}
         {renderGroup(items)}
       </div>
@@ -165,7 +166,7 @@ export function GalleryPage() {
     <PageHeader eyebrow="Gallery" title="Moments held close." intro="Parish photo albums." image={demoImages.architecture} />
     <section className="section">
       <div className="container">
-        {isLoading && <p role="status" style={{ color: 'var(--muted)' }}>Loading…</p>}
+        {isLoading && <LoadingState text="Loading photo albums…" />}
         {!isLoading && items.length === 0 && <EmptyPublicState title="No albums yet" detail="Parish photo albums will appear here when published." />}
         <div className="album-list">
           {items.map(album => (
@@ -205,7 +206,7 @@ export function AlbumDetailPage() {
           </Link>
         </div>
 
-        {isLoading && <p role="status" style={{ color: 'var(--muted)' }}>Loading album…</p>}
+        {isLoading && <LoadingState text="Loading album…" />}
         {!isLoading && isError && (
           <EmptyPublicState title="Album not found" detail="The requested album could not be found or has not been published." />
         )}

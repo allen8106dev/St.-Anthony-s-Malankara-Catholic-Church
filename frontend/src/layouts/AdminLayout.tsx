@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth, type AdminRole } from '../auth/AuthContext'
+import { GlobalLoadingIndicator } from '../components/ui/GlobalLoadingIndicator'
 
 type NavItem = { to: string; label: string; roles?: AdminRole[] }
 type NavGroup = { label: string; items: NavItem[] }
@@ -95,6 +96,7 @@ export function AdminLayout() {
       </aside>
 
       <main className="admin-main"><Outlet /></main>
+      <GlobalLoadingIndicator />
     </div>
   )
 }

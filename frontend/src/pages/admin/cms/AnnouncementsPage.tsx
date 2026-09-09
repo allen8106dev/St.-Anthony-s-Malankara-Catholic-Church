@@ -6,6 +6,7 @@ import { Pagination, SkeletonRows, ConfirmDialog } from '../../../components/adm
 import type { AnnouncementPayload } from '../../../types/cms'
 import { ImageUploader } from '../../../components/admin/ImageUploader'
 import { AnnouncementVisual } from '../../../components/public/AnnouncementVisual'
+import { LoadingState } from '../../../components/ui/Feedback'
 
 export function AnnouncementsPage() {
   const [params, setParams] = useSearchParams()
@@ -159,7 +160,7 @@ export function AnnouncementFormPage() {
     if (id) { await publish.mutateAsync({ id, action: 'publish' }); setDirty(false) }
   }
 
-  if (isLoading) return <p role="status">Loading…</p>
+  if (isLoading) return <LoadingState text="Loading announcement…" />
 
   const previewItem = { id: announcementId ?? 'preview', title: form.title || 'Your announcement title', description: form.description || null, image_url: form.image_url || null, expires_at: form.expires_at ?? null }
   const leave = () => { if (!dirty || window.confirm('Leave without saving?\n\nYour changes will be lost.')) navigate('/admin/content/announcements') }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAdminPageContent, useUpsertPageContent } from '../../../hooks/useCms'
 import { Field, UnsavedBanner } from '../../../components/admin/CmsShared'
 import { ImageUploader } from '../../../components/admin/ImageUploader'
+import { LoadingState } from '../../../components/ui/Feedback'
 import type { PageContent, PageContentPayload } from '../../../types/cms'
 
 const PAGE = 'homepage'
@@ -124,7 +125,7 @@ export function HomepagePage() {
     await upsert.mutateAsync({ section, data: { ...data, status: 'PUBLISHED' } })
   }
 
-  if (isLoading) return <p role="status">Loading…</p>
+  if (isLoading) return <LoadingState text="Loading homepage content…" />
 
   return (
     <div>

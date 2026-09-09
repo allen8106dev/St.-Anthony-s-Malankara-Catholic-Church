@@ -4,6 +4,7 @@ import { useAdminEvents, useAdminEvent, useCreateEvent, useUpdateEvent, usePubli
 import { CmsStatusBadge, PublishActions, UnsavedBanner, FormSection, Field } from '../../../components/admin/CmsShared'
 import { ConfirmDialog, Pagination, SkeletonRows } from '../../../components/admin/AdminShared'
 import { ImageUploader } from '../../../components/admin/ImageUploader'
+import { LoadingState } from '../../../components/ui/Feedback'
 import type { EventPayload } from '../../../types/cms'
 
 const STATUSES = [
@@ -172,7 +173,7 @@ export function EventFormPage() {
     setConfirmAction(null)
   }
 
-  if (isLoading) return <p role="status">Loading…</p>
+  if (isLoading) return <LoadingState text="Loading event…" />
 
   return (
     <div>

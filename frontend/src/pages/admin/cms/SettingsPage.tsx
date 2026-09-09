@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAdminSettings, useUpsertSetting } from '../../../hooks/useCms'
 import { FormSection, Field } from '../../../components/admin/CmsShared'
+import { LoadingState } from '../../../components/ui/Feedback'
 
 const SETTING_DEFS: { key: string; label: string; helper?: string; type?: 'url' }[] = [
   { key: 'church_name', label: 'Church name', helper: 'Full official name of the parish.' },
@@ -49,7 +50,7 @@ export function SettingsPage() {
     }
   }
 
-  if (isLoading) return <p role="status">Loading…</p>
+  if (isLoading) return <LoadingState text="Loading church settings…" />
 
   return (
     <div>

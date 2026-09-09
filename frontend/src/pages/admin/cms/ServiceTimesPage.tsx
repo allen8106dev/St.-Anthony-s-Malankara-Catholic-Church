@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAdminServiceTimes, useCreateServiceTime, useUpdateServiceTime, useDeleteServiceTime } from '../../../hooks/useCms'
 import { ConfirmDialog } from '../../../components/admin/AdminShared'
 import { Field } from '../../../components/admin/CmsShared'
+import { LoadingState } from '../../../components/ui/Feedback'
 import type { CmsServiceTime, ServiceTimePayload } from '../../../types/cms'
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -93,7 +94,7 @@ export function ServiceTimesPage() {
             <th><span className="sr-only">Actions</span></th>
           </tr></thead>
           <tbody>
-            {isLoading && <tr><td colSpan={6}><p role="status" style={{ padding: '1rem' }}>Loading…</p></td></tr>}
+            {isLoading && <tr><td colSpan={6}><div style={{ padding: '2rem 1rem' }}><LoadingState text="Loading service times…" /></div></td></tr>}
             {!isLoading && serviceTimes?.length === 0 && (
               <tr><td colSpan={6}><div className="admin-empty"><p>No service times yet.</p></div></td></tr>
             )}

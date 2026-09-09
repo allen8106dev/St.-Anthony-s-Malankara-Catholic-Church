@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { CustomCursor } from '../components/animation/CustomCursor'
 import { PublicFooter } from '../components/layout/PublicFooter'
 import { PublicNavbar } from '../components/navigation/PublicNavbar'
+import { GlobalLoadingIndicator } from '../components/ui/GlobalLoadingIndicator'
 
 const pageMeta: Record<string, { title: string; description: string }> = {
   '/': { title: "St. Anthony's Malankara Catholic Church", description: 'A welcoming online home for prayer, community, and parish life.' },
@@ -29,6 +30,6 @@ export function PublicLayout() {
     if (!location.hash) window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
   }, [location.pathname, location.hash])
 
-  return <div className="site-shell"><PublicNavbar /><main key={location.pathname} className="public-route"><Outlet /></main><PublicFooter /><CustomCursor /></div>
+  return <div className="site-shell"><PublicNavbar /><main key={location.pathname} className="public-route"><Outlet /></main><PublicFooter /><CustomCursor /><GlobalLoadingIndicator /></div>
 }
 

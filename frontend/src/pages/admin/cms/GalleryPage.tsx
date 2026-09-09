@@ -7,6 +7,7 @@ import {
 import { CmsStatusBadge, PublishActions, FormSection, Field } from '../../../components/admin/CmsShared'
 import { ConfirmDialog } from '../../../components/admin/AdminShared'
 import { ImageUploader } from '../../../components/admin/ImageUploader'
+import { LoadingState } from '../../../components/ui/Feedback'
 import { apiClient } from '../../../services/apiClient'
 import type { AlbumPayload } from '../../../types/cms'
 
@@ -44,7 +45,7 @@ export function GalleryPage() {
       </div>
 
       {createError && <p className="admin-form-error" role="alert" style={{ marginBottom: '1rem' }}>{createError}</p>}
-      {isLoading && <p role="status">Loading…</p>}
+      {isLoading && <LoadingState text="Loading photo albums…" />}
       {isError && <p role="alert" style={{ color: '#a0332b' }}>Failed to load albums.</p>}
 
       <div className="cms-album-grid">
@@ -368,7 +369,7 @@ export function AlbumEditorPage() {
     }
   }
 
-  if (isLoading) return <p role="status">Loading…</p>
+  if (isLoading) return <LoadingState text="Loading album…" />
   if (!album) return <p role="alert">Album not found.</p>
 
   return (

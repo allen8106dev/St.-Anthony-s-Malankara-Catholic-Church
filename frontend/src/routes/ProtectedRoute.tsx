@@ -1,9 +1,11 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth, type AdminRole } from '../auth/AuthContext'
+import { BibleLoader } from '../components/ui/BibleLoader'
 
 export function ProtectedRoute({ roles }: { roles?: AdminRole[] }) {
   const { isAuthenticated, isLoading, currentUser } = useAuth(); const location = useLocation()
   if (isLoading) return <div className="auth-loading">Loading secure administration…</div>
+  if (isLoading) return <BibleLoader text="Loading secure administration…" fullScreen />
   if (!isAuthenticated) return <Navigate to="/login" replace state={{ from: location.pathname }} />
   if (roles && currentUser && !roles.includes(currentUser.role)) return <Navigate to="/admin" replace />
   return <Outlet />
