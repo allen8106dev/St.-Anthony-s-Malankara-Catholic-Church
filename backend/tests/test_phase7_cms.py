@@ -370,14 +370,13 @@ def test_create_service_time(client):
         "day_of_week": 0,
         "start_time": "08:00:00",
         "service_name": "Holy Qurbana",
-        "location": "Main Church",
-        "sort_order": 1,
-        "is_active": True,
+        "status": "ACTIVE",
     })
     assert r.status_code == 201
     data = r.json()
     assert data["service_name"] == "Holy Qurbana"
     assert data["is_active"] is True
+    assert data["status"] == "ACTIVE"
 
 
 def test_update_service_time(client):
@@ -431,6 +430,17 @@ def test_service_time_day_validation(client):
         "day_of_week": 9, "start_time": "08:00:00", "service_name": "Bad Day"
     })
     assert r.status_code == 422
+
+
+def test_cancelled_service_time_not_public(client):
+    tc, _ = client
+    login(tc)
+    tc.post("/api/v1/admin/cms/service-times", json={
+        "day_of_week": 3, "start_time": "18:00:00",
+        "service_name": "Cancelled Service", "status": "CANCELLED",
+    })
+    pub = tc.get("/api/v1/public/service-times")
+    assert not any(s["service_name"] == "Cancelled Service" for s in pub.json())
 
 
 # ── Page Content ──────────────────────────────────────────────────────────────

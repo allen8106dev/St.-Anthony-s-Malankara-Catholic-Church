@@ -79,6 +79,16 @@ function GalleryLightboxPublic({ albums }: { albums: PublicAlbum[] }) {
 
 const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
+function formatServiceClock(value: string) {
+  const [hourStr, minuteStr] = value.split(':')
+  const hour = Number(hourStr)
+  const minute = Number(minuteStr)
+  if (Number.isNaN(hour) || Number.isNaN(minute)) return value
+  const suffix = hour >= 12 ? 'PM' : 'AM'
+  const hour12 = ((hour + 11) % 12) + 1
+  return `${hour12}:${String(minute).padStart(2, '0')} ${suffix}`
+}
+
 export function AboutPage() {
   const location = useLocation()
   const { data: serviceTimesData, isLoading: loadingServices } = usePublicServiceTimes()
@@ -103,7 +113,7 @@ export function AboutPage() {
     }
   }, [location.hash])
 
-  const activeServices = (serviceTimesData ?? []).filter(st => st.is_active)
+  const activeServices = serviceTimesData ?? []
 
   return (
     <>
@@ -133,79 +143,26 @@ export function AboutPage() {
 
           {loadingServices ? (
             <LoadingState text="Loading service timings…" />
-          ) : activeServices.length > 0 ? (
-            <div className="timings-grid">
-              {activeServices
-                .slice()
-                .sort((a, b) => a.sort_order - b.sort_order || a.day_of_week - b.day_of_week)
-                .map((st, i) => (
-                  <Reveal key={st.id} delay={i * 0.06}>
-                    <article className={`timing-card ${st.day_of_week === 0 ? 'timing-card--featured' : ''}`}>
-                      <div>
-                        <span className="timing-card__day">
-                          <span aria-hidden="true">✦</span> {DAYS_OF_WEEK[st.day_of_week] ?? 'Weekly'}
-                        </span>
-                        <h3 className="timing-card__title">{st.service_name}</h3>
-                        <div className="timing-card__time">
-                          <span aria-hidden="true">⏱</span> {st.start_time}{st.end_time ? ` – ${st.end_time}` : ''}
-                        </div>
-                        {st.description && <p className="timing-card__desc">{st.description}</p>}
-                      </div>
-                      {st.location && (
-                        <div className="timing-card__location">
-                          <span aria-hidden="true">📍</span> {st.location}
-                        </div>
-                      )}
-                    </article>
-                  </Reveal>
-                ))}
-            </div>
           ) : (
             <div className="timings-grid">
-              <Reveal delay={0}>
-                <article className="timing-card timing-card--featured">
-                  <div>
-                    <span className="timing-card__day"><span aria-hidden="true">✦</span> Sunday</span>
-                    <h3 className="timing-card__title">Holy Qurbana</h3>
-                    <div className="timing-card__time"><span aria-hidden="true">⏱</span> 9:00 AM & 9:45 AM</div>
-                    <p className="timing-card__desc">Morning Prayer (Sapra) at 9:00 AM, followed by solemn Holy Qurbana in the West Syriac tradition. Concludes with Sunday School and Agape fellowship.</p>
-                  </div>
-                  <div className="timing-card__location"><span aria-hidden="true">📍</span> Main Sanctuary</div>
-                </article>
-              </Reveal>
-              <Reveal delay={0.06}>
-                <article className="timing-card">
-                  <div>
-                    <span className="timing-card__day"><span aria-hidden="true">✦</span> Friday</span>
-                    <h3 className="timing-card__title">St. Anthony Novena & Prayer</h3>
-                    <div className="timing-card__time"><span aria-hidden="true">⏱</span> 6:30 PM</div>
-                    <p className="timing-card__desc">Evening Prayer (Ramsho), Holy Mass, and perpetual novena prayers through the intercession of St. Anthony of Padua.</p>
-                  </div>
-                  <div className="timing-card__location"><span aria-hidden="true">📍</span> Chapel / Sanctuary</div>
-                </article>
-              </Reveal>
-              <Reveal delay={0.12}>
-                <article className="timing-card">
-                  <div>
-                    <span className="timing-card__day"><span aria-hidden="true">✦</span> Saturday</span>
-                    <h3 className="timing-card__title">Evening Prayer & Memorial</h3>
-                    <div className="timing-card__time"><span aria-hidden="true">⏱</span> 6:00 PM</div>
-                    <p className="timing-card__desc">Evening prayer in preparation for the Lord's Day, with prayerful remembrance of departed parish faithful.</p>
-                  </div>
-                  <div className="timing-card__location"><span aria-hidden="true">📍</span> Main Sanctuary</div>
-                </article>
-              </Reveal>
-              <Reveal delay={0.18}>
-                <article className="timing-card">
-                  <div>
-                    <span className="timing-card__day"><span aria-hidden="true">✦</span> Feast Days</span>
-                    <h3 className="timing-card__title">Solemn Feasts & Perunnal</h3>
-                    <div className="timing-card__time"><span aria-hidden="true">⏱</span> Announced seasonally</div>
-                    <p className="timing-card__desc">Annual parish feast of St. Anthony of Padua, Danaha, Holy Week, and solemnities of the liturgical calendar.</p>
-                  </div>
-                  <div className="timing-card__location"><span aria-hidden="true">📍</span> Church Campus</div>
-                </article>
-              </Reveal>
+              {(activeServices.length > 0 ? activeServices.slice().sort((a, b) => a.day_of_week - b.day_of_week) : [
+                { id: 'fallback-sunday', day_of_week: 0, start_time: '08:30:00', end_time: null, service_name: 'Holy Qurbana' },
+                { id: 'fallback-tuesday', day_of_week: 2, start_time: '18:30:00', end_time: null, service_name: 'Evening Prayer' },
+              ]).map((st, i) => (
+                <Reveal key={st.id} delay={i * 0.06}>
+                  <article className={`timing-card ${st.day_of_week === 0 ? 'timing-card--featured' : ''}`}>
+                    <div>
+                      <span className="timing-card__day">
+                        <span aria-hidden="true">✦</span> {DAYS_OF_WEEK[st.day_of_week] ?? 'Weekly'}
+                      </span>
+                      <h3 className="timing-card__title">{st.service_name}</h3>
+                      <div className="timing-card__time">
+                        <span aria-hidden="true">⏱</span> {formatServiceClock(st.start_time)}{st.end_time ? ` – ${formatServiceClock(st.end_time)}` : ''}
+                      </div>
+                    </div>
+                  </article>
+                </Reveal>
+              ))}
             </div>
           )}
 
@@ -505,7 +462,7 @@ export function ContactPage() {
   const officeHours = s.office_hours || null
   const { safeUrl, embedUrl } = safeGoogleMapsConfig(s.google_maps_url || null)
 
-  const activeServices = (serviceTimes ?? []).filter(st => st.is_active)
+  const activeServices = serviceTimes ?? []
 
   return <>
     <PageHeader
@@ -600,8 +557,8 @@ export function ContactPage() {
               {activeServices.slice(0, 4).map(st => (
                 <div key={st.id} className="contact-service-pill">
                   <div className="contact-service-pill__day">{DAYS_OF_WEEK[st.day_of_week]}</div>
-                  <div className="contact-service-pill__time">{st.start_time.slice(0, 5)}</div>
-                  <div className="contact-service-pill__name">{st.service_name}{st.location ? ` · ${st.location}` : ''}</div>
+                  <div className="contact-service-pill__time">{formatServiceClock(st.start_time)}</div>
+                  <div className="contact-service-pill__name">{st.service_name}</div>
                 </div>
               ))}
             </div>

@@ -24,6 +24,7 @@ class PaymentStatus(str, enum.Enum): PENDING = "PENDING"; COMPLETED = "COMPLETED
 class PaymentMethod(str, enum.Enum): CASH = "CASH"; BANK_TRANSFER = "BANK_TRANSFER"; UPI = "UPI"; CHEQUE = "CHEQUE"; ONLINE = "ONLINE"; OTHER = "OTHER"
 class PublicationStatus(str, enum.Enum): DRAFT = "DRAFT"; PUBLISHED = "PUBLISHED"; ARCHIVED = "ARCHIVED"
 class EventStatus(str, enum.Enum): DRAFT = "DRAFT"; PUBLISHED = "PUBLISHED"; CANCELLED = "CANCELLED"; COMPLETED = "COMPLETED"
+class ServiceTimeStatus(str, enum.Enum): ACTIVE = "ACTIVE"; INACTIVE = "INACTIVE"; CANCELLED = "CANCELLED"
 class Role(Base, Timestamped):
     __tablename__ = "roles"
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -222,3 +223,4 @@ class ServiceTime(Base, Timestamped):
     description: Mapped[str | None] = mapped_column(Text)
     sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    status: Mapped[ServiceTimeStatus] = mapped_column(Enum(ServiceTimeStatus, name="service_time_status"), default=ServiceTimeStatus.ACTIVE, nullable=False)

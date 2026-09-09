@@ -1,5 +1,6 @@
 export type PublicationStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
 export type EventStatus = 'DRAFT' | 'PUBLISHED' | 'CANCELLED' | 'COMPLETED'
+export type ServiceTimeStatus = 'ACTIVE' | 'INACTIVE' | 'CANCELLED'
 
 export interface CmsDashboard {
   published_events: number
@@ -96,10 +97,8 @@ export interface CmsServiceTime {
   start_time: string
   end_time: string | null
   service_name: string
-  location: string | null
-  description: string | null
-  sort_order: number
   is_active: boolean
+  status: ServiceTimeStatus
   created_at: string
   updated_at: string
 }
@@ -109,10 +108,7 @@ export interface ServiceTimePayload {
   start_time: string
   end_time?: string | null
   service_name: string
-  location?: string | null
-  description?: string | null
-  sort_order?: number
-  is_active?: boolean
+  status: ServiceTimeStatus
 }
 
 export interface PageContent {

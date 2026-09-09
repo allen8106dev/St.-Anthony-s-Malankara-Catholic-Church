@@ -26,4 +26,4 @@ class PublicContent(PublicModel):
     page: str; section: str; heading: str | None; body: str | None; image_url: str | None
 class PublicSetting(PublicModel): key: str; value: str
 class PublicServiceTime(PublicModel):
-    id: UUID; day_of_week: int; start_time: time; end_time: time | None; service_name: str; location: str | None; description: str | None
+    id: UUID; day_of_week: int; start_time: time; end_time: time | None; service_name: str

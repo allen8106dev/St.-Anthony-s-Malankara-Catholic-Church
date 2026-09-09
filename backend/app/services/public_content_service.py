@@ -2,7 +2,7 @@
 from datetime import datetime, timezone
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
-from app.models.domain import Announcement, Event, EventStatus, GalleryAlbum, PageContent, PublicationStatus, ServiceTime, SiteSetting
+from app.models.domain import Announcement, Event, EventStatus, GalleryAlbum, PageContent, PublicationStatus, ServiceTime, ServiceTimeStatus, SiteSetting
 
 def paged(db: Session, statement, offset: int, limit: int):
     total = db.scalar(select(func.count()).select_from(statement.order_by(None).subquery())) or 0
@@ -27,4 +27,4 @@ def content(db: Session, page: str | None):
     if page: stmt = stmt.where(PageContent.page == page)
     return db.scalars(stmt.order_by(PageContent.page, PageContent.section)).all()
 def settings(db: Session): return db.scalars(select(SiteSetting).where(SiteSetting.is_public.is_(True)).order_by(SiteSetting.key)).all()
-def service_times(db: Session): return db.scalars(select(ServiceTime).where(ServiceTime.is_active.is_(True)).order_by(ServiceTime.day_of_week, ServiceTime.start_time)).all()
+def service_times(db: Session): return db.scalars(select(ServiceTime).where(ServiceTime.status == ServiceTimeStatus.ACTIVE).order_by(ServiceTime.day_of_week, ServiceTime.start_time)).all()

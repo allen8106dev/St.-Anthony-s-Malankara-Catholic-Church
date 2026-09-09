@@ -1,17 +1,31 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { Container } from '../ui/Container'
 import { publicNavigation, siteName } from '../../data/siteContent'
 import { usePublicSettings, usePublicAnnouncements } from '../../hooks/usePublicContent'
 
+function closeFocusedNav() {
+  const active = document.activeElement
+  if (active instanceof HTMLElement) active.blur()
+}
+
 export function PublicNavbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const [aboutHover, setAboutHover] = useState(false)
+  const suppressAboutHover = useRef(false)
   const { data: settings } = usePublicSettings()
   const { data: announcementsData } = usePublicAnnouncements(1)
   const s = Object.fromEntries((settings ?? []).map(item => [item.key, item.value]))
   const churchName = s.church_name || siteName
   const hasAnnouncements = (announcementsData?.meta?.total ?? 0) > 0
+
+  function closeAboutMenu() {
+    suppressAboutHover.current = true
+    setAboutHover(false)
+    setOpen(false)
+    closeFocusedNav()
+  }
 
   useEffect(() => { const onScroll = () => setScrolled(window.scrollY > 24); onScroll(); window.addEventListener('scroll', onScroll, { passive: true }); return () => window.removeEventListener('scroll', onScroll) }, [])
   return <header className={`nav ${scrolled || open ? 'nav--scrolled' : ''}`}>
@@ -31,8 +45,18 @@ export function PublicNavbar() {
 
           if (item.to === '/about') {
             return (
-              <div key={item.to} className="nav__item nav__item--dropdown">
-                <NavLink to={item.to} onClick={() => setOpen(false)} className="nav__link nav__link--has-dropdown">
+              <div
+                key={item.to}
+                className={`nav__item nav__item--dropdown ${aboutHover ? 'nav__item--dropdown-open' : ''}`}
+                onMouseEnter={() => {
+                  if (!suppressAboutHover.current) setAboutHover(true)
+                }}
+                onMouseLeave={() => {
+                  suppressAboutHover.current = false
+                  setAboutHover(false)
+                }}
+              >
+                <NavLink to={item.to} onClick={closeAboutMenu} className="nav__link nav__link--has-dropdown">
                   {item.label}
                   <span className="nav__caret" aria-hidden="true">▾</span>
                 </NavLink>
@@ -40,7 +64,7 @@ export function PublicNavbar() {
                   <Link
                     to="/about#timings"
                     onClick={() => {
-                      setOpen(false)
+                      closeAboutMenu()
                       document.getElementById('timings')?.scrollIntoView({ behavior: 'smooth' })
                     }}
                     className="nav__dropdown-item"
@@ -51,7 +75,7 @@ export function PublicNavbar() {
                   <Link
                     to="/about#priest"
                     onClick={() => {
-                      setOpen(false)
+                      closeAboutMenu()
                       document.getElementById('priest')?.scrollIntoView({ behavior: 'smooth' })
                     }}
                     className="nav__dropdown-item"
@@ -62,7 +86,7 @@ export function PublicNavbar() {
                   <Link
                     to="/about#history"
                     onClick={() => {
-                      setOpen(false)
+                      closeAboutMenu()
                       document.getElementById('history')?.scrollIntoView({ behavior: 'smooth' })
                     }}
                     className="nav__dropdown-item"

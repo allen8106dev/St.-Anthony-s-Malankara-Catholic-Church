@@ -25,6 +25,6 @@ export const announcements: Announcement[] = [{ id: 'welcome', title: 'A note fr
 
 export type Album = { id: string; title: string; description: string; cover: DemoImage; images: DemoImage[] }
 export const albums: Album[] = [{ id: 'moments', title: 'Parish moments', description: 'Demo album for future church photography.', cover: demoImages.gathering, images: [demoImages.gathering, demoImages.community, demoImages.hands] }, { id: 'quiet', title: 'Quiet spaces', description: 'A placeholder collection for imagery of prayer and worship.', cover: demoImages.prayer, images: [demoImages.prayer, demoImages.sanctuary, demoImages.architecture] }]
-export const serviceTimes = [{ day: 'Sunday', time: 'Time to be confirmed', name: 'Holy Qurbana', location: 'Church sanctuary' }, { day: 'Weekday', time: 'Time to be confirmed', name: 'Prayer gathering', location: 'Church sanctuary' }, { day: 'Seasonal', time: 'Schedule forthcoming', name: 'Special services', location: 'Parish campus' }] as const
+export const serviceTimes = [{ day: 'Sunday', time: '8:30 AM', name: 'Holy Qurbana' }, { day: 'Tuesday', time: '6:30 PM', name: 'Evening Prayer' }] as const
 export const upcomingEvents = events.map(({ date, title, description }) => ({ date: new Date(`${date}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), title, detail: description }))
 export const ministryPreviews = ministries.map((ministry, index) => ({ number: String(index + 1).padStart(2, '0'), title: ministry.name, detail: ministry.description }))

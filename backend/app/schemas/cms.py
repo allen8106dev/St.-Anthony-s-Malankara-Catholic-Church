@@ -1,8 +1,8 @@
 """CMS admin schemas — never exposed through public routes."""
 from datetime import date as Date, datetime, time
 from uuid import UUID
-from pydantic import BaseModel, ConfigDict, Field, field_validator
-from app.models.domain import EventStatus, PublicationStatus
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from app.models.domain import EventStatus, PublicationStatus, ServiceTimeStatus
 
 
 class CmsModel(BaseModel):
@@ -201,10 +201,15 @@ class ServiceTimeCreate(BaseModel):
     start_time: time
     end_time: time | None = None
     service_name: str = Field(min_length=1, max_length=200)
-    location: str | None = Field(default=None, max_length=250)
-    description: str | None = None
-    sort_order: int = 0
-    is_active: bool = True
+    status: ServiceTimeStatus = ServiceTimeStatus.ACTIVE
+    is_active: bool | None = None
+
+    @model_validator(mode="after")
+    def sync_status(self):
+        if self.is_active is not None and "status" not in self.model_fields_set:
+            self.status = ServiceTimeStatus.ACTIVE if self.is_active else ServiceTimeStatus.INACTIVE
+        self.is_active = self.status == ServiceTimeStatus.ACTIVE
+        return self
 
 
 class ServiceTimeUpdate(BaseModel):
@@ -212,10 +217,16 @@ class ServiceTimeUpdate(BaseModel):
     start_time: time | None = None
     end_time: time | None = None
     service_name: str | None = Field(default=None, min_length=1, max_length=200)
-    location: str | None = Field(default=None, max_length=250)
-    description: str | None = None
-    sort_order: int | None = None
+    status: ServiceTimeStatus | None = None
     is_active: bool | None = None
+
+    @model_validator(mode="after")
+    def sync_status(self):
+        if "status" in self.model_fields_set and self.status is not None:
+            self.is_active = self.status == ServiceTimeStatus.ACTIVE
+        elif "is_active" in self.model_fields_set and self.is_active is not None:
+            self.status = ServiceTimeStatus.ACTIVE if self.is_active else ServiceTimeStatus.INACTIVE
+        return self
 
 
 class ServiceTimeRead(CmsModel):
@@ -228,6 +239,7 @@ class ServiceTimeRead(CmsModel):
     description: str | None
     sort_order: int
     is_active: bool
+    status: ServiceTimeStatus
     created_at: datetime
     updated_at: datetime
 

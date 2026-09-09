@@ -12,7 +12,7 @@ export interface PublicAnnouncement {
 interface PublicGalleryImage { id: string; image_url: string; alt_text: string; caption: string | null; sort_order: number }
 interface PublicAlbum { id: string; title: string; description: string | null; cover_image_url: string | null; images: PublicGalleryImage[] }
 interface PublicContent { page: string; section: string; heading: string | null; body: string | null; image_url: string | null }
-interface PublicServiceTime { id: string; day_of_week: number; start_time: string; end_time: string | null; service_name: string; location: string | null; description: string | null; sort_order: number; is_active: boolean }
+interface PublicServiceTime { id: string; day_of_week: number; start_time: string; end_time: string | null; service_name: string }
 interface PublicSetting { key: string; value: string }
 interface Paged<T> { items: T[]; meta: { offset: number; limit: number; total: number } }
 

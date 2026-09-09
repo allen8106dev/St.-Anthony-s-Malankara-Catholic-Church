@@ -156,8 +156,7 @@ img { max-width: 100%; display: block; }
   transition: transform 0.2s ease;
   opacity: 0.8;
 }
-.nav__item--dropdown:hover .nav__caret,
-.nav__item--dropdown:focus-within .nav__caret {
+.nav__item--dropdown-open .nav__caret {
   transform: rotate(180deg);
 }
 .nav__dropdown-menu {
@@ -187,8 +186,7 @@ img { max-width: 100%; display: block; }
   right: 0;
   height: 0.75rem;
 }
-.nav__item--dropdown:hover .nav__dropdown-menu,
-.nav__item--dropdown:focus-within .nav__dropdown-menu {
+.nav__item--dropdown-open .nav__dropdown-menu {
   opacity: 1;
   pointer-events: auto;
   visibility: visible;
@@ -981,6 +979,17 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
 .admin-table tbody tr { transition: background-color .15s ease; }
 .admin-table tbody tr:hover { background: #f8fafc; }
 .admin-table .actions { display: flex; gap: .5rem; }
+
+.st-list { display: grid; gap: .75rem; }
+.st-card { background: #ffffff; border: 1px solid var(--admin-border); border-radius: var(--admin-radius-card); box-shadow: var(--admin-shadow-card); overflow: hidden; }
+.st-card__head { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.25rem; border: 0; background: transparent; text-align: left; cursor: pointer; font: inherit; color: inherit; }
+.st-card__head:hover, .st-card--open .st-card__head { background: #f8fafc; }
+.st-card__head--static { cursor: default; }
+.st-card__head strong { display: block; font-size: .98rem; }
+.st-card__meta { display: block; margin-top: .2rem; color: var(--admin-text-muted); font-size: .85rem; }
+.st-card__body { padding: 0 1.25rem 1.25rem; border-top: 1px solid var(--admin-border); }
+.st-card__form { display: grid; gap: 1rem; padding-top: 1rem; }
+.st-card__actions { display: flex; justify-content: flex-end; gap: .6rem; flex-wrap: wrap; }
 
 /* Status Badges - Smooth Cool Pills */
 .status-badge, .cms-status-badge, .payment-method-badge { display: inline-flex; align-items: center; gap: .4rem; padding: .28rem .75rem; font-size: .75rem; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; border-radius: var(--admin-radius-pill); }

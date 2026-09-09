@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.models.domain import (
     AdminUser, Announcement, AuditLog, Event, EventStatus,
     GalleryAlbum, GalleryImage, PageContent, PublicationStatus,
-    ServiceTime, SiteSetting,
+    ServiceTime, ServiceTimeStatus, SiteSetting,
 )
 from app.schemas.cms import (
     AlbumCreate, AlbumUpdate, AnnouncementCreate, AnnouncementUpdate,
@@ -47,7 +47,7 @@ def dashboard(db: Session) -> dict:
             )
         ) or 0,
         "gallery_albums": db.scalar(select(func.count(GalleryAlbum.id))) or 0,
-        "service_times": db.scalar(select(func.count(ServiceTime.id)).where(ServiceTime.is_active.is_(True))) or 0,
+        "service_times": db.scalar(select(func.count(ServiceTime.id)).where(ServiceTime.status == ServiceTimeStatus.ACTIVE)) or 0,
     }
 
 
@@ -221,7 +221,7 @@ def remove_image(db: Session, image: GalleryImage, actor: AdminUser) -> None:
 
 # ── Service Times ─────────────────────────────────────────────────────────────
 def list_service_times(db: Session) -> list[ServiceTime]:
-    return db.scalars(select(ServiceTime).order_by(ServiceTime.sort_order, ServiceTime.day_of_week, ServiceTime.start_time)).all()
+    return db.scalars(select(ServiceTime).order_by(ServiceTime.day_of_week, ServiceTime.start_time)).all()
 
 
 def get_service_time(db: Session, st_id: uuid.UUID) -> ServiceTime | None:
@@ -229,7 +229,7 @@ def get_service_time(db: Session, st_id: uuid.UUID) -> ServiceTime | None:
 
 
 def create_service_time(db: Session, data: ServiceTimeCreate, actor: AdminUser) -> ServiceTime:
-    st = ServiceTime(**data.model_dump())
+    st = ServiceTime(**data.model_dump(exclude_none=True))
     db.add(st)
     db.flush()
     _audit(db, actor, "content.service_time.created", "service_time", str(st.id), {"name": st.service_name})
