@@ -33,7 +33,6 @@ export function HomePage() {
           <p className="lede">{heroSection?.body ?? `${churchName} is preparing a home online for prayer, community, and parish life.`}</p>
           <div className="actions">
             <Link className="button button--light" to="/about">Discover our parish <span aria-hidden="true">↗</span></Link>
-            <Link className="button button--outline" to="/contact">Plan a visit</Link>
           </div>
         </Reveal>
       </Container>
