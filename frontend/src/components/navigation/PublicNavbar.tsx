@@ -2,14 +2,16 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { Container } from '../ui/Container'
 import { publicNavigation, siteName } from '../../data/siteContent'
-import { usePublicSettings } from '../../hooks/usePublicContent'
+import { usePublicSettings, usePublicAnnouncements } from '../../hooks/usePublicContent'
 
 export function PublicNavbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
   const { data: settings } = usePublicSettings()
+  const { data: announcementsData } = usePublicAnnouncements(1)
   const s = Object.fromEntries((settings ?? []).map(item => [item.key, item.value]))
   const churchName = s.church_name || siteName
+  const hasAnnouncements = (announcementsData?.meta?.total ?? 0) > 0
 
   useEffect(() => { const onScroll = () => setScrolled(window.scrollY > 24); onScroll(); window.addEventListener('scroll', onScroll, { passive: true }); return () => window.removeEventListener('scroll', onScroll) }, [])
   return <header className={`nav ${scrolled || open ? 'nav--scrolled' : ''}`}>
@@ -17,7 +19,16 @@ export function PublicNavbar() {
       <Link className="brand" to="/" aria-label={`${churchName} home`}><span className="brand__mark" aria-hidden="true">✦</span><span>{churchName}</span></Link>
       <button className="nav__toggle" type="button" aria-expanded={open} aria-controls="public-navigation" onClick={() => setOpen(!open)}><span aria-hidden="true">{open ? '×' : '☰'}</span><span className="sr-only">{open ? 'Close' : 'Open'} navigation</span></button>
       <nav id="public-navigation" className={`nav__links ${open ? 'nav__links--open' : ''}`} aria-label="Public navigation">
-        {publicNavigation.map((item) => <NavLink key={item.to} to={item.to} onClick={() => setOpen(false)}>{item.label}</NavLink>)}
+        {publicNavigation.map((item) =>
+          item.to === '/announcements' ? (
+            <NavLink key={item.to} to={item.to} onClick={() => setOpen(false)} className="nav__announcements-link">
+              {item.label}
+              {hasAnnouncements && <span className="nav__announcement-dot" aria-label="New announcements" />}
+            </NavLink>
+          ) : (
+            <NavLink key={item.to} to={item.to} onClick={() => setOpen(false)}>{item.label}</NavLink>
+          )
+        )}
         <NavLink className="button button--primary" to="/donate" onClick={() => setOpen(false)}>Donate <span aria-hidden="true">↗</span></NavLink>
       </nav>
     </Container>

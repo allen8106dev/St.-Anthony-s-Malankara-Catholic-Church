@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Container } from '../../components/ui/Container'
 import { Reveal } from '../../components/animation/Reveal'
-import { usePublicEvents, usePublicServiceTimes, usePublicContent, usePublicSettings, usePublicAnnouncements } from '../../hooks/usePublicContent'
+import { usePublicEvents, usePublicServiceTimes, usePublicContent, usePublicSettings, usePublicAnnouncements, usePublicGallery } from '../../hooks/usePublicContent'
 import { demoImages, ministryPreviews, siteName } from '../../data/siteContent'
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -40,6 +40,7 @@ export function HomePage() {
   const { data: serviceTimes } = usePublicServiceTimes()
   const { data: heroContent } = usePublicContent('homepage')
   const { data: settings } = usePublicSettings()
+  const { data: galleryData } = usePublicGallery(10)
   const s = Object.fromEntries((settings ?? []).map(item => [item.key, item.value]))
   const churchName = s.church_name || siteName
 
@@ -51,8 +52,12 @@ export function HomePage() {
   const upcomingEvents = eventsData?.items ?? []
   const activeServiceTimes = serviceTimes ?? []
 
+  // Collect images from all albums (most recently added first) and take 3
+  const allGalleryImages = (galleryData?.items ?? []).flatMap(album => album.images)
+  const previewImages = allGalleryImages.slice(0, 3)
+
   return <>
-    <section className="hero">
+    <section className="hero hero--full">
       <img src={heroSection?.image_url || demoImages.sanctuary.src} alt="" className="hero__bg-img" aria-hidden="true" />
       <div className="hero__art" aria-hidden="true" />
       <Container className="hero__content">
@@ -199,6 +204,17 @@ export function HomePage() {
             <img src={demoImages.sanctuary.src} alt={demoImages.sanctuary.alt} loading="lazy" />
             <img src={demoImages.prayer.src} alt={demoImages.prayer.alt} loading="lazy" />
             <img src={demoImages.community.src} alt={demoImages.community.alt} loading="lazy" />
+            {previewImages.length > 0 ? (
+              previewImages.map(img => (
+                <img key={img.id} src={img.image_url} alt={img.alt_text} loading="lazy" />
+              ))
+            ) : (
+              <>
+                <img src={demoImages.sanctuary.src} alt={demoImages.sanctuary.alt} loading="lazy" />
+                <img src={demoImages.prayer.src} alt={demoImages.prayer.alt} loading="lazy" />
+                <img src={demoImages.community.src} alt={demoImages.community.alt} loading="lazy" />
+              </>
+            )}
           </div>
         </Reveal>
       </Container>

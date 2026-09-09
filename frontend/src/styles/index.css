@@ -137,6 +137,29 @@ img { max-width: 100%; display: block; }
   background: #173b32;
   isolation: isolate;
 }
+.hero--full {
+  min-height: 100svh;
+}
+.nav__announcements-link {
+  position: relative;
+}
+.nav__announcement-dot {
+  position: absolute;
+  top: 0;
+  right: -0.55rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 0 rgba(183, 125, 76, 0.7);
+  animation: announcement-pulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes announcement-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(183, 125, 76, 0.7); }
+  60%  { box-shadow: 0 0 0 5px rgba(183, 125, 76, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(183, 125, 76, 0); }
+}
 .hero__bg-img {
   position: absolute;
   inset: 0;
