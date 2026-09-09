@@ -451,7 +451,6 @@ export function AlbumDetailPage() {
 
 export function ContactPage() {
   const { data: settings } = usePublicSettings()
-  const { data: serviceTimes } = usePublicServiceTimes()
   const [submitted, setSubmitted] = useState(false)
 
   const s = Object.fromEntries((settings ?? []).map(x => [x.key, x.value]))
@@ -459,10 +458,7 @@ export function ContactPage() {
   const address = s.address || null
   const phone = s.phone || null
   const email = s.email || null
-  const officeHours = s.office_hours || null
   const { safeUrl, embedUrl } = safeGoogleMapsConfig(s.google_maps_url || null)
-
-  const activeServices = serviceTimes ?? []
 
   return <>
     <PageHeader
@@ -472,116 +468,8 @@ export function ContactPage() {
       image={demoImages.sanctuary}
     />
 
-    {/* Contact Cards Grid */}
-    <section className="section" style={{ paddingTop: '3.5rem', paddingBottom: '2.5rem' }}>
+    <section className="section" style={{ paddingTop: '3.5rem', paddingBottom: '3.5rem' }}>
       <div className="container">
-        <div className="contact-cards-grid">
-          {/* Location Card */}
-          <div className="contact-card">
-            <div className="contact-card__icon-box" aria-hidden="true">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
-                <circle cx="12" cy="10" r="3"/>
-              </svg>
-            </div>
-            <h3 className="contact-card__title">Parish Location</h3>
-            <p className="contact-card__content">{address ?? 'Parish address will be announced soon.'}</p>
-            {safeUrl ? (
-              <a href={safeUrl} target="_blank" rel="noopener noreferrer" className="contact-card__action">
-                Get Directions <span>↗</span>
-              </a>
-            ) : (
-              <span className="contact-card__action" style={{ opacity: 0.6 }}>Address pending</span>
-            )}
-          </div>
-
-          {/* Telephone Card */}
-          <div className="contact-card">
-            <div className="contact-card__icon-box" aria-hidden="true">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-              </svg>
-            </div>
-            <h3 className="contact-card__title">Telephone</h3>
-            <p className="contact-card__content">{phone ?? 'Parish office telephone line will be shared here.'}</p>
-            {phone ? (
-              <a href={`tel:${phone.replace(/\s+/g, '')}`} className="contact-card__action">
-                Call Parish Office <span>→</span>
-              </a>
-            ) : (
-              <span className="contact-card__action" style={{ opacity: 0.6 }}>Phone pending</span>
-            )}
-          </div>
-
-          {/* Email Card */}
-          <div className="contact-card">
-            <div className="contact-card__icon-box" aria-hidden="true">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <rect width="20" height="16" x="2" y="4" rx="2"/>
-                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-              </svg>
-            </div>
-            <h3 className="contact-card__title">Email Inquiries</h3>
-            <p className="contact-card__content">{email ?? 'Direct parish email address will be provided here.'}</p>
-            {email ? (
-              <a href={`mailto:${email}`} className="contact-card__action">
-                Send an Email <span>→</span>
-              </a>
-            ) : (
-              <span className="contact-card__action" style={{ opacity: 0.6 }}>Email pending</span>
-            )}
-          </div>
-
-          {/* Office Hours Card */}
-          <div className="contact-card">
-            <div className="contact-card__icon-box" aria-hidden="true">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
-              </svg>
-            </div>
-            <h3 className="contact-card__title">Parish Office</h3>
-            <p className="contact-card__content">{officeHours ?? 'Weekly consultations and pastoral appointments available upon request.'}</p>
-            <a href="#contact-note" className="contact-card__action">
-              Leave a Message <span>↓</span>
-            </a>
-          </div>
-        </div>
-
-        {/* Worship & Service Times Highlight Strip */}
-        {activeServices.length > 0 && (
-          <div className="contact-services-banner">
-            <p className="eyebrow">Gather With Us</p>
-            <h3>Holy Qurbana &amp; Service Schedule</h3>
-            <div className="contact-services-grid">
-              {activeServices.slice(0, 4).map(st => (
-                <div key={st.id} className="contact-service-pill">
-                  <div className="contact-service-pill__day">{DAYS_OF_WEEK[st.day_of_week]}</div>
-                  <div className="contact-service-pill__time">{formatServiceClock(st.start_time)}</div>
-                  <div className="contact-service-pill__name">{st.service_name}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </section>
-
-    {/* Map & Directions Showcase */}
-    <section className="section" style={{ paddingTop: '1.5rem', paddingBottom: '3.5rem' }}>
-      <div className="container">
-        <div className="section-head" style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <p className="eyebrow">Find Your Way</p>
-            <h2 className="heading heading--small">Directions &amp; Location</h2>
-          </div>
-          {safeUrl && (
-            <a href={safeUrl} target="_blank" rel="noopener noreferrer" className="text-link">
-              Open Full Map in Google Maps <span aria-hidden="true">↗</span>
-            </a>
-          )}
-        </div>
-
         <div className="contact-map-layout">
           <div className="contact-map-frame" aria-live="polite">
             {embedUrl ? (
@@ -615,46 +503,100 @@ export function ContactPage() {
             )}
           </div>
 
-          <div className="contact-map-directions">
-            <div>
-              <p className="eyebrow" style={{ marginBottom: '0.4rem' }}>Visiting Tips</p>
-              <h3 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.35rem', margin: '0 0 0.6rem' }}>Planning Your Journey</h3>
-              <p style={{ color: 'var(--muted)', fontSize: '0.92rem', lineHeight: '1.6', margin: '0 0 1.25rem' }}>
-                We are located conveniently to serve our Malankara Catholic faithful and friends across the region.
-              </p>
-
-              <div className="contact-direction-step">
-                <div className="contact-direction-step__num">1</div>
-                <div className="contact-direction-step__text">
-                  <h4>Arrival &amp; Parking</h4>
-                  <p>On-site church parking is readily available for Sunday worship, retreats, and special parish feast days.</p>
-                </div>
-              </div>
-
-              <div className="contact-direction-step">
-                <div className="contact-direction-step__num">2</div>
-                <div className="contact-direction-step__text">
-                  <h4>Step-Free Accessibility</h4>
-                  <p>Wheelchair-accessible ramps and step-free entry doors ensure comfortable access for all elders and families.</p>
-                </div>
-              </div>
-
-              <div className="contact-direction-step">
-                <div className="contact-direction-step__num">3</div>
-                <div className="contact-direction-step__text">
-                  <h4>Welcoming Ushers</h4>
-                  <p>Parish ushers are available at the entrance to guide you with hymn books, liturgy aids, and seating.</p>
-                </div>
-              </div>
-            </div>
-
-            {safeUrl && (
-              <div style={{ marginTop: '2rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border)' }}>
-                <a href={safeUrl} target="_blank" rel="noopener noreferrer" className="button button--primary" style={{ width: '100%' }}>
-                  Get Driving Directions ↗
-                </a>
+          <div className="contact-map-panel">
+            {phone ? (
+              <a href={`tel:${phone.replace(/\s+/g, '')}`} className="contact-action-row">
+                <span className="contact-action-row__icon" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                  </svg>
+                </span>
+                <span className="contact-action-row__text">
+                  <strong>Number</strong>
+                  <span>{phone}</span>
+                </span>
+              </a>
+            ) : (
+              <div className="contact-action-row contact-action-row--disabled">
+                <span className="contact-action-row__icon" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                  </svg>
+                </span>
+                <span className="contact-action-row__text">
+                  <strong>Number</strong>
+                  <span>Phone number will be shared here.</span>
+                </span>
               </div>
             )}
+
+            {email ? (
+              <a href={`mailto:${email}`} className="contact-action-row">
+                <span className="contact-action-row__icon" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <rect width="20" height="16" x="2" y="4" rx="2"/>
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                  </svg>
+                </span>
+                <span className="contact-action-row__text">
+                  <strong>Email</strong>
+                  <span>{email}</span>
+                </span>
+              </a>
+            ) : (
+              <div className="contact-action-row contact-action-row--disabled">
+                <span className="contact-action-row__icon" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <rect width="20" height="16" x="2" y="4" rx="2"/>
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                  </svg>
+                </span>
+                <span className="contact-action-row__text">
+                  <strong>Email</strong>
+                  <span>Parish email will be provided here.</span>
+                </span>
+              </div>
+            )}
+
+            {safeUrl ? (
+              <a href={safeUrl} target="_blank" rel="noopener noreferrer" className="contact-action-row">
+                <span className="contact-action-row__icon" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                </span>
+                <span className="contact-action-row__text">
+                  <strong>Go to map</strong>
+                  <span>{address ?? 'Open the parish location in Google Maps'}</span>
+                </span>
+              </a>
+            ) : (
+              <div className="contact-action-row contact-action-row--disabled">
+                <span className="contact-action-row__icon" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                </span>
+                <span className="contact-action-row__text">
+                  <strong>Go to map</strong>
+                  <span>{address ?? 'Map link will appear once the location is confirmed.'}</span>
+                </span>
+              </div>
+            )}
+
+            <a href="#contact-note" className="contact-action-row">
+              <span className="contact-action-row__icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+              </span>
+              <span className="contact-action-row__text">
+                <strong>Leave a message</strong>
+                <span>Send a note to the parish office</span>
+              </span>
+            </a>
           </div>
         </div>
       </div>
@@ -740,38 +682,6 @@ export function ContactPage() {
       </div>
     </section>
 
-    {/* Newcomers & Visitor Expectations */}
-    <section className="section">
-      <div className="container">
-        <div style={{ textAlign: 'center', maxWidth: '38rem', margin: '0 auto 2.5rem' }}>
-          <p className="eyebrow">Newcomers &amp; Guests</p>
-          <h2 className="heading heading--small">What to expect when you visit</h2>
-          <p className="lede" style={{ margin: '0.75rem auto 0' }}>
-            We look forward to welcoming you into our community of prayer and fellowship.
-          </p>
-        </div>
-
-        <div className="visitor-tips-grid">
-          <div className="visitor-tip-card">
-            <span className="visitor-tip-card__tag">Liturgy</span>
-            <h3>West Syriac Rite</h3>
-            <p>Our Holy Qurbana is celebrated in the historic West Syriac Malankara Catholic tradition, enriched with sacred chanting, incensing, and prayers in Malayalam and English.</p>
-          </div>
-
-          <div className="visitor-tip-card">
-            <span className="visitor-tip-card__tag">Hospitality</span>
-            <h3>Sunday Fellowship</h3>
-            <p>Following the Holy Qurbana, all parishioners and visitors gather in the parish hall for tea, snacks, and warm conversation. We would love to meet you.</p>
-          </div>
-
-          <div className="visitor-tip-card">
-            <span className="visitor-tip-card__tag">Community</span>
-            <h3>Families &amp; Youth</h3>
-            <p>Children and youth are an integral heartbeat of our parish, participating actively in Sunday school catechism (MCYM), altar service, and parish choirs.</p>
-          </div>
-        </div>
-      </div>
-    </section>
   </>
 }
 export function DonatePage() { return <><PageHeader eyebrow="Give" title="Support what matters." intro="This is a visual demonstration only. No payments, personal financial details, or payment processing are collected in this phase." image={demoImages.hands} /><section className="section"><div className="container donate-grid"><div><p className="eyebrow">Why give</p><h2 className="heading heading--small">A future place for generosity.</h2><p className="lede">The parish will be able to explain real giving opportunities here once categories and payment details are confirmed.</p></div><form className="donate-form" onSubmit={(event) => event.preventDefault()}><p className="eyebrow">Demo interface — non-functional</p><fieldset><legend>Choose an amount</legend><div className="amounts">{['25', '50', '100', '250'].map((amount) => <button type="button" key={amount}>₹{amount}</button>)}</div></fieldset><label>Custom amount<input inputMode="decimal" placeholder="Enter amount" /></label><label>Purpose<select defaultValue="General Fund"><option>General Fund</option><option>Building</option><option>Missions</option><option>Other</option></select></label><button className="button button--primary" type="submit">Continue (demo)</button><p className="quiet">Secure payment details will be added only in a future payment phase.</p></form></div></section></> }
