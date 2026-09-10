@@ -108,7 +108,7 @@ def test_permission_matrix_and_public_endpoints(client):
     assert not has_permission(RoleName.MEMBER_ADMIN, Permission.PAYMENTS_VIEW)
     assert has_permission(RoleName.TREASURER, Permission.PAYMENTS_MANAGE)
     assert not has_permission(RoleName.TREASURER, Permission.MEMBERS_VIEW)
-    for endpoint in ("events", "announcements", "gallery", "content", "settings", "service-times"):
+    for endpoint in ("events", "announcements", "gallery", "content", "settings", "service-times", "hero-images"):
         assert test_client.get(f"/api/v1/public/{endpoint}").status_code == 200
 
 

@@ -7,13 +7,13 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.models.domain import (
     AdminUser, Announcement, AuditLog, Event, EventStatus,
-    GalleryAlbum, GalleryImage, PageContent, PublicationStatus,
+    GalleryAlbum, GalleryImage, HeroImage, PageContent, PublicationStatus,
     ServiceTime, ServiceTimeStatus, SiteSetting,
 )
 from app.schemas.cms import (
     AlbumCreate, AlbumUpdate, AnnouncementCreate, AnnouncementUpdate,
     EventCreate, EventUpdate, GalleryImageCreate, GalleryImageUpdate,
-    PageContentUpdate,
+    HeroImageCreate, HeroImageUpdate, PageContentUpdate,
     ServiceTimeCreate, ServiceTimeUpdate, SettingUpsert,
 )
 
@@ -251,6 +251,38 @@ def delete_service_time(db: Session, st: ServiceTime, actor: AdminUser) -> None:
     db.flush()
 
 
+# ── Hero Images ───────────────────────────────────────────────────────────────
+def list_hero_images(db: Session) -> list[HeroImage]:
+    return db.scalars(select(HeroImage).order_by(HeroImage.sort_order, HeroImage.created_at)).all()
+
+
+def get_hero_image(db: Session, image_id: uuid.UUID) -> HeroImage | None:
+    return db.get(HeroImage, image_id)
+
+
+def add_hero_image(db: Session, data: HeroImageCreate, actor: AdminUser) -> HeroImage:
+    image = HeroImage(**data.model_dump())
+    db.add(image)
+    db.flush()
+    _audit(db, actor, "content.hero.image_added", "hero_image", str(image.id))
+    return image
+
+
+def update_hero_image(db: Session, image: HeroImage, data: HeroImageUpdate, actor: AdminUser) -> HeroImage:
+    changes = data.model_dump(exclude_unset=True)
+    for k, v in changes.items():
+        setattr(image, k, v)
+    db.flush()
+    _audit(db, actor, "content.hero.image_updated", "hero_image", str(image.id), {"fields": list(changes)})
+    return image
+
+
+def remove_hero_image(db: Session, image: HeroImage, actor: AdminUser) -> None:
+    _audit(db, actor, "content.hero.image_removed", "hero_image", str(image.id))
+    db.delete(image)
+    db.flush()
+
+
 # ── Page Content ──────────────────────────────────────────────────────────────
 def list_page_content(db: Session, page: str) -> list[PageContent]:
     return db.scalars(select(PageContent).where(PageContent.page == page).order_by(PageContent.section)).all()
@@ -271,7 +303,7 @@ def upsert_page_content(db: Session, page: str, section: str, data: PageContentU
 
 # ── Site Settings ─────────────────────────────────────────────────────────────
 ALLOWED_SETTINGS = frozenset({
-    "church_name", "tagline", "phone", "email", "address",
+    "church_name", "phone", "email", "address",
     "google_maps_url", "facebook_url", "instagram_url", "youtube_url",
     "office_hours",
 })

@@ -244,6 +244,33 @@ class ServiceTimeRead(CmsModel):
     updated_at: datetime
 
 
+# ── Hero Images ───────────────────────────────────────────────────────────────
+class HeroImageCreate(BaseModel):
+    image_url: str = Field(max_length=2048)
+    alt_text: str = Field(min_length=1, max_length=500)
+    sort_order: int = 0
+
+    @field_validator("image_url")
+    @classmethod
+    def validate_url(cls, v: str) -> str:
+        if not (v.startswith("http://") or v.startswith("https://")):
+            raise ValueError("image_url must be an absolute URL")
+        return v
+
+
+class HeroImageUpdate(BaseModel):
+    alt_text: str | None = Field(default=None, min_length=1, max_length=500)
+    sort_order: int | None = None
+
+
+class HeroImageRead(CmsModel):
+    id: UUID
+    image_url: str
+    alt_text: str
+    sort_order: int
+    created_at: datetime
+
+
 # ── Page Content ──────────────────────────────────────────────────────────────
 class PageContentUpdate(BaseModel):
     heading: str | None = Field(default=None, max_length=300)

@@ -194,6 +194,15 @@ class GalleryImage(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     album: Mapped[GalleryAlbum] = relationship(back_populates="images")
 
+class HeroImage(Base):
+    __tablename__ = "hero_images"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    image_url: Mapped[str] = mapped_column(String(2048), nullable=False)
+    alt_text: Mapped[str] = mapped_column(String(500), nullable=False)
+    sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+
 class PageContent(Base, Timestamped):
     __tablename__ = "page_content"
     __table_args__ = (UniqueConstraint("page", "section", name="uq_page_content_section"),)

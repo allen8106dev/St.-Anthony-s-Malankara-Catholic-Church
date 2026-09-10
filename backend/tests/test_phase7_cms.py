@@ -32,6 +32,7 @@ def test_cms_requires_authentication(client):
     assert tc.get("/api/v1/admin/cms/announcements").status_code == 401
     assert tc.get("/api/v1/admin/cms/gallery").status_code == 401
     assert tc.get("/api/v1/admin/cms/service-times").status_code == 401
+    assert tc.get("/api/v1/admin/cms/hero-images").status_code == 401
     assert tc.get("/api/v1/admin/cms/settings").status_code == 401
 
 
@@ -500,6 +501,54 @@ def test_draft_page_content_not_public(client):
     assert "draft_section" not in sections
 
 
+# ── Hero Images ───────────────────────────────────────────────────────────────
+def test_hero_images_crud_and_public_order(client):
+    tc, _ = client
+    login(tc)
+    first = tc.post("/api/v1/admin/cms/hero-images", json={
+        "image_url": "https://example.com/hero-a.jpg",
+        "alt_text": "Sanctuary",
+        "sort_order": 1,
+    })
+    second = tc.post("/api/v1/admin/cms/hero-images", json={
+        "image_url": "https://example.com/hero-b.jpg",
+        "alt_text": "Gathering",
+        "sort_order": 0,
+    })
+    assert first.status_code == 201
+    assert second.status_code == 201
+    first_id = first.json()["id"]
+    second_id = second.json()["id"]
+
+    listed = tc.get("/api/v1/admin/cms/hero-images")
+    assert listed.status_code == 200
+    assert [img["alt_text"] for img in listed.json()] == ["Gathering", "Sanctuary"]
+
+    reorder = tc.patch(f"/api/v1/admin/cms/hero-images/{first_id}", json={"sort_order": 0})
+    tc.patch(f"/api/v1/admin/cms/hero-images/{second_id}", json={"sort_order": 1})
+    assert reorder.status_code == 200
+
+    pub = tc.get("/api/v1/public/hero-images")
+    assert pub.status_code == 200
+    assert [img["alt_text"] for img in pub.json()] == ["Sanctuary", "Gathering"]
+    assert "created_at" not in pub.json()[0]
+
+    delete = tc.delete(f"/api/v1/admin/cms/hero-images/{first_id}")
+    assert delete.status_code == 204
+    remaining = tc.get("/api/v1/public/hero-images").json()
+    assert [img["alt_text"] for img in remaining] == ["Gathering"]
+
+
+def test_hero_image_url_validation(client):
+    tc, _ = client
+    login(tc)
+    r = tc.post("/api/v1/admin/cms/hero-images", json={
+        "image_url": "ftp://bad-protocol.com/img.jpg",
+        "alt_text": "Invalid",
+    })
+    assert r.status_code == 422
+
+
 # ── Site Settings ─────────────────────────────────────────────────────────────
 def test_upsert_setting(client):
     tc, _ = client
@@ -513,8 +562,8 @@ def test_upsert_setting(client):
 def test_setting_idempotent_update(client):
     tc, _ = client
     login(tc)
-    tc.put("/api/v1/admin/cms/settings/tagline", json={"value": "First value"})
-    r = tc.put("/api/v1/admin/cms/settings/tagline", json={"value": "Updated value"})
+    tc.put("/api/v1/admin/cms/settings/office_hours", json={"value": "First value"})
+    r = tc.put("/api/v1/admin/cms/settings/office_hours", json={"value": "Updated value"})
     assert r.status_code == 200
     assert r.json()["value"] == "Updated value"
 

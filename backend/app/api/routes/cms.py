@@ -10,6 +10,7 @@ from app.schemas.cms import (
     AnnouncementCreate, AnnouncementRead, AnnouncementUpdate,
     CmsDashboard, EventCreate, EventRead, EventUpdate,
     GalleryImageCreate, GalleryImageRead, GalleryImageUpdate,
+    HeroImageCreate, HeroImageRead, HeroImageUpdate,
     PageContentRead, PageContentUpdate,
     PaginatedAlbums, PaginatedAnnouncements, PaginatedEvents,
     ServiceTimeCreate, ServiceTimeRead, ServiceTimeUpdate,
@@ -292,6 +293,36 @@ def delete_service_time(st_id: uuid.UUID, db: DbSession, actor: ContentManage):
     st = svc.get_service_time(db, st_id)
     if not st: raise HTTPException(404, "Service time not found.")
     svc.delete_service_time(db, st, actor)
+    db.commit()
+
+
+# ── Hero Images ───────────────────────────────────────────────────────────────
+@router.get("/hero-images", response_model=list[HeroImageRead])
+def list_hero_images(db: DbSession, _: ContentManage):
+    return svc.list_hero_images(db)
+
+
+@router.post("/hero-images", response_model=HeroImageRead, status_code=status.HTTP_201_CREATED)
+def add_hero_image(data: HeroImageCreate, db: DbSession, actor: ContentManage):
+    image = svc.add_hero_image(db, data, actor)
+    db.commit(); db.refresh(image)
+    return image
+
+
+@router.patch("/hero-images/{image_id}", response_model=HeroImageRead)
+def update_hero_image(image_id: uuid.UUID, data: HeroImageUpdate, db: DbSession, actor: ContentManage):
+    image = svc.get_hero_image(db, image_id)
+    if not image: raise HTTPException(404, "Hero image not found.")
+    image = svc.update_hero_image(db, image, data, actor)
+    db.commit(); db.refresh(image)
+    return image
+
+
+@router.delete("/hero-images/{image_id}", status_code=status.HTTP_204_NO_CONTENT)
+def remove_hero_image(image_id: uuid.UUID, db: DbSession, actor: ContentManage):
+    image = svc.get_hero_image(db, image_id)
+    if not image: raise HTTPException(404, "Hero image not found.")
+    svc.remove_hero_image(db, image, actor)
     db.commit()
 
 
