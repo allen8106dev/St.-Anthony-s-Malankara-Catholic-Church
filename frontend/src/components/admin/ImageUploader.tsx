@@ -7,6 +7,7 @@ interface ImageUploaderProps {
   onCropChange?: (crop: { scale: number; position: number }) => void
   label?: string
   helper?: string
+  variant?: 'default' | 'cover'
 }
 
 export function ImageUploader({
@@ -15,6 +16,7 @@ export function ImageUploader({
   onCropChange,
   label = 'Image',
   helper = 'JPG, PNG, WebP, or GIF (max 5 MB)',
+  variant = 'default',
 }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
@@ -65,19 +67,56 @@ export function ImageUploader({
   }
 
   const preview = localPreview || value
+  const isCover = variant === 'cover'
+
+  function openFilePicker() {
+    if (!uploading) inputRef.current?.click()
+  }
+
+  function removeImage() {
+    onChange('')
+    setFilename('')
+    setLocalPreview('')
+  }
 
   return (
-    <div className="image-uploader-wrap">
+    <div className={`image-uploader-wrap${isCover ? ' image-uploader-wrap--cover' : ''}`}>
       {label && <span className="image-uploader-label">{label}</span>}
 
       <div
-        className={`image-uploader-dropzone ${dragOver ? 'image-uploader-dropzone--drag' : ''} ${preview ? 'image-uploader-dropzone--has-image' : ''}`}
+        className={`image-uploader-dropzone ${dragOver ? 'image-uploader-dropzone--drag' : ''} ${preview ? 'image-uploader-dropzone--has-image' : ''} ${isCover ? 'image-uploader-dropzone--cover' : ''}`}
         onDragOver={e => { e.preventDefault(); setDragOver(true) }}
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
+        onClick={isCover ? openFilePicker : undefined}
+        onKeyDown={isCover ? e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openFilePicker() } } : undefined}
+        role={isCover ? 'button' : undefined}
+        tabIndex={isCover ? 0 : undefined}
+        aria-label={isCover ? (preview ? 'Replace image' : 'Upload image') : undefined}
       >
         {preview ? (
           <div className="image-uploader-preview-container">
+            {isCover && (
+              <button
+                type="button"
+                className="image-uploader-trash"
+                disabled={uploading}
+                aria-label="Remove image"
+                title="Remove image"
+                onClick={e => {
+                  e.stopPropagation()
+                  removeImage()
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M3 6h18" />
+                  <path d="M8 6V4h8v2" />
+                  <path d="M19 6l-1 14H6L5 6" />
+                  <path d="M10 11v6" />
+                  <path d="M14 11v6" />
+                </svg>
+              </button>
+            )}
             <div className="image-uploader-preview-frame">
               <img
                 src={preview}
@@ -99,10 +138,10 @@ export function ImageUploader({
         ) : (
           <div
             className="image-uploader-empty"
-            onClick={() => !uploading && inputRef.current?.click()}
-            role="button"
-            tabIndex={0}
-            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click() }}
+            onClick={isCover ? undefined : openFilePicker}
+            role={isCover ? undefined : 'button'}
+            tabIndex={isCover ? undefined : 0}
+            onKeyDown={isCover ? undefined : e => { if (e.key === 'Enter' || e.key === ' ') openFilePicker() }}
           >
             <div className="image-uploader-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -131,7 +170,7 @@ export function ImageUploader({
         />
       </div>
 
-      {preview && (
+      {preview && !isCover && (
         <div className="image-uploader-controls">
           <div className="image-uploader-meta">
             {filename && <span className="image-uploader-filename">{filename}</span>}
@@ -149,11 +188,7 @@ export function ImageUploader({
               type="button"
               className="button button--ghost button--sm image-uploader-remove-btn"
               disabled={uploading}
-              onClick={() => {
-                onChange('')
-                setFilename('')
-                setLocalPreview('')
-              }}
+              onClick={removeImage}
             >
               Remove
             </button>

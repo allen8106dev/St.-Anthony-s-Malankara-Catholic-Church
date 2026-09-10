@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useAdminAnnouncements, useAdminAnnouncement, useCreateAnnouncement, useUpdateAnnouncement, usePublishAnnouncement } from '../../../hooks/useCms'
-import { CmsStatusBadge, UnsavedBanner, Field } from '../../../components/admin/CmsShared'
+import { CmsStatusBadge, Field } from '../../../components/admin/CmsShared'
 import { Pagination, SkeletonRows, ConfirmDialog } from '../../../components/admin/AdminShared'
 import type { AnnouncementPayload } from '../../../types/cms'
 import { ImageUploader } from '../../../components/admin/ImageUploader'
@@ -262,15 +262,13 @@ export function AnnouncementFormPage() {
         </div>
       </div>
 
-      <UnsavedBanner dirty={dirty} />
-
       <form className="announcement-editor" onSubmit={e => { e.preventDefault(); if (dirty) void saveAnnouncement() }}>
         <div className="announcement-editor__fields">
           <Field label="Title *">
             <input value={form.title} onChange={e => set('title', e.target.value)} required maxLength={250} />
           </Field>
           <Field label="Description">
-            <textarea value={form.description ?? ''} onChange={e => set('description', e.target.value)} rows={8} maxLength={600} />
+            <textarea value={form.description ?? ''} onChange={e => set('description', e.target.value)} rows={5} maxLength={600} />
             <span className="cms-character-count">{(form.description ?? '').length}/600</span>
           </Field>
           <Field label="Expiry date & time" helper="After this time, the announcement will no longer appear publicly.">
@@ -283,7 +281,8 @@ export function AnnouncementFormPage() {
           <ImageUploader
             value={form.image_url ?? ''}
             onChange={value => set('image_url', value)}
-            label="Image"
+            label=""
+            variant="cover"
           />
         </div>
       </form>

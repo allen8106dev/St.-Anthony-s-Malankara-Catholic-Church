@@ -404,10 +404,12 @@ img { max-width: 100%; display: block; }
 .announcement-header-actions{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;justify-content:flex-end}
 .announcement-editor{display:grid;grid-template-columns:minmax(0,1fr) minmax(16rem,22rem);gap:1.75rem;align-items:start}
 .announcement-editor__fields{display:grid;gap:1rem;min-width:0}
-.announcement-editor__image .image-uploader-dropzone--has-image .image-uploader-preview-container{padding:.6rem}
-.announcement-editor__image .image-uploader-preview-frame{max-height:none;aspect-ratio:3/4}
-.announcement-editor__image .image-uploader-preview-img{max-height:none;height:100%;width:100%;object-fit:cover}
+.announcement-editor__image .image-uploader-wrap{margin:0}
+.announcement-editor__image .image-uploader-preview-container{padding:0}
+.announcement-editor__image .image-uploader-preview-frame{max-height:none;aspect-ratio:3/4;border-radius:inherit;border:0}
+.announcement-editor__image .image-uploader-preview-img{max-height:none;height:100%;width:100%;object-fit:cover;border-radius:0}
 .announcement-editor__image .image-uploader-empty{min-height:18rem}
+.announcement-editor__image .image-uploader-uploading-overlay{inset:0;border-radius:inherit}
 .announcement-admin-card{width:100%;text-align:left;cursor:pointer;border:1px solid var(--admin-border);background:#fff;font:inherit}
 .announcement-admin-card:hover{border-color:var(--admin-primary)}
 .announcement-admin-card__row{display:flex;align-items:center;gap:.35rem}
@@ -990,6 +992,11 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
 .image-uploader-filename { font-size: .84rem; color: var(--admin-text-muted); max-width: 16rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .image-uploader-actions { display: flex; gap: .5rem; margin-left: auto; }
 .image-uploader-remove-btn { color: #dc2626!important; }
+.image-uploader-dropzone--cover { cursor: pointer; }
+.image-uploader-dropzone--cover.image-uploader-dropzone--has-image { cursor: pointer; }
+.image-uploader-trash { position: absolute; top: .45rem; left: .45rem; z-index: 3; width: 1.7rem; height: 1.7rem; padding: 0; border: 0; border-radius: .4rem; background: rgba(15, 23, 42, 0.72); color: #fff; display: grid; place-items: center; cursor: pointer; }
+.image-uploader-trash:hover { background: #b91c1c; }
+.image-uploader-trash:disabled { opacity: .55; cursor: not-allowed; }
 
 /* Announcement Image Crop Controls - Smooth Sliders */
 .image-crop-controls { background: #f8fafc; border: 1px solid var(--admin-border); border-radius: var(--admin-radius-input); padding: .85rem 1.15rem; margin-top: .75rem; display: grid; gap: .65rem; }
