@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useAdminAnnouncements, useAdminAnnouncement, useCreateAnnouncement, useUpdateAnnouncement, usePublishAnnouncement } from '../../../hooks/useCms'
-import { CmsStatusBadge, PublishActions, UnsavedBanner, FormSection, Field } from '../../../components/admin/CmsShared'
+import { CmsStatusBadge, UnsavedBanner, Field } from '../../../components/admin/CmsShared'
 import { Pagination, SkeletonRows, ConfirmDialog } from '../../../components/admin/AdminShared'
 import type { AnnouncementPayload } from '../../../types/cms'
 import { ImageUploader } from '../../../components/admin/ImageUploader'
-import { AnnouncementVisual } from '../../../components/public/AnnouncementVisual'
 import { LoadingState } from '../../../components/ui/Feedback'
 
 export function AnnouncementsPage() {
+  const navigate = useNavigate()
   const [params, setParams] = useSearchParams()
   const page = parseInt(params.get('page') ?? '1', 10)
   const search = params.get('search') ?? ''
@@ -31,6 +31,8 @@ export function AnnouncementsPage() {
   const setPage = useCallback((p: number) => setParams(prev => {
     const n = new URLSearchParams(prev); n.set('page', String(p)); return n
   }), [setParams])
+
+  const openAnnouncement = (id: string) => navigate(`/admin/content/announcements/${id}`)
 
   return (
     <div>
@@ -58,28 +60,65 @@ export function AnnouncementsPage() {
         <table className="admin-table" aria-label="Announcements">
           <thead><tr>
             <th>Announcement</th><th>Expires</th><th>Status</th>
-            <th><span className="sr-only">Actions</span></th>
           </tr></thead>
           <tbody>
             {isLoading && <SkeletonRows />}
-            {isError && <tr><td colSpan={4}><p role="alert" style={{ padding: '1rem', color: '#a0332b' }}>Failed to load announcements.</p></td></tr>}
+            {isError && <tr><td colSpan={3}><p role="alert" style={{ padding: '1rem', color: '#a0332b' }}>Failed to load announcements.</p></td></tr>}
             {!isLoading && !isError && data?.items.length === 0 && (
-              <tr><td colSpan={6}><div className="admin-empty"><p>No announcements found.</p></div></td></tr>
+              <tr><td colSpan={3}><div className="admin-empty"><p>No announcements found.</p></div></td></tr>
             )}
             {data?.items.map(ann => (
-              <tr key={ann.id}>
-                <td><div className="announcement-admin-item">{ann.image_url && <img src={ann.image_url} alt="" />}</div><strong>{ann.title}</strong></td>
+              <tr
+                key={ann.id}
+                className="admin-table-row--clickable"
+                onClick={() => openAnnouncement(ann.id)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    openAnnouncement(ann.id)
+                  }
+                }}
+                tabIndex={0}
+                role="link"
+                aria-label={`Open ${ann.title}`}
+              >
+                <td>
+                  <div className="announcement-admin-item">{ann.image_url && <img src={ann.image_url} alt="" />}</div>
+                  <strong>{ann.title}</strong>
+                </td>
                 <td>{ann.expires_at ? new Date(ann.expires_at).toLocaleDateString() : '—'}</td>
                 <td><CmsStatusBadge status={ann.status} /></td>
-                <td>
-                  <div className="actions">
-                    <Link to={`/admin/content/announcements/${ann.id}/edit`} className="button button--ghost" style={{ fontSize: '.82rem' }}>Edit</Link>
-                  </div>
-                </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="admin-card-grid">
+        {isLoading && Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="member-card"><div className="admin-skeleton" style={{ height: '5rem' }} /></div>
+        ))}
+        {isError && <p role="alert" style={{ padding: '1rem', color: '#a0332b' }}>Failed to load announcements.</p>}
+        {!isLoading && !isError && data?.items.length === 0 && (
+          <div className="admin-empty"><p>No announcements found.</p></div>
+        )}
+        {data?.items.map(ann => (
+          <button
+            key={ann.id}
+            type="button"
+            className="member-card announcement-admin-card"
+            onClick={() => openAnnouncement(ann.id)}
+          >
+            <div className="announcement-admin-card__row">
+              {ann.image_url && <div className="announcement-admin-item"><img src={ann.image_url} alt="" /></div>}
+              <div className="member-card__name">{ann.title}</div>
+            </div>
+            <div className="member-card__meta">
+              {ann.expires_at ? `Expires ${new Date(ann.expires_at).toLocaleDateString()}` : 'No expiry'}
+            </div>
+            <CmsStatusBadge status={ann.status} />
+          </button>
+        ))}
       </div>
 
       {data && data.pages > 1 && (
@@ -103,8 +142,7 @@ export function AnnouncementFormPage() {
   const [form, setForm] = useState<AnnouncementPayload>({ title: '', description: '', image_url: '', expires_at: null })
   const [dirty, setDirty] = useState(false)
   const [error, setError] = useState('')
-  const [crop, setCrop] = useState({ scale: 100, position: 50 })
-  const [confirmAction, setConfirmAction] = useState<'publish' | 'unpublish' | 'archive' | null>(null)
+  const [confirmAction, setConfirmAction] = useState<'publish' | 'unpublish' | null>(null)
 
   useEffect(() => {
     if (existing) {
@@ -142,7 +180,7 @@ export function AnnouncementFormPage() {
         await update.mutateAsync(payload)
       } else {
         const created = await create.mutateAsync(payload)
-        navigate(`/admin/content/announcements/${created.id}/edit`, { replace: true })
+        navigate(`/admin/content/announcements/${created.id}`, { replace: true })
         setDirty(false)
         return created.id
       }
@@ -154,79 +192,113 @@ export function AnnouncementFormPage() {
     }
   }
 
-  async function handleSave(e: React.FormEvent) { e.preventDefault(); await saveAnnouncement() }
   async function handlePublish() {
     const id = await saveAnnouncement()
     if (id) { await publish.mutateAsync({ id, action: 'publish' }); setDirty(false) }
   }
 
+  async function handleUnpublish() {
+    if (!announcementId) return
+    await publish.mutateAsync({ id: announcementId, action: 'unpublish' })
+  }
+
   if (isLoading) return <LoadingState text="Loading announcement…" />
 
-  const previewItem = { id: announcementId ?? 'preview', title: form.title || 'Your announcement title', description: form.description || null, image_url: form.image_url || null, expires_at: form.expires_at ?? null }
+  const status = existing?.status ?? 'DRAFT'
+  const isPublished = status === 'PUBLISHED'
+  const busy = create.isPending || update.isPending || publish.isPending
   const leave = () => { if (!dirty || window.confirm('Leave without saving?\n\nYour changes will be lost.')) navigate('/admin/content/announcements') }
 
   return (
     <div>
       <div className="admin-page-header">
         <div>
-          <h1>{isEdit ? 'Edit Announcement' : 'New Announcement'}</h1>
+          <h1>{isEdit ? 'Announcement' : 'New Announcement'}</h1>
           {isEdit && existing && <CmsStatusBadge status={existing.status} />}
         </div>
-        <button type="button" className="button button--outline" onClick={leave}>← Back</button>
+        <div className="announcement-header-actions">
+          {isPublished ? (
+            <button
+              type="button"
+              className="button button--primary"
+              disabled={busy || !dirty}
+              onClick={() => void saveAnnouncement()}
+            >
+              {update.isPending ? 'Saving…' : 'Save'}
+            </button>
+          ) : (
+            dirty && (
+              <button
+                type="button"
+                className="button button--outline"
+                disabled={busy}
+                onClick={() => void saveAnnouncement()}
+              >
+                {create.isPending || update.isPending ? 'Saving…' : 'Save Draft'}
+              </button>
+            )
+          )}
+          {!isPublished && (
+            <button
+              type="button"
+              className="button button--primary"
+              disabled={busy}
+              onClick={() => setConfirmAction('publish')}
+            >
+              Publish
+            </button>
+          )}
+          {isPublished && (
+            <button
+              type="button"
+              className="button button--outline"
+              disabled={busy}
+              onClick={() => setConfirmAction('unpublish')}
+            >
+              Unpublish
+            </button>
+          )}
+          <button type="button" className="button button--ghost" onClick={leave}>← Back</button>
+        </div>
       </div>
 
       <UnsavedBanner dirty={dirty} />
 
-      <div className="cms-editor-layout">
-        <form className="cms-form" onSubmit={handleSave}>
-          <FormSection title="Announcement details">
-            <Field label="Title *">
-              <input value={form.title} onChange={e => set('title', e.target.value)} required maxLength={250} />
-            </Field>
-            <Field label="Description">
-              <textarea value={form.description ?? ''} onChange={e => set('description', e.target.value)} rows={4} maxLength={600} />
-              <span className="cms-character-count">{(form.description ?? '').length}/600</span>
-            </Field>
-            <ImageUploader value={form.image_url ?? ''} onChange={value => set('image_url', value)} onCropChange={setCrop} />
-            <Field label="Expiry date & time" helper="After this time, the announcement will no longer appear publicly.">
-              <input type="datetime-local" value={form.expires_at ? form.expires_at.slice(0, 16) : ''} onChange={e => set('expires_at', e.target.value ? new Date(e.target.value).toISOString() : null)} />
-            </Field>
-          </FormSection>
-
+      <form className="announcement-editor" onSubmit={e => { e.preventDefault(); if (dirty) void saveAnnouncement() }}>
+        <div className="announcement-editor__fields">
+          <Field label="Title *">
+            <input value={form.title} onChange={e => set('title', e.target.value)} required maxLength={250} />
+          </Field>
+          <Field label="Description">
+            <textarea value={form.description ?? ''} onChange={e => set('description', e.target.value)} rows={8} maxLength={600} />
+            <span className="cms-character-count">{(form.description ?? '').length}/600</span>
+          </Field>
+          <Field label="Expiry date & time" helper="After this time, the announcement will no longer appear publicly.">
+            <input type="datetime-local" value={form.expires_at ? form.expires_at.slice(0, 16) : ''} onChange={e => set('expires_at', e.target.value ? new Date(e.target.value).toISOString() : null)} />
+          </Field>
           {error && <p className="admin-form-error" role="alert">{error}</p>}
+        </div>
 
-          <div className="admin-form-actions announcement-actions">
-            <button type="submit" className="button button--primary" disabled={create.isPending || update.isPending}>
-              {create.isPending || update.isPending ? 'Saving…' : 'Save Draft'}
-            </button>
-            <button type="button" className="button button--primary" disabled={publish.isPending || create.isPending || update.isPending} onClick={() => void handlePublish()}>Publish</button>
-          </div>
-        </form>
-
-        <aside id="announcement-preview" className="cms-preview-panel"><p className="eyebrow">Published appearance</p><AnnouncementVisual item={previewItem} preview imageScale={crop.scale} imagePosition={crop.position} /></aside>
-        {isEdit && existing && (
-          <aside className="cms-sidebar">
-            <div className="cms-sidebar-section">
-              <h3>Publishing</h3>
-              <p className="cms-sidebar-status">Status: <CmsStatusBadge status={existing.status} /></p>
-              <PublishActions
-                status={existing.status}
-                onPublish={() => setConfirmAction('publish')}
-                onUnpublish={() => setConfirmAction('unpublish')}
-                onArchive={() => setConfirmAction('archive')}
-                loading={publish.isPending}
-              />
-            </div>
-          </aside>
-        )}
-      </div>
+        <div className="announcement-editor__image">
+          <ImageUploader
+            value={form.image_url ?? ''}
+            onChange={value => set('image_url', value)}
+            label="Image"
+          />
+        </div>
+      </form>
 
       {confirmAction && (
         <ConfirmDialog
-          title={`${confirmAction.charAt(0).toUpperCase() + confirmAction.slice(1)} announcement?`}
-          message={confirmAction === 'publish' ? 'This will become visible to public visitors.' : confirmAction === 'unpublish' ? 'This will be hidden from public visitors.' : 'This will be archived.'}
-          confirmLabel={confirmAction.charAt(0).toUpperCase() + confirmAction.slice(1)}
-          onConfirm={() => void publish.mutateAsync({ id: announcementId!, action: confirmAction }).then(() => setConfirmAction(null))}
+          title={`${confirmAction === 'publish' ? 'Publish' : 'Unpublish'} announcement?`}
+          message={confirmAction === 'publish' ? 'This will become visible to public visitors.' : 'This will be hidden from public visitors.'}
+          confirmLabel={confirmAction === 'publish' ? 'Publish' : 'Unpublish'}
+          onConfirm={() => {
+            const action = confirmAction
+            setConfirmAction(null)
+            if (action === 'publish') void handlePublish()
+            else void handleUnpublish()
+          }}
           onCancel={() => setConfirmAction(null)}
         />
       )}

@@ -83,10 +83,10 @@ export function ImageUploader({
                 src={preview}
                 alt="Selected preview"
                 className="image-uploader-preview-img"
-                style={{
+                style={onCropChange ? {
                   objectPosition: `${crop.position}% center`,
                   transform: `scale(${crop.scale / 100})`,
-                }}
+                } : undefined}
               />
             </div>
             {uploading && (

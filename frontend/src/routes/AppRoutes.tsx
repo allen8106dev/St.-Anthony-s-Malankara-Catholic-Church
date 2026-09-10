@@ -37,6 +37,11 @@ function AlbumEditRedirect() {
   return <Navigate to={`/admin/content/gallery/${albumId}`} replace />
 }
 
+function AnnouncementEditRedirect() {
+  const { announcementId } = useParams<{ announcementId: string }>()
+  return <Navigate to={`/admin/content/announcements/${announcementId}`} replace />
+}
+
 function DonationsPlaceholder() {
   return (
     <div>
@@ -90,7 +95,8 @@ export function AppRoutes() {
           <Route path="content/announcements" element={<AdminAnnouncementsPage />} />
           <Route path="content/announcements/new" element={<AnnouncementFormPage />} />
           <Route path="announcements/new" element={<AnnouncementFormPage />} />
-          <Route path="content/announcements/:announcementId/edit" element={<AnnouncementFormPage />} />
+          <Route path="content/announcements/:announcementId" element={<AnnouncementFormPage />} />
+          <Route path="content/announcements/:announcementId/edit" element={<AnnouncementEditRedirect />} />
           <Route path="content/gallery" element={<AdminGalleryPage />} />
           <Route path="content/gallery/new" element={<AlbumFormPage />} />
           <Route path="content/gallery/:albumId" element={<AlbumEditorPage />} />
