@@ -86,4 +86,4 @@ export function usePublicServiceTimes() {
   })
 }
 
-export type { PublicEvent, PublicAlbum, PublicContent, PublicSetting, PublicHeroImage }
+export type { PublicEvent, PublicAlbum, PublicContent, PublicSetting }
