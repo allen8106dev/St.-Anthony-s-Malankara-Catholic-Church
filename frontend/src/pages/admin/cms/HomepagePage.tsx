@@ -1,154 +1,297 @@
-import { useEffect, useState } from 'react'
-import { useAdminPageContent, useUpsertPageContent } from '../../../hooks/useCms'
-import { Field, UnsavedBanner } from '../../../components/admin/CmsShared'
-import { ImageUploader } from '../../../components/admin/ImageUploader'
+import { useCallback, useEffect, useRef, useState, type DragEvent } from 'react'
+import { ConfirmDialog } from '../../../components/admin/AdminShared'
 import { LoadingState } from '../../../components/ui/Feedback'
-import type { PageContent, PageContentPayload } from '../../../types/cms'
+import { useAddHeroImage, useAdminHeroImages, useRemoveHeroImage, useUpdateHeroImage } from '../../../hooks/useCms'
+import { apiClient } from '../../../services/apiClient'
 
-const PAGE = 'homepage'
+interface DisplayImage {
+  id: string
+  image_url: string
+  alt_text: string
+  sort_order: number
+  isPending?: true
+}
 
-const SECTIONS: { key: string; label: string; fields: { field: keyof PageContentPayload; label: string; helper?: string; type?: 'textarea' | 'url' }[] }[] = [
-  {
-    key: 'hero', label: 'Hero',
-    fields: [
-      { field: 'heading', label: 'Heading', helper: 'Main headline displayed in the hero.' },
-      { field: 'body', label: 'Description', type: 'textarea', helper: 'Short introductory text below the heading.' },
-      { field: 'image_url', label: 'Hero Image', type: 'url', helper: 'Upload background image for the hero section.' },
-    ],
-  },
-  {
-    key: 'intro', label: 'Introduction',
-    fields: [
-      { field: 'heading', label: 'Heading' },
-      { field: 'body', label: 'Body text', type: 'textarea' },
-    ],
-  },
-  {
-    key: 'visit', label: 'Visit Us',
-    fields: [
-      { field: 'heading', label: 'Heading' },
-      { field: 'body', label: 'Description / address', type: 'textarea', helper: 'Address, directions, and contact information.' },
-      { field: 'image_url', label: 'Map or Location Image', type: 'url', helper: 'Upload location or map illustration.' },
-    ],
-  },
-  {
-    key: 'cta', label: 'Call to Action',
-    fields: [
-      { field: 'heading', label: 'Heading' },
-      { field: 'body', label: 'Supporting text', type: 'textarea' },
-    ],
-  },
-]
+interface QueueItem {
+  id: string
+  file: File
+  preview: string
+  status: 'uploading' | 'done' | 'error'
+  error?: string
+}
 
-function SectionEditor({
-  sectionDef,
-  existing,
-  onSave,
-  saving,
-}: {
-  sectionDef: typeof SECTIONS[0]
-  existing: PageContent | undefined
-  onSave: (section: string, data: PageContentPayload) => Promise<void>
-  saving: boolean
-}) {
-  const [form, setForm] = useState<PageContentPayload>({
-    heading: existing?.heading ?? '',
-    body: existing?.body ?? '',
-    image_url: existing?.image_url ?? '',
-    status: existing?.status ?? 'PUBLISHED',
-  })
+export function HomepagePage() {
+  const { data: images, isLoading } = useAdminHeroImages()
+  const addImage = useAddHeroImage()
+  const removeImage = useRemoveHeroImage()
+  const reorderImage = useUpdateHeroImage()
+
+  const [displayImages, setDisplayImages] = useState<DisplayImage[]>([])
+  const [pendingRemoveIds, setPendingRemoveIds] = useState<Set<string>>(new Set())
+  const [pendingAdds, setPendingAdds] = useState<{ tempId: string; url: string; alt_text: string }[]>([])
+  const [queue, setQueue] = useState<QueueItem[]>([])
+  const [imgDropOver, setImgDropOver] = useState(false)
   const [dirty, setDirty] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
   const [saved, setSaved] = useState(false)
+  const [removeTarget, setRemoveTarget] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const dragSrcId = useRef<string | null>(null)
 
   useEffect(() => {
-    if (existing) {
-      setForm({ heading: existing.heading ?? '', body: existing.body ?? '', image_url: existing.image_url ?? '', status: existing.status })
-      setDirty(false)
-    }
-  }, [existing])
+    if (!images || saving) return
+    setDisplayImages([...images].sort((a, b) => a.sort_order - b.sort_order))
+    setPendingRemoveIds(new Set())
+    setPendingAdds([])
+    setDirty(false)
+  }, [images, saving])
 
-  function set(field: keyof PageContentPayload, value: string) {
-    setForm(f => ({ ...f, [field]: value }))
+  function handleDragStart(id: string) { dragSrcId.current = id }
+
+  function handleDragOver(e: DragEvent<HTMLDivElement>, targetId: string) {
+    e.preventDefault()
+    if (!dragSrcId.current || dragSrcId.current === targetId) return
+    setDisplayImages(prev => {
+      const srcIdx = prev.findIndex(i => i.id === dragSrcId.current)
+      const tgtIdx = prev.findIndex(i => i.id === targetId)
+      if (srcIdx === -1 || tgtIdx === -1) return prev
+      const next = [...prev]
+      const [moved] = next.splice(srcIdx, 1)
+      next.splice(tgtIdx, 0, moved)
+      return next
+    })
     setDirty(true)
     setSaved(false)
   }
 
+  function handleDrop() { dragSrcId.current = null }
+
+  const uploadFiles = useCallback(async (files: File[]) => {
+    const imageFiles = files.filter(f => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(f.type))
+    if (!imageFiles.length) return
+
+    const items: QueueItem[] = imageFiles.map(file => ({
+      id: crypto.randomUUID(),
+      file,
+      preview: URL.createObjectURL(file),
+      status: 'uploading',
+    }))
+    setQueue(prev => [...prev, ...items])
+
+    await Promise.all(items.map(async item => {
+      try {
+        const fd = new FormData()
+        fd.append('file', item.file)
+        const { data } = await apiClient.post<{ url: string }>('/admin/cms/uploads/image', fd, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+        const tempId = item.id
+        const newImg: DisplayImage = {
+          id: tempId,
+          image_url: data.url,
+          alt_text: item.file.name.replace(/\.[^.]+$/, ''),
+          sort_order: 0,
+          isPending: true,
+        }
+        setDisplayImages(prev => [...prev, newImg])
+        setPendingAdds(prev => [...prev, { tempId, url: data.url, alt_text: newImg.alt_text }])
+        setDirty(true)
+        setSaved(false)
+        setQueue(prev => prev.map(q => q.id === item.id ? { ...q, status: 'done' } : q))
+      } catch (err) {
+        setQueue(prev => prev.map(q => q.id === item.id ? {
+          ...q, status: 'error', error: err instanceof Error ? err.message : 'Upload failed',
+        } : q))
+      }
+    }))
+
+    setTimeout(() => {
+      setQueue(prev => prev.filter(q => q.status !== 'done'))
+      items.forEach(i => URL.revokeObjectURL(i.preview))
+    }, 1800)
+  }, [])
+
+  function handleImgDrop(e: DragEvent<HTMLDivElement>) {
+    e.preventDefault()
+    setImgDropOver(false)
+    void uploadFiles(Array.from(e.dataTransfer.files))
+  }
+
+  function confirmRemove() {
+    if (!removeTarget) return
+    const img = displayImages.find(i => i.id === removeTarget)
+    if (!img) { setRemoveTarget(null); return }
+    if (img.isPending) {
+      setPendingAdds(prev => prev.filter(a => a.tempId !== removeTarget))
+    } else {
+      setPendingRemoveIds(prev => new Set([...prev, removeTarget]))
+    }
+    setDisplayImages(prev => prev.filter(i => i.id !== removeTarget))
+    setDirty(true)
+    setSaved(false)
+    setRemoveTarget(null)
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
-    await onSave(sectionDef.key, { ...form, image_url: form.image_url || null, body: form.body || null, heading: form.heading || null })
-    setDirty(false)
-    setSaved(true)
+    setSaveError('')
+    setSaving(true)
+    try {
+      for (const id of pendingRemoveIds) {
+        await removeImage.mutateAsync(id)
+      }
+
+      const tempToReal = new Map<string, string>()
+      for (const add of pendingAdds) {
+        const result = await addImage.mutateAsync({
+          image_url: add.url,
+          alt_text: add.alt_text,
+          sort_order: 0,
+        })
+        tempToReal.set(add.tempId, result.id)
+      }
+
+      const finalOrder = displayImages
+        .filter(img => !pendingRemoveIds.has(img.id))
+        .map(img => img.isPending ? tempToReal.get(img.id) ?? img.id : img.id)
+
+      await Promise.all(finalOrder.map((id, idx) => reorderImage.mutateAsync({ imageId: id, sort_order: idx })))
+
+      setPendingRemoveIds(new Set())
+      setPendingAdds([])
+      setDirty(false)
+      setSaved(true)
+    } catch (err: unknown) {
+      setSaveError(err instanceof Error ? err.message : 'Failed to save.')
+    } finally {
+      setSaving(false)
+    }
   }
 
-  return (
-    <div className="cms-form-section">
-      <h2 className="cms-form-section__title">{sectionDef.label}</h2>
-      <form onSubmit={handleSave}>
-        {sectionDef.fields.map(f => (
-          f.field === 'image_url' ? (
-            <ImageUploader
-              key={f.field}
-              value={(form[f.field] as string) ?? ''}
-              onChange={val => set(f.field, val)}
-              label={f.label}
-              helper={f.helper ?? 'Upload image (JPG, PNG, WebP, GIF, max 5 MB)'}
-            />
-          ) : (
-            <Field key={f.field} label={f.label} helper={f.helper}>
-              {f.type === 'textarea' ? (
-                <textarea value={(form[f.field] as string) ?? ''} onChange={e => set(f.field, e.target.value)} rows={3} />
-              ) : (
-                <input value={(form[f.field] as string) ?? ''} onChange={e => set(f.field, e.target.value)} maxLength={300} />
-              )}
-            </Field>
-          )
-        ))}
-        <div className="admin-form-actions" style={{ marginTop: '1rem' }}>
-          <button type="submit" className="button button--primary" disabled={saving || !dirty}>
-            {saving ? 'Saving…' : 'Save Section'}
-          </button>
-          {saved && !dirty && <span style={{ color: '#1a6b3c', fontSize: '.88rem' }}>✓ Saved</span>}
-        </div>
-      </form>
-    </div>
-  )
-}
-
-export function HomepagePage() {
-  const { data: sections, isLoading } = useAdminPageContent(PAGE)
-  const upsert = useUpsertPageContent(PAGE)
-  const [globalDirty] = useState(false)
-
-  const sectionMap = Object.fromEntries((sections ?? []).map(s => [s.section, s]))
-
-  async function handleSave(section: string, data: PageContentPayload) {
-    await upsert.mutateAsync({ section, data: { ...data, status: 'PUBLISHED' } })
-  }
-
-  if (isLoading) return <LoadingState text="Loading homepage content…" />
+  if (isLoading) return <LoadingState text="Loading homepage images…" />
 
   return (
     <div>
       <div className="admin-page-header">
         <div>
           <h1>Homepage</h1>
-          <p>Edit the content displayed on the public homepage</p>
+          <p>Hero images rotate on the public homepage in the order below</p>
         </div>
       </div>
 
-      <UnsavedBanner dirty={globalDirty} />
+      {dirty && <div className="cms-unsaved-banner" role="status">You have unsaved changes — click Save Changes to apply.</div>}
 
-      <div className="cms-page-editor">
-        {SECTIONS.map(s => (
-          <SectionEditor
-            key={s.key}
-            sectionDef={s}
-            existing={sectionMap[s.key]}
-            onSave={handleSave}
-            saving={upsert.isPending}
-          />
-        ))}
-      </div>
+      <form onSubmit={handleSave}>
+        <div className="gallery-upload-panel">
+          <h3 className="gallery-upload-panel__title">
+            Hero images
+            <span className="gallery-upload-panel__count">{displayImages.length}</span>
+          </h3>
+
+          <div
+            className={`gallery-dropzone${imgDropOver ? ' gallery-dropzone--over' : ''}`}
+            onDragOver={e => { e.preventDefault(); setImgDropOver(true) }}
+            onDragLeave={() => setImgDropOver(false)}
+            onDrop={handleImgDrop}
+            onClick={() => fileInputRef.current?.click()}
+            role="button"
+            tabIndex={0}
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click() }}
+            aria-label="Drop images here or click to select"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect width="18" height="18" x="3" y="3" rx="4" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <path d="m21 15-5-5L5 21" />
+            </svg>
+            <span><strong>Click or drop</strong> to add images</span>
+            <span className="gallery-dropzone__sub">JPG, PNG, WebP, GIF — multiple at once</span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              multiple
+              hidden
+              onChange={e => {
+                const files = Array.from(e.target.files ?? [])
+                if (files.length) void uploadFiles(files)
+                e.target.value = ''
+              }}
+            />
+          </div>
+
+          {queue.length > 0 && (
+            <ul className="gallery-upload-queue" role="list">
+              {queue.map(item => (
+                <li key={item.id} className={`gallery-queue-item gallery-queue-item--${item.status}`}>
+                  <img src={item.preview} alt="" className="gallery-queue-item__thumb" />
+                  <span className="gallery-queue-item__name">{item.file.name}</span>
+                  <span className="gallery-queue-item__status" aria-live="polite">
+                    {item.status === 'uploading' && <span className="gallery-queue-spinner" aria-label="Uploading" />}
+                    {item.status === 'done' && <span className="gallery-queue-check" aria-label="Done">✓</span>}
+                    {item.status === 'error' && <span className="gallery-queue-error" title={item.error} aria-label="Error">✕</span>}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {displayImages.length > 0 ? (
+            <div className="gallery-image-grid" onDrop={handleDrop} onDragOver={e => e.preventDefault()}>
+              {displayImages.map((img, idx) => (
+                <div
+                  key={img.id}
+                  className={`gallery-image-card${img.isPending ? ' gallery-image-card--pending' : ''}`}
+                  draggable
+                  onDragStart={() => handleDragStart(img.id)}
+                  onDragOver={e => handleDragOver(e, img.id)}
+                  aria-label={`Image ${idx + 1}: ${img.alt_text}`}
+                >
+                  <span className="gallery-image-card__order" aria-label={`Position ${idx + 1}`}>
+                    #{idx + 1}
+                  </span>
+                  <div className="gallery-image-card__drag-handle" aria-hidden="true">⠿</div>
+                  <img src={img.image_url} alt={img.alt_text} className="gallery-image-card__img" />
+                  {img.isPending && <span className="gallery-image-card__pending-badge">Unsaved</span>}
+                  {img.alt_text && (
+                    <div className="gallery-image-card__meta">
+                      <span>{img.alt_text}</span>
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    className="gallery-image-card__remove"
+                    onClick={() => setRemoveTarget(img.id)}
+                    aria-label={`Remove ${img.alt_text}`}
+                  >×</button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="gallery-upload-panel__empty">No images yet. Drop some above to get started.</p>
+          )}
+        </div>
+
+        {saveError && <p className="admin-form-error" role="alert">{saveError}</p>}
+
+        <div className="admin-form-actions" style={{ marginTop: '1rem' }}>
+          <button type="submit" className="button button--primary" disabled={saving || !dirty}>
+            {saving ? 'Saving…' : 'Save Changes'}
+          </button>
+          {saved && !dirty && <span style={{ color: '#1a6b3c', fontSize: '.88rem' }}>✓ Saved</span>}
+        </div>
+      </form>
+
+      {removeTarget && (
+        <ConfirmDialog
+          title="Remove image?"
+          message="This image will be removed. Click Save Changes to apply."
+          confirmLabel="Remove"
+          onConfirm={confirmRemove}
+          onCancel={() => setRemoveTarget(null)}
+        />
+      )}
     </div>
   )
 }

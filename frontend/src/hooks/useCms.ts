@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '../services/apiClient'
 import type {
   AlbumPayload, AnnouncementPayload, CmsAlbum, CmsAnnouncement, CmsDashboard,
-  CmsEvent, CmsServiceTime, EventPayload, GalleryImage, ImagePayload,
+  CmsEvent, CmsServiceTime, EventPayload, GalleryImage, HeroImage, HeroImagePayload, ImagePayload,
   PageContent, PageContentPayload, Paginated,
   ServiceTimePayload, SiteSetting,
 } from '../types/cms'
@@ -19,12 +19,14 @@ export const cmsKeys = {
   album: (id: string) => ['cms', 'album', id] as const,
   serviceTimes: ['cms', 'service-times'] as const,
   pageContent: (page: string) => ['cms', 'content', page] as const,
+  heroImages: ['cms', 'hero-images'] as const,
   settings: ['cms', 'settings'] as const,
   publicEvents: ['public', 'events'] as const,
   publicAnnouncements: ['public', 'announcements'] as const,
   publicGallery: ['public', 'gallery'] as const,
   publicServiceTimes: ['public', 'service-times'] as const,
   publicContent: (page: string) => ['public', 'content', page] as const,
+  publicHeroImages: ['public', 'hero-images'] as const,
   publicSettings: ['public', 'settings'] as const,
 }
 
@@ -274,6 +276,49 @@ export function useDeleteServiceTime() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: cmsKeys.serviceTimes })
       qc.invalidateQueries({ queryKey: cmsKeys.publicServiceTimes })
+    },
+  })
+}
+
+// ── Hero Images ───────────────────────────────────────────────────────────────
+export function useAdminHeroImages() {
+  return useQuery({
+    queryKey: cmsKeys.heroImages,
+    queryFn: () => apiClient.get<HeroImage[]>(`${BASE}/hero-images`).then(r => r.data),
+  })
+}
+
+export function useAddHeroImage() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: HeroImagePayload) =>
+      apiClient.post<HeroImage>(`${BASE}/hero-images`, data).then(r => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: cmsKeys.heroImages })
+      qc.invalidateQueries({ queryKey: cmsKeys.publicHeroImages })
+    },
+  })
+}
+
+export function useUpdateHeroImage() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ imageId, sort_order }: { imageId: string; sort_order: number }) =>
+      apiClient.patch<HeroImage>(`${BASE}/hero-images/${imageId}`, { sort_order }).then(r => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: cmsKeys.heroImages })
+      qc.invalidateQueries({ queryKey: cmsKeys.publicHeroImages })
+    },
+  })
+}
+
+export function useRemoveHeroImage() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (imageId: string) => apiClient.delete(`${BASE}/hero-images/${imageId}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: cmsKeys.heroImages })
+      qc.invalidateQueries({ queryKey: cmsKeys.publicHeroImages })
     },
   })
 }

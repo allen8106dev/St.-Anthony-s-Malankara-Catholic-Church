@@ -111,6 +111,19 @@ export interface ServiceTimePayload {
   status: ServiceTimeStatus
 }
 
+export interface HeroImage {
+  id: string
+  image_url: string
+  alt_text: string
+  sort_order: number
+}
+
+export interface HeroImagePayload {
+  image_url: string
+  alt_text: string
+  sort_order?: number
+}
+
 export interface PageContent {
   id: string
   page: string

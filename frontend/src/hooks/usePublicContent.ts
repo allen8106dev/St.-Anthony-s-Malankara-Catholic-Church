@@ -11,6 +11,7 @@ export interface PublicAnnouncement {
 }
 interface PublicGalleryImage { id: string; image_url: string; alt_text: string; caption: string | null; sort_order: number }
 interface PublicAlbum { id: string; title: string; description: string | null; cover_image_url: string | null; images: PublicGalleryImage[] }
+export interface PublicHeroImage { id: string; image_url: string; alt_text: string; sort_order: number }
 interface PublicContent { page: string; section: string; heading: string | null; body: string | null; image_url: string | null }
 interface PublicServiceTime { id: string; day_of_week: number; start_time: string; end_time: string | null; service_name: string }
 interface PublicSetting { key: string; value: string }
@@ -53,6 +54,14 @@ export function usePublicAlbum(albumId: string | undefined) {
   })
 }
 
+export function usePublicHeroImages() {
+  return useQuery({
+    queryKey: ['public', 'hero-images'],
+    queryFn: () => apiClient.get<PublicHeroImage[]>('/public/hero-images').then(r => r.data),
+    staleTime: 120_000,
+  })
+}
+
 export function usePublicContent(page: string) {
   return useQuery({
     queryKey: ['public', 'content', page],
@@ -77,4 +86,4 @@ export function usePublicServiceTimes() {
   })
 }
 
-export type { PublicEvent, PublicAlbum, PublicContent, PublicSetting }
+export type { PublicEvent, PublicAlbum, PublicContent, PublicSetting, PublicHeroImage }

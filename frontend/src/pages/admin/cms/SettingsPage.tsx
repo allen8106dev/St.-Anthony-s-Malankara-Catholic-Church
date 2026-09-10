@@ -5,7 +5,6 @@ import { LoadingState } from '../../../components/ui/Feedback'
 
 const SETTING_DEFS: { key: string; label: string; helper?: string; type?: 'url' }[] = [
   { key: 'church_name', label: 'Church name', helper: 'Full official name of the parish.' },
-  { key: 'tagline', label: 'Tagline', helper: 'Short phrase displayed in the footer and meta.' },
   { key: 'phone', label: 'Phone number' },
   { key: 'email', label: 'Email address' },
   { key: 'address', label: 'Address', helper: 'Full postal address.' },

@@ -1,20 +1,19 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Container } from '../../components/ui/Container'
 import { Reveal } from '../../components/animation/Reveal'
-import { usePublicEvents, usePublicContent, usePublicSettings, usePublicGallery } from '../../hooks/usePublicContent'
+import { HeroSlideshow } from '../../components/public/HeroSlideshow'
+import { usePublicEvents, usePublicSettings, usePublicGallery, usePublicHeroImages } from '../../hooks/usePublicContent'
 import { demoImages, ministryPreviews, siteName } from '../../data/siteContent'
 
 export function HomePage() {
   const { data: eventsData } = usePublicEvents({ timeframe: 'upcoming', limit: 3 })
-  const { data: heroContent } = usePublicContent('homepage')
   const { data: settings } = usePublicSettings()
   const { data: galleryData } = usePublicGallery(10)
+  const { data: heroImages } = usePublicHeroImages()
   const s = Object.fromEntries((settings ?? []).map(item => [item.key, item.value]))
   const churchName = s.church_name || siteName
-
-  const heroSection = heroContent?.find(s => s.section === 'hero')
-  const introSection = heroContent?.find(s => s.section === 'intro')
-  const ctaSection = heroContent?.find(s => s.section === 'cta')
+  const [heroPaused, setHeroPaused] = useState(false)
 
   const upcomingEvents = eventsData?.items ?? []
 
@@ -23,14 +22,22 @@ export function HomePage() {
   const previewImages = allGalleryImages.slice(0, 3)
 
   return <>
-    <section className="hero hero--full">
-      <img src={heroSection?.image_url || demoImages.sanctuary.src} alt="" className="hero__bg-img" aria-hidden="true" />
+    <section
+      className="hero hero--full"
+      onMouseEnter={() => setHeroPaused(true)}
+      onMouseLeave={() => setHeroPaused(false)}
+    >
+      <HeroSlideshow
+        slides={heroImages ?? []}
+        fallbackSrc={demoImages.sanctuary.src}
+        paused={heroPaused}
+      />
       <div className="hero__art" aria-hidden="true" />
       <Container className="hero__content">
         <Reveal>
           <p className="eyebrow">A place to belong</p>
-          <h1 className="display">{heroSection?.heading ?? `Faith, family, and a warm welcome at ${churchName}.`}</h1>
-          <p className="lede">{heroSection?.body ?? `${churchName} is preparing a home online for prayer, community, and parish life.`}</p>
+          <h1 className="display">{`Faith, family, and a warm welcome at ${churchName}.`}</h1>
+          <p className="lede">{`${churchName} is preparing a home online for prayer, community, and parish life.`}</p>
           <div className="actions">
             <Link className="button button--light" to="/about">Discover our parish <span aria-hidden="true">↗</span></Link>
           </div>
@@ -42,10 +49,10 @@ export function HomePage() {
       <Container className="intro-grid">
         <Reveal>
           <p className="eyebrow">Welcome</p>
-          <h2 className="heading">{introSection?.heading ?? "A community shaped by prayer and presence."}</h2>
+          <h2 className="heading">A community shaped by prayer and presence.</h2>
         </Reveal>
         <Reveal delay={.1}>
-          <p className="lede">{introSection?.body ?? "This is a visual prototype for the parish's future public website."}</p>
+          <p className="lede">This is a visual prototype for the parish's future public website.</p>
           <Link className="text-link" to="/about">Learn about our parish <span aria-hidden="true">→</span></Link>
         </Reveal>
       </Container>
@@ -156,8 +163,8 @@ export function HomePage() {
       <Container>
         <Reveal>
           <p className="eyebrow" style={{ color: '#fff' }}>Stay connected</p>
-          <h2 className="heading">{ctaSection?.heading ?? "There is a place for you here."}</h2>
-          <p>{ctaSection?.body ?? "Explore the parish, find a service, or get in touch."}</p>
+          <h2 className="heading">There is a place for you here.</h2>
+          <p>Explore the parish, find a service, or get in touch.</p>
           <div className="actions">
             <Link className="button button--light" to="/contact">Contact the parish <span aria-hidden="true">↗</span></Link>
           </div>

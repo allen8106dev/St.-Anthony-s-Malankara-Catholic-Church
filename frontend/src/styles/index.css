@@ -240,6 +240,51 @@ img { max-width: 100%; display: block; }
   z-index: -3;
   filter: saturate(.9) contrast(1.08);
 }
+.hero__slides {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  overflow: hidden;
+}
+.hero__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.35s ease;
+}
+.hero__slide.is-active { opacity: 1; }
+.hero__slide .hero__bg-img { z-index: 0; animation: none; }
+.hero__slide.is-active .hero__bg-img { animation: hero-ken-burns 7.5s ease-out forwards; }
+@keyframes hero-ken-burns {
+  from { transform: scale(1); }
+  to { transform: scale(1.07); }
+}
+.hero__pager {
+  position: absolute;
+  left: 50%;
+  bottom: 1.6rem;
+  z-index: 3;
+  display: flex;
+  gap: .45rem;
+  transform: translateX(-50%);
+}
+.hero__dot {
+  width: .7rem;
+  height: .7rem;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,.7);
+  border-radius: 999px;
+  background: rgba(255,255,255,.28);
+  cursor: pointer;
+}
+.hero__dot:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.hero__dot.is-active {
+  background: #fff;
+  transform: scale(1.12);
+}
 .hero__art {
   position: absolute;
   inset: 0;
@@ -1172,6 +1217,8 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
 }
 @media (prefers-reduced-motion: reduce) {
   .public-route, .hero__bg-img, .marquee__track { animation: none; }
+  .hero__slide { transition: none; }
+  .hero__slide.is-active .hero__bg-img { animation: none; }
   .event-grid--track { scroll-behavior: auto; }
 }
 
