@@ -11,7 +11,9 @@ function closeFocusedNav() {
 
 export function PublicNavbar() {
   const [scrolled, setScrolled] = useState(false)
-  const [open, setOpen] = useState(false)
+  const [lockedOpen, setLockedOpen] = useState(false)
+  const [hovered, setHovered] = useState(false)
+  const hoverTimeoutRef = useRef<number | null>(null)
   const [aboutHover, setAboutHover] = useState(false)
   const [liturgyHover, setLiturgyHover] = useState(false)
   const [ministriesHover, setMinistriesHover] = useState(false)
@@ -24,25 +26,87 @@ export function PublicNavbar() {
   const churchName = s.church_name || siteName
   const hasAnnouncements = (announcementsData?.meta?.total ?? 0) > 0
 
+  const open = lockedOpen || hovered
+
   function closeDropdownMenus() {
     suppressAboutHover.current = true
     suppressMinistriesHover.current = true
     setAboutHover(false)
     setLiturgyHover(false)
     setMinistriesHover(false)
-    setOpen(false)
+    setLockedOpen(false)
+    setHovered(false)
     closeFocusedNav()
   }
 
+  const handleNavMouseEnter = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current)
+      hoverTimeoutRef.current = null
+    }
+  }
+
+  const handleNavMouseLeave = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
+    hoverTimeoutRef.current = window.setTimeout(() => {
+      setHovered(false)
+    }, 280)
+  }
+
+  const handleToggleMouseEnter = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current)
+      hoverTimeoutRef.current = null
+    }
+    setHovered(true)
+  }
+
+  const handleToggleClick = () => {
+    if (lockedOpen) {
+      setLockedOpen(false)
+      setHovered(false)
+    } else {
+      setLockedOpen(true)
+      setHovered(true)
+    }
+  }
+
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24)
+    const onScroll = () => {
+      const isScrolled = window.scrollY > 24
+      setScrolled(isScrolled)
+      // Auto-close when user scrolls back to top (nav re-expands naturally)
+      if (!isScrolled) {
+        setLockedOpen(false)
+        setHovered(false)
+      }
+    }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Close nav when clicking outside it (while scrolled + open)
+  const navRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const handleOutside = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setLockedOpen(false)
+        setHovered(false)
+      }
+    }
+    document.addEventListener('mousedown', handleOutside)
+    return () => document.removeEventListener('mousedown', handleOutside)
+  }, [open])
+
   return (
-    <header className={`nav ${scrolled ? 'nav--scrolled' : ''} ${open ? 'nav--open' : ''}`}>
+    <header
+      ref={navRef}
+      className={`nav ${scrolled ? 'nav--scrolled' : ''} ${open ? 'nav--open' : ''}`}
+      onMouseEnter={handleNavMouseEnter}
+      onMouseLeave={handleNavMouseLeave}
+    >
       <Container className="nav__inner">
         <Link
           className="brand"
@@ -63,7 +127,7 @@ export function PublicNavbar() {
         {publicNavigation.map((item) => {
           if (item.to === '/announcements') {
             return (
-              <NavLink key={item.to} to={item.to} onClick={() => setOpen(false)} className="nav__announcements-link">
+              <NavLink key={item.to} to={item.to} onClick={closeDropdownMenus} className="nav__announcements-link">
                 {item.label}
                 {hasAnnouncements && <span className="nav__announcement-dot" aria-label="New announcements" />}
               </NavLink>
@@ -200,7 +264,7 @@ export function PublicNavbar() {
           }
 
           return (
-            <NavLink key={item.to} to={item.to} onClick={() => setOpen(false)}>{item.label}</NavLink>
+            <NavLink key={item.to} to={item.to} onClick={closeDropdownMenus}>{item.label}</NavLink>
           )
         })}
       </nav>
@@ -209,7 +273,8 @@ export function PublicNavbar() {
         type="button"
         aria-expanded={open}
         aria-controls="public-navigation"
-        onClick={() => setOpen(!open)}
+        onClick={handleToggleClick}
+        onMouseEnter={handleToggleMouseEnter}
         aria-label={open ? 'Close navigation' : 'Open navigation'}
       >
         <span className="nav__hamburger" aria-hidden="true">
