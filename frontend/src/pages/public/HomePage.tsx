@@ -107,16 +107,82 @@ export function HomePage() {
   })
 
   // --------------------------------------------------------------------------
-  // BACKGROUND CROSSFADES (Stacked layers with scroll-driven opacity)
-  // Layer 0: Hero Slideshow (Base, always opacity 1)
+  // --------------------------------------------------------------------------
+  // BACKGROUND CINEMATIC TRANSITIONS (3D Camera Push, Zoom & Rack-Focus Dissolve)
+  // Layer 0: Hero Slideshow (Base)
+  const heroBgScale = useTransform(smoothProgress, [0.12, 0.17], [1.00, 1.06])
+  const heroBgY = useTransform(smoothProgress, [0.12, 0.17], [0, -20])
+
   // Layer 1: Ministries Image
   const ministriesBgOpacity = useTransform(smoothProgress, [0.12, 0.17], [0, 1])
+  const ministriesBgScale = useTransform(
+    smoothProgress,
+    [0.12, 0.17, 0.39, 0.44],
+    [1.10, 1.02, 1.02, 1.07]
+  )
+  const ministriesBgY = useTransform(
+    smoothProgress,
+    [0.12, 0.17, 0.39, 0.44],
+    [28, 0, 0, -20]
+  )
+  const ministriesBgBlur = useTransform(
+    smoothProgress,
+    [0.12, 0.165],
+    ['blur(5px)', 'blur(0px)']
+  )
+
   // Layer 2: Events Image
   const eventsBgOpacity = useTransform(smoothProgress, [0.39, 0.44], [0, 1])
+  const eventsBgScale = useTransform(
+    smoothProgress,
+    [0.39, 0.44, 0.65, 0.70],
+    [1.10, 1.02, 1.02, 1.07]
+  )
+  const eventsBgY = useTransform(
+    smoothProgress,
+    [0.39, 0.44, 0.65, 0.70],
+    [28, 0, 0, -20]
+  )
+  const eventsBgBlur = useTransform(
+    smoothProgress,
+    [0.39, 0.435],
+    ['blur(5px)', 'blur(0px)']
+  )
+
   // Layer 3: Gallery Image
   const galleryBgOpacity = useTransform(smoothProgress, [0.65, 0.70], [0, 1])
+  const galleryBgScale = useTransform(
+    smoothProgress,
+    [0.65, 0.70, 0.90, 0.94],
+    [1.10, 1.02, 1.02, 1.07]
+  )
+  const galleryBgY = useTransform(
+    smoothProgress,
+    [0.65, 0.70, 0.90, 0.94],
+    [28, 0, 0, -20]
+  )
+  const galleryBgBlur = useTransform(
+    smoothProgress,
+    [0.65, 0.695],
+    ['blur(5px)', 'blur(0px)']
+  )
+
   // Layer 4: Contact Image
   const contactBgOpacity = useTransform(smoothProgress, [0.90, 0.94], [0, 1])
+  const contactBgScale = useTransform(smoothProgress, [0.90, 0.94], [1.10, 1.02])
+  const contactBgY = useTransform(smoothProgress, [0.90, 0.94], [28, 0])
+  const contactBgBlur = useTransform(
+    smoothProgress,
+    [0.90, 0.935],
+    ['blur(5px)', 'blur(0px)']
+  )
+
+  // Atmospheric Light Bloom during background crossfades
+  const transitionGlowOpacity = useTransform(
+    smoothProgress,
+    [0, 0.12, 0.145, 0.17, 0.39, 0.415, 0.44, 0.65, 0.675, 0.70, 0.90, 0.920, 0.94, 1.0],
+    [0, 0, 0.28, 0, 0, 0.28, 0, 0, 0.28, 0, 0, 0.28, 0, 0]
+  )
 
   // Dynamic Scrim (drops to 0 when background is solo/crossfading, so images are completely clear and undimmed)
   const scrimOpacity = useTransform(
@@ -168,24 +234,29 @@ export function HomePage() {
   })
 
   // --------------------------------------------------------------------------
-  // CHAPTER 4: CONTACT (Staggered two-column reveal)
+  // CHAPTER 4: CONTACT (Staggered two-column reveal, completely hidden before 0.92)
+  const contactBoxOpacity = useTransform(smoothProgress, [0.93, 0.96], [0, 1])
+  const contactBoxY = useTransform(smoothProgress, [0.93, 0.96], [40, 0])
+  const contactBoxScale = useTransform(smoothProgress, [0.93, 0.96], [0.95, 1])
+  const contactVisibility = useTransform(smoothProgress, v => (v >= 0.92 ? 'visible' : 'hidden'))
+
   const contactHeadOpacity = useTransform(smoothProgress, [0.94, 0.97], [0, 1])
-  const contactHeadY = useTransform(smoothProgress, [0.94, 0.97], [35, 0])
+  const contactHeadY = useTransform(smoothProgress, [0.94, 0.97], [30, 0])
   const contactHeadScale = useTransform(smoothProgress, [0.94, 0.97], [0.96, 1])
 
   const contactActionsOpacity = useTransform(smoothProgress, [0.95, 0.98], [0, 1])
-  const contactActionsY = useTransform(smoothProgress, [0.95, 0.98], [25, 0])
+  const contactActionsY = useTransform(smoothProgress, [0.95, 0.98], [20, 0])
 
   const contactItem0Opacity = useTransform(smoothProgress, [0.95, 0.98], [0, 1])
-  const contactItem0Y = useTransform(smoothProgress, [0.95, 0.98], [35, 0])
+  const contactItem0Y = useTransform(smoothProgress, [0.95, 0.98], [30, 0])
   const contactItem0Scale = useTransform(smoothProgress, [0.95, 0.98], [0.94, 1])
 
   const contactItem1Opacity = useTransform(smoothProgress, [0.96, 0.99], [0, 1])
-  const contactItem1Y = useTransform(smoothProgress, [0.96, 0.99], [35, 0])
+  const contactItem1Y = useTransform(smoothProgress, [0.96, 0.99], [30, 0])
   const contactItem1Scale = useTransform(smoothProgress, [0.96, 0.99], [0.94, 1])
 
   const contactItem2Opacity = useTransform(smoothProgress, [0.97, 1.00], [0, 1])
-  const contactItem2Y = useTransform(smoothProgress, [0.97, 1.00], [35, 0])
+  const contactItem2Y = useTransform(smoothProgress, [0.97, 1.00], [30, 0])
   const contactItem2Scale = useTransform(smoothProgress, [0.97, 1.00], [0.94, 1])
 
   const contactPointer = useTransform(smoothProgress, v => (v >= 0.95 ? 'auto' : 'none'))
@@ -250,19 +321,31 @@ export function HomePage() {
           ==================================================================== */}
       <div className="hp-backdrop-sticky" aria-hidden="true">
         {/* Layer 0: Hero Slideshow / Sanctuary (Base) */}
-        <div className="hp-backdrop-layer hp-backdrop-layer--0">
+        <motion.div
+          className="hp-backdrop-layer hp-backdrop-layer--0"
+          style={reduced ? undefined : { scale: heroBgScale, y: heroBgY }}
+        >
           <HeroSlideshow
             slides={heroImages ?? []}
             fallbackSrc={demoImages.sanctuary.src}
             paused={heroPaused}
             onPauseChange={() => setHeroPaused(value => !value)}
           />
-        </div>
+        </motion.div>
 
         {/* Layer 1: Ministries Background */}
         <motion.div
           className="hp-backdrop-layer hp-backdrop-layer--1"
-          style={{ opacity: reduced ? 1 : ministriesBgOpacity }}
+          style={
+            reduced
+              ? { opacity: 1 }
+              : {
+                  opacity: ministriesBgOpacity,
+                  scale: ministriesBgScale,
+                  y: ministriesBgY,
+                  filter: ministriesBgBlur,
+                }
+          }
         >
           <img
             src={ministries[0]?.image?.src || demoImages.community.src}
@@ -274,7 +357,16 @@ export function HomePage() {
         {/* Layer 2: Events Background */}
         <motion.div
           className="hp-backdrop-layer hp-backdrop-layer--2"
-          style={{ opacity: reduced ? 1 : eventsBgOpacity }}
+          style={
+            reduced
+              ? { opacity: 1 }
+              : {
+                  opacity: eventsBgOpacity,
+                  scale: eventsBgScale,
+                  y: eventsBgY,
+                  filter: eventsBgBlur,
+                }
+          }
         >
           <img
             src={demoImages.gathering.src}
@@ -286,7 +378,16 @@ export function HomePage() {
         {/* Layer 3: Gallery Background */}
         <motion.div
           className="hp-backdrop-layer hp-backdrop-layer--3"
-          style={{ opacity: reduced ? 1 : galleryBgOpacity }}
+          style={
+            reduced
+              ? { opacity: 1 }
+              : {
+                  opacity: galleryBgOpacity,
+                  scale: galleryBgScale,
+                  y: galleryBgY,
+                  filter: galleryBgBlur,
+                }
+          }
         >
           <img
             src={demoImages.prayer.src}
@@ -298,7 +399,16 @@ export function HomePage() {
         {/* Layer 4: Contact Background */}
         <motion.div
           className="hp-backdrop-layer hp-backdrop-layer--4"
-          style={{ opacity: reduced ? 1 : contactBgOpacity }}
+          style={
+            reduced
+              ? { opacity: 1 }
+              : {
+                  opacity: contactBgOpacity,
+                  scale: contactBgScale,
+                  y: contactBgY,
+                  filter: contactBgBlur,
+                }
+          }
         >
           <img
             src={demoImages.architecture.src}
@@ -306,6 +416,13 @@ export function HomePage() {
             className="hp-backdrop-img"
           />
         </motion.div>
+
+        {/* Cinematic Atmospheric Light Bloom during background crossfades */}
+        <motion.div
+          className="hp-backdrop-glow"
+          aria-hidden="true"
+          style={{ opacity: reduced ? 0 : transitionGlowOpacity }}
+        />
 
         {/* Dynamic Readability Scrim (drops to 0 when background is solo, active only when text is present) */}
         <motion.div
@@ -656,10 +773,24 @@ export function HomePage() {
         {/* ---------------- CHAPTER 4: CONTACT ---------------- */}
         <motion.div
           className="hp-panel"
-          style={{ pointerEvents: reduced ? 'auto' : contactPointer }}
+          style={{
+            pointerEvents: reduced ? 'auto' : contactPointer,
+            visibility: reduced ? 'visible' : contactVisibility,
+          }}
         >
           <Container>
-            <div className="hp-contact-box">
+            <motion.div
+              className="hp-contact-box"
+              style={
+                reduced
+                  ? undefined
+                  : {
+                      opacity: contactBoxOpacity,
+                      y: contactBoxY,
+                      scale: contactBoxScale,
+                    }
+              }
+            >
               <motion.div
                 style={
                   reduced
@@ -768,7 +899,7 @@ export function HomePage() {
                   </p>
                 </motion.div>
               </div>
-            </div>
+            </motion.div>
           </Container>
         </motion.div>
       </div>
