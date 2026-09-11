@@ -584,6 +584,14 @@ export function HomePage() {
                           }
                     }
                   >
+                    <Link
+                      to={`/ministries/${ministry.id}`}
+                      className="hp-card-image-link"
+                      tabIndex={-1}
+                      aria-hidden="true"
+                    >
+                      <img className="hp-card-image" src={ministry.image.src} alt="" loading="lazy" />
+                    </Link>
                     <span className="hp-card-num">{ministry.number}</span>
                     <h3 className="hp-card-title">
                       <Link

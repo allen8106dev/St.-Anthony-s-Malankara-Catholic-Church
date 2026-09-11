@@ -176,4 +176,5 @@ export const ministryPreviews = ministries.map((ministry, index) => ({
   title: ministry.name,
   fullName: ministry.fullName,
   detail: ministry.description,
+  image: ministry.image,
 }))
