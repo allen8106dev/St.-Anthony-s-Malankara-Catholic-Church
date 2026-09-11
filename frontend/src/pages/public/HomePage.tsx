@@ -1,10 +1,75 @@
 import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, useScroll, useTransform, useSpring, useReducedMotion } from 'motion/react'
+import { motion, useScroll, useTransform, useSpring, useReducedMotion, type MotionValue } from 'motion/react'
 import { Container } from '../../components/ui/Container'
 import { HeroSlideshow } from '../../components/public/HeroSlideshow'
 import { usePublicEvents, usePublicSettings, usePublicGallery, usePublicHeroImages } from '../../hooks/usePublicContent'
 import { demoImages, ministryPreviews, ministries, siteName } from '../../data/siteContent'
+
+function useStaggeredChapter(
+  progress: MotionValue<number>,
+  config: {
+    enter: [number, number]
+    exit: [number, number]
+    itemCount?: number
+  }
+) {
+  const { enter, exit, itemCount = 3 } = config
+  const [inStart, inEnd] = enter
+  const [outStart, outEnd] = exit
+  const inDuration = inEnd - inStart
+  const outDuration = outEnd - outStart
+
+  // Header: leads entrance, leads exit
+  const headInEnd = inStart + inDuration * 0.55
+  const headOutEnd = outStart + outDuration * 0.55
+  const headOpacity = useTransform(progress, [inStart, headInEnd, outStart, headOutEnd], [0, 1, 1, 0])
+  const headY = useTransform(progress, [inStart, headInEnd, outStart, headOutEnd], [35, 0, 0, -35])
+  const headScale = useTransform(progress, [inStart, headInEnd, outStart, headOutEnd], [0.96, 1, 1, 0.98])
+
+  // Items: cascading wave entrance and exit
+  const stepIn = (inDuration * 0.45) / Math.max(1, itemCount - 1)
+  const stepOut = (outDuration * 0.45) / Math.max(1, itemCount - 1)
+
+  const item0InStart = inStart + inDuration * 0.15
+  const item0InEnd = item0InStart + inDuration * 0.50
+  const item0OutStart = outStart + outDuration * 0.15
+  const item0OutEnd = item0OutStart + outDuration * 0.50
+  const item0Opacity = useTransform(progress, [item0InStart, item0InEnd, item0OutStart, item0OutEnd], [0, 1, 1, 0])
+  const item0Y = useTransform(progress, [item0InStart, item0InEnd, item0OutStart, item0OutEnd], [48, 0, 0, -45])
+  const item0Scale = useTransform(progress, [item0InStart, item0InEnd, item0OutStart, item0OutEnd], [0.93, 1, 1, 0.95])
+
+  const item1InStart = item0InStart + stepIn
+  const item1InEnd = item0InEnd + stepIn
+  const item1OutStart = item0OutStart + stepOut
+  const item1OutEnd = item0OutEnd + stepOut
+  const item1Opacity = useTransform(progress, [item1InStart, item1InEnd, item1OutStart, item1OutEnd], [0, 1, 1, 0])
+  const item1Y = useTransform(progress, [item1InStart, item1InEnd, item1OutStart, item1OutEnd], [48, 0, 0, -45])
+  const item1Scale = useTransform(progress, [item1InStart, item1InEnd, item1OutStart, item1OutEnd], [0.93, 1, 1, 0.95])
+
+  const item2InStart = item1InStart + stepIn
+  const item2InEnd = item1InEnd + stepIn
+  const item2OutStart = item1OutStart + stepOut
+  const item2OutEnd = item1OutEnd + stepOut
+  const item2Opacity = useTransform(progress, [item2InStart, item2InEnd, item2OutStart, item2OutEnd], [0, 1, 1, 0])
+  const item2Y = useTransform(progress, [item2InStart, item2InEnd, item2OutStart, item2OutEnd], [48, 0, 0, -45])
+  const item2Scale = useTransform(progress, [item2InStart, item2InEnd, item2OutStart, item2OutEnd], [0.93, 1, 1, 0.95])
+
+  const pointer = useTransform(
+    progress,
+    v => (v >= inStart + inDuration * 0.25 && v <= outStart + outDuration * 0.85 ? 'auto' : 'none')
+  )
+
+  return {
+    head: { opacity: headOpacity, y: headY, scale: headScale },
+    items: [
+      { opacity: item0Opacity, y: item0Y, scale: item0Scale },
+      { opacity: item1Opacity, y: item1Y, scale: item1Scale },
+      { opacity: item2Opacity, y: item2Y, scale: item2Scale },
+    ],
+    pointer,
+  }
+}
 
 export function HomePage() {
   const { data: eventsData } = usePublicEvents({ timeframe: 'upcoming', limit: 3 })
@@ -45,51 +110,85 @@ export function HomePage() {
   // BACKGROUND CROSSFADES (Stacked layers with scroll-driven opacity)
   // Layer 0: Hero Slideshow (Base, always opacity 1)
   // Layer 1: Ministries Image
-  const ministriesBgOpacity = useTransform(smoothProgress, [0.12, 0.18], [0, 1])
+  const ministriesBgOpacity = useTransform(smoothProgress, [0.12, 0.17], [0, 1])
   // Layer 2: Events Image
-  const eventsBgOpacity = useTransform(smoothProgress, [0.38, 0.44], [0, 1])
+  const eventsBgOpacity = useTransform(smoothProgress, [0.39, 0.44], [0, 1])
   // Layer 3: Gallery Image
-  const galleryBgOpacity = useTransform(smoothProgress, [0.64, 0.70], [0, 1])
+  const galleryBgOpacity = useTransform(smoothProgress, [0.65, 0.70], [0, 1])
   // Layer 4: Contact Image
-  const contactBgOpacity = useTransform(smoothProgress, [0.90, 0.95], [0, 1])
+  const contactBgOpacity = useTransform(smoothProgress, [0.90, 0.94], [0, 1])
 
   // Dynamic Scrim (drops to 0 when background is solo/crossfading, so images are completely clear and undimmed)
   const scrimOpacity = useTransform(
     smoothProgress,
-    [0, 0.03, 0.08, 0.21, 0.25, 0.31, 0.35, 0.47, 0.51, 0.57, 0.61, 0.73, 0.77, 0.83, 0.87, 0.95, 0.98, 1.0],
+    [0, 0.03, 0.08, 0.20, 0.25, 0.31, 0.37, 0.46, 0.51, 0.57, 0.63, 0.72, 0.77, 0.83, 0.89, 0.94, 0.98, 1.0],
     [0.55, 0.55, 0, 0, 0.45, 0.45, 0, 0, 0.45, 0.45, 0, 0, 0.45, 0.45, 0, 0, 0.55, 0.55]
   )
 
   // --------------------------------------------------------------------------
-  // CHAPTER 0: HERO (Visible on load -> Fades out on scroll -> Background clearly visible)
-  const heroOpacity = useTransform(smoothProgress, [0.03, 0.08], [1, 0])
-  const heroY = useTransform(smoothProgress, [0.03, 0.08], [0, -40])
-  const heroPromptOpacity = useTransform(smoothProgress, [0, 0.03], [1, 0])
+  // CHAPTER 0: HERO (Waterfall cascade dissolution on scroll)
+  const heroPromptOpacity = useTransform(smoothProgress, [0, 0.025], [1, 0])
+  const heroPromptScale = useTransform(smoothProgress, [0, 0.025], [1, 0.88])
+
+  const heroEyebrowOpacity = useTransform(smoothProgress, [0.015, 0.045], [1, 0])
+  const heroEyebrowY = useTransform(smoothProgress, [0.015, 0.045], [0, -25])
+
+  const heroHeadingOpacity = useTransform(smoothProgress, [0.025, 0.060], [1, 0])
+  const heroHeadingY = useTransform(smoothProgress, [0.025, 0.060], [0, -35])
+  const heroHeadingScale = useTransform(smoothProgress, [0.025, 0.060], [1, 0.97])
+
+  const heroLedeOpacity = useTransform(smoothProgress, [0.035, 0.070], [1, 0])
+  const heroLedeY = useTransform(smoothProgress, [0.035, 0.070], [0, -30])
+
+  const heroActionsOpacity = useTransform(smoothProgress, [0.045, 0.080], [1, 0])
+  const heroActionsY = useTransform(smoothProgress, [0.045, 0.080], [0, -25])
+  const heroActionsScale = useTransform(smoothProgress, [0.045, 0.080], [1, 0.95])
+
   const heroPointer = useTransform(smoothProgress, v => (v <= 0.05 ? 'auto' : 'none'))
 
   // --------------------------------------------------------------------------
-  // CHAPTER 1: MINISTRIES (Background transitions first, then text/widgets glide in)
-  const ministriesOpacity = useTransform(smoothProgress, [0.21, 0.25, 0.31, 0.35], [0, 1, 1, 0])
-  const ministriesY = useTransform(smoothProgress, [0.21, 0.25, 0.31, 0.35], [40, 0, 0, -40])
-  const ministriesPointer = useTransform(smoothProgress, v => (v >= 0.23 && v <= 0.33 ? 'auto' : 'none'))
+  // CHAPTER 1: MINISTRIES (Cascading wave entrance & exit)
+  const ministriesChapter = useStaggeredChapter(smoothProgress, {
+    enter: [0.20, 0.26],
+    exit: [0.31, 0.36],
+  })
 
   // --------------------------------------------------------------------------
-  // CHAPTER 2: EVENTS (Background transitions first, then text/widgets glide in)
-  const eventsOpacity = useTransform(smoothProgress, [0.47, 0.51, 0.57, 0.61], [0, 1, 1, 0])
-  const eventsY = useTransform(smoothProgress, [0.47, 0.51, 0.57, 0.61], [40, 0, 0, -40])
-  const eventsPointer = useTransform(smoothProgress, v => (v >= 0.49 && v <= 0.59 ? 'auto' : 'none'))
+  // CHAPTER 2: EVENTS (Cascading wave entrance & exit)
+  const eventsChapter = useStaggeredChapter(smoothProgress, {
+    enter: [0.46, 0.52],
+    exit: [0.57, 0.62],
+  })
 
   // --------------------------------------------------------------------------
-  // CHAPTER 3: GALLERY (Background transitions first, then text/widgets glide in)
-  const galleryOpacity = useTransform(smoothProgress, [0.73, 0.77, 0.83, 0.87], [0, 1, 1, 0])
-  const galleryY = useTransform(smoothProgress, [0.73, 0.77, 0.83, 0.87], [40, 0, 0, -40])
-  const galleryPointer = useTransform(smoothProgress, v => (v >= 0.75 && v <= 0.85 ? 'auto' : 'none'))
+  // CHAPTER 3: GALLERY (Cascading photo entrance & exit)
+  const galleryChapter = useStaggeredChapter(smoothProgress, {
+    enter: [0.72, 0.78],
+    exit: [0.83, 0.88],
+  })
 
   // --------------------------------------------------------------------------
-  // CHAPTER 4: CONTACT (Background transitions first, then contact details glide in)
-  const contactOpacity = useTransform(smoothProgress, [0.95, 0.98], [0, 1])
-  const contactY = useTransform(smoothProgress, [0.95, 0.98], [40, 0])
-  const contactPointer = useTransform(smoothProgress, v => (v >= 0.96 ? 'auto' : 'none'))
+  // CHAPTER 4: CONTACT (Staggered two-column reveal)
+  const contactHeadOpacity = useTransform(smoothProgress, [0.94, 0.97], [0, 1])
+  const contactHeadY = useTransform(smoothProgress, [0.94, 0.97], [35, 0])
+  const contactHeadScale = useTransform(smoothProgress, [0.94, 0.97], [0.96, 1])
+
+  const contactActionsOpacity = useTransform(smoothProgress, [0.95, 0.98], [0, 1])
+  const contactActionsY = useTransform(smoothProgress, [0.95, 0.98], [25, 0])
+
+  const contactItem0Opacity = useTransform(smoothProgress, [0.95, 0.98], [0, 1])
+  const contactItem0Y = useTransform(smoothProgress, [0.95, 0.98], [35, 0])
+  const contactItem0Scale = useTransform(smoothProgress, [0.95, 0.98], [0.94, 1])
+
+  const contactItem1Opacity = useTransform(smoothProgress, [0.96, 0.99], [0, 1])
+  const contactItem1Y = useTransform(smoothProgress, [0.96, 0.99], [35, 0])
+  const contactItem1Scale = useTransform(smoothProgress, [0.96, 0.99], [0.94, 1])
+
+  const contactItem2Opacity = useTransform(smoothProgress, [0.97, 1.00], [0, 1])
+  const contactItem2Y = useTransform(smoothProgress, [0.97, 1.00], [35, 0])
+  const contactItem2Scale = useTransform(smoothProgress, [0.97, 1.00], [0.94, 1])
+
+  const contactPointer = useTransform(smoothProgress, v => (v >= 0.95 ? 'auto' : 'none'))
 
   // Initial Load Choreography for Hero Chapter
   const easeOutExpo = [0.16, 1, 0.3, 1] as const
@@ -225,33 +324,70 @@ export function HomePage() {
         {/* ---------------- CHAPTER 0: HERO ---------------- */}
         <motion.div
           className="hp-panel hp-panel--hero"
-          style={
-            reduced
-              ? undefined
-              : {
-                  opacity: heroOpacity,
-                  y: heroY,
-                  pointerEvents: heroPointer,
-                }
-          }
+          style={{ pointerEvents: reduced ? 'auto' : heroPointer }}
         >
           <Container className="hero__content">
             <div className="hero-text-anim-wrap">
-              <motion.p className="hp-hero-eyebrow" {...eyebrowAnim}>
+              <motion.p
+                className="hp-hero-eyebrow"
+                {...eyebrowAnim}
+                style={
+                  reduced
+                    ? undefined
+                    : {
+                        opacity: heroEyebrowOpacity,
+                        y: heroEyebrowY,
+                      }
+                }
+              >
                 Welcome to our parish family
               </motion.p>
-              <h1 className="hp-hero-display">
+              <motion.h1
+                className="hp-hero-display"
+                style={
+                  reduced
+                    ? undefined
+                    : {
+                        opacity: heroHeadingOpacity,
+                        y: heroHeadingY,
+                        scale: heroHeadingScale,
+                      }
+                }
+              >
                 <motion.span style={{ display: 'block' }} {...headingLine1Anim}>
                   Faith, fellowship,
                 </motion.span>
                 <motion.span style={{ display: 'block' }} {...headingLine2Anim}>
                   and a place to call home.
                 </motion.span>
-              </h1>
-              <motion.p className="hp-hero-lede" {...ledeAnim}>
+              </motion.h1>
+              <motion.p
+                className="hp-hero-lede"
+                {...ledeAnim}
+                style={
+                  reduced
+                    ? undefined
+                    : {
+                        opacity: heroLedeOpacity,
+                        y: heroLedeY,
+                      }
+                }
+              >
                 {`Join ${churchName} for prayer, worship, and the shared life of our parish community.`}
               </motion.p>
-              <motion.div className="actions" {...actionsAnim}>
+              <motion.div
+                className="actions"
+                {...actionsAnim}
+                style={
+                  reduced
+                    ? undefined
+                    : {
+                        opacity: heroActionsOpacity,
+                        y: heroActionsY,
+                        scale: heroActionsScale,
+                      }
+                }
+              >
                 <Link className="button button--light" to="/about">
                   Discover our parish <span aria-hidden="true">↗</span>
                 </Link>
@@ -279,7 +415,14 @@ export function HomePage() {
             }}
             aria-label="Scroll down to explore parish content"
             {...promptAnim}
-            style={reduced ? undefined : { opacity: heroPromptOpacity }}
+            style={
+              reduced
+                ? undefined
+                : {
+                    opacity: heroPromptOpacity,
+                    scale: heroPromptScale,
+                  }
+            }
           >
             <span className="hero-scroll-indicator__mouse" aria-hidden="true">
               <span className="hero-scroll-indicator__wheel" />
@@ -291,19 +434,22 @@ export function HomePage() {
         {/* ---------------- CHAPTER 1: MINISTRIES ---------------- */}
         <motion.div
           className="hp-panel"
-          style={
-            reduced
-              ? undefined
-              : {
-                  opacity: ministriesOpacity,
-                  y: ministriesY,
-                  pointerEvents: ministriesPointer,
-                }
-          }
+          style={{ pointerEvents: reduced ? 'auto' : ministriesChapter.pointer }}
         >
           <Container>
             <div className="hp-content-card">
-              <div className="hp-section-head">
+              <motion.div
+                className="hp-section-head"
+                style={
+                  reduced
+                    ? undefined
+                    : {
+                        opacity: ministriesChapter.head.opacity,
+                        y: ministriesChapter.head.y,
+                        scale: ministriesChapter.head.scale,
+                      }
+                }
+              >
                 <div>
                   <p className="eyebrow hp-eyebrow">Parish Life</p>
                   <h2 className="heading hp-heading">Many ways to grow together.</h2>
@@ -311,11 +457,23 @@ export function HomePage() {
                 <Link className="button button--light" to="/ministries">
                   Explore ministries <span aria-hidden="true">→</span>
                 </Link>
-              </div>
+              </motion.div>
 
               <div className="hp-grid-3">
-                {ministryPreviews.slice(0, 3).map(ministry => (
-                  <article key={ministry.id} className="hp-card">
+                {ministryPreviews.slice(0, 3).map((ministry, idx) => (
+                  <motion.article
+                    key={ministry.id}
+                    className="hp-card"
+                    style={
+                      reduced
+                        ? undefined
+                        : {
+                            opacity: ministriesChapter.items[idx]?.opacity,
+                            y: ministriesChapter.items[idx]?.y,
+                            scale: ministriesChapter.items[idx]?.scale,
+                          }
+                    }
+                  >
                     <span className="hp-card-num">{ministry.number}</span>
                     <h3 className="hp-card-title">
                       <Link
@@ -331,7 +489,7 @@ export function HomePage() {
                         View ministry <span aria-hidden="true">→</span>
                       </Link>
                     </div>
-                  </article>
+                  </motion.article>
                 ))}
               </div>
             </div>
@@ -341,19 +499,22 @@ export function HomePage() {
         {/* ---------------- CHAPTER 2: EVENTS ---------------- */}
         <motion.div
           className="hp-panel"
-          style={
-            reduced
-              ? undefined
-              : {
-                  opacity: eventsOpacity,
-                  y: eventsY,
-                  pointerEvents: eventsPointer,
-                }
-          }
+          style={{ pointerEvents: reduced ? 'auto' : eventsChapter.pointer }}
         >
           <Container>
             <div className="hp-content-card">
-              <div className="hp-section-head">
+              <motion.div
+                className="hp-section-head"
+                style={
+                  reduced
+                    ? undefined
+                    : {
+                        opacity: eventsChapter.head.opacity,
+                        y: eventsChapter.head.y,
+                        scale: eventsChapter.head.scale,
+                      }
+                }
+              >
                 <div>
                   <p className="eyebrow hp-eyebrow">What's Ahead</p>
                   <h2 className="heading hp-heading">Gatherings to look forward to.</h2>
@@ -361,12 +522,24 @@ export function HomePage() {
                 <Link className="button button--light" to="/events">
                   View all events <span aria-hidden="true">→</span>
                 </Link>
-              </div>
+              </motion.div>
 
               <div className="hp-grid-3">
                 {upcomingEvents.length > 0 ? (
-                  upcomingEvents.slice(0, 3).map(event => (
-                    <article key={event.id} className="hp-card">
+                  upcomingEvents.slice(0, 3).map((event, idx) => (
+                    <motion.article
+                      key={event.id}
+                      className="hp-card"
+                      style={
+                        reduced
+                          ? undefined
+                          : {
+                              opacity: eventsChapter.items[idx]?.opacity,
+                              y: eventsChapter.items[idx]?.y,
+                              scale: eventsChapter.items[idx]?.scale,
+                            }
+                      }
+                    >
                       <span className="hp-card-badge">
                         {new Date(event.start_datetime).toLocaleDateString('en-US', {
                           month: 'short',
@@ -378,10 +551,22 @@ export function HomePage() {
                       <Link to="/events" className="hp-card-link">
                         Details <span aria-hidden="true">→</span>
                       </Link>
-                    </article>
+                    </motion.article>
                   ))
                 ) : (
-                  <article className="hp-card" style={{ gridColumn: 'span 3' }}>
+                  <motion.article
+                    className="hp-card"
+                    style={
+                      reduced
+                        ? { gridColumn: 'span 3' }
+                        : {
+                            gridColumn: 'span 3',
+                            opacity: eventsChapter.items[0]?.opacity,
+                            y: eventsChapter.items[0]?.y,
+                            scale: eventsChapter.items[0]?.scale,
+                          }
+                    }
+                  >
                     <span className="hp-card-badge">Upcoming</span>
                     <h3 className="hp-card-title">Parish Gatherings & Celebrations</h3>
                     <p className="hp-card-detail">
@@ -390,7 +575,7 @@ export function HomePage() {
                     <Link to="/events" className="hp-card-link">
                       Explore Events Calendar <span aria-hidden="true">→</span>
                     </Link>
-                  </article>
+                  </motion.article>
                 )}
               </div>
             </div>
@@ -400,19 +585,22 @@ export function HomePage() {
         {/* ---------------- CHAPTER 3: GALLERY ---------------- */}
         <motion.div
           className="hp-panel"
-          style={
-            reduced
-              ? undefined
-              : {
-                  opacity: galleryOpacity,
-                  y: galleryY,
-                  pointerEvents: galleryPointer,
-                }
-          }
+          style={{ pointerEvents: reduced ? 'auto' : galleryChapter.pointer }}
         >
           <Container>
             <div className="hp-content-card">
-              <div className="hp-section-head">
+              <motion.div
+                className="hp-section-head"
+                style={
+                  reduced
+                    ? undefined
+                    : {
+                        opacity: galleryChapter.head.opacity,
+                        y: galleryChapter.head.y,
+                        scale: galleryChapter.head.scale,
+                      }
+                }
+              >
                 <div>
                   <p className="eyebrow hp-eyebrow">Our Community</p>
                   <h2 className="heading hp-heading">The beauty of being together.</h2>
@@ -420,27 +608,45 @@ export function HomePage() {
                 <Link className="button button--light" to="/gallery">
                   View gallery <span aria-hidden="true">→</span>
                 </Link>
-              </div>
+              </motion.div>
 
               <div className="hp-gallery-grid">
                 {previewImages.length > 0 ? (
-                  previewImages.slice(0, 3).map(img => (
-                    <div key={img.id} className="hp-gallery-card">
+                  previewImages.slice(0, 3).map((img, idx) => (
+                    <motion.div
+                      key={img.id}
+                      className="hp-gallery-card"
+                      style={
+                        reduced
+                          ? undefined
+                          : {
+                              opacity: galleryChapter.items[idx]?.opacity,
+                              y: galleryChapter.items[idx]?.y,
+                              scale: galleryChapter.items[idx]?.scale,
+                            }
+                      }
+                    >
                       <img src={img.image_url} alt={img.alt_text} loading="lazy" />
-                    </div>
+                    </motion.div>
                   ))
                 ) : (
-                  <>
-                    <div className="hp-gallery-card">
-                      <img src={demoImages.sanctuary.src} alt={demoImages.sanctuary.alt} loading="lazy" />
-                    </div>
-                    <div className="hp-gallery-card">
-                      <img src={demoImages.prayer.src} alt={demoImages.prayer.alt} loading="lazy" />
-                    </div>
-                    <div className="hp-gallery-card">
-                      <img src={demoImages.community.src} alt={demoImages.community.alt} loading="lazy" />
-                    </div>
-                  </>
+                  [demoImages.sanctuary, demoImages.prayer, demoImages.community].map((demo, idx) => (
+                    <motion.div
+                      key={demo.src}
+                      className="hp-gallery-card"
+                      style={
+                        reduced
+                          ? undefined
+                          : {
+                              opacity: galleryChapter.items[idx]?.opacity,
+                              y: galleryChapter.items[idx]?.y,
+                              scale: galleryChapter.items[idx]?.scale,
+                            }
+                      }
+                    >
+                      <img src={demo.src} alt={demo.alt} loading="lazy" />
+                    </motion.div>
+                  ))
                 )}
               </div>
             </div>
@@ -450,19 +656,21 @@ export function HomePage() {
         {/* ---------------- CHAPTER 4: CONTACT ---------------- */}
         <motion.div
           className="hp-panel"
-          style={
-            reduced
-              ? undefined
-              : {
-                  opacity: contactOpacity,
-                  y: contactY,
-                  pointerEvents: contactPointer,
-                }
-          }
+          style={{ pointerEvents: reduced ? 'auto' : contactPointer }}
         >
           <Container>
             <div className="hp-contact-box">
-              <div>
+              <motion.div
+                style={
+                  reduced
+                    ? undefined
+                    : {
+                        opacity: contactHeadOpacity,
+                        y: contactHeadY,
+                        scale: contactHeadScale,
+                      }
+                }
+              >
                 <p className="eyebrow hp-eyebrow">Visit & Connect</p>
                 <h2 className="heading hp-heading" style={{ fontSize: 'clamp(2rem, 3.5vw, 2.8rem)' }}>
                   There is a place for you here.
@@ -470,7 +678,18 @@ export function HomePage() {
                 <p className="hp-contact-desc">
                   Whether you are visiting for the first time, seeking prayer, or looking for a parish home, we warmly welcome you to join our family.
                 </p>
-                <div className="actions" style={{ marginTop: '1.75rem' }}>
+                <motion.div
+                  className="actions"
+                  style={
+                    reduced
+                      ? { marginTop: '1.75rem' }
+                      : {
+                          marginTop: '1.75rem',
+                          opacity: contactActionsOpacity,
+                          y: contactActionsY,
+                        }
+                  }
+                >
                   <Link className="button button--light" to="/contact">
                     Plan your visit <span aria-hidden="true">↗</span>
                   </Link>
@@ -481,22 +700,55 @@ export function HomePage() {
                   >
                     Liturgy & Traditions
                   </Link>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
 
               <div className="hp-contact-details">
-                <div className="hp-contact-item">
+                <motion.div
+                  className="hp-contact-item"
+                  style={
+                    reduced
+                      ? undefined
+                      : {
+                          opacity: contactItem0Opacity,
+                          y: contactItem0Y,
+                          scale: contactItem0Scale,
+                        }
+                  }
+                >
                   <h4>Parish Sanctuary</h4>
                   <p>{churchAddress}</p>
-                </div>
-                <div className="hp-contact-item">
+                </motion.div>
+                <motion.div
+                  className="hp-contact-item"
+                  style={
+                    reduced
+                      ? undefined
+                      : {
+                          opacity: contactItem1Opacity,
+                          y: contactItem1Y,
+                          scale: contactItem1Scale,
+                        }
+                  }
+                >
                   <h4>Holy Qurbana & Worship</h4>
                   <p>
                     Sundays: Morning Prayer & Holy Qurbana<br />
                     Feast days & special liturgies as scheduled
                   </p>
-                </div>
-                <div className="hp-contact-item">
+                </motion.div>
+                <motion.div
+                  className="hp-contact-item"
+                  style={
+                    reduced
+                      ? undefined
+                      : {
+                          opacity: contactItem2Opacity,
+                          y: contactItem2Y,
+                          scale: contactItem2Scale,
+                        }
+                  }
+                >
                   <h4>Get in Touch</h4>
                   <p>
                     {churchEmail && (
@@ -514,7 +766,7 @@ export function HomePage() {
                     )}
                     {!churchEmail && !churchPhone && 'Connect with our parish via our contact form.'}
                   </p>
-                </div>
+                </motion.div>
               </div>
             </div>
           </Container>
