@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import type { Dispatch, MouseEvent as ReactMouseEvent, SetStateAction } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { Container } from '../ui/Container'
 import { ministries, publicNavigation, siteName } from '../../data/siteContent'
@@ -69,6 +70,13 @@ export function PublicNavbar() {
     } else {
       setLockedOpen(true)
       setHovered(true)
+    }
+  }
+
+  function toggleMobileDropdown(event: ReactMouseEvent<HTMLAnchorElement>, setter: Dispatch<SetStateAction<boolean>>) {
+    if (window.matchMedia('(max-width: 760px)').matches) {
+      event.preventDefault()
+      setter(value => !value)
     }
   }
 
@@ -170,7 +178,10 @@ export function PublicNavbar() {
                   setAboutHover(false)
                 }}
               >
-                <NavLink to={item.to} onClick={closeDropdownMenus} className="nav__link nav__link--has-dropdown">
+                <NavLink to={item.to} onClick={event => {
+                  toggleMobileDropdown(event, setAboutHover)
+                  if (!event.defaultPrevented) closeDropdownMenus()
+                }} className="nav__link nav__link--has-dropdown">
                   {item.label}
                   <span className="nav__caret" aria-hidden="true" />
                 </NavLink>
@@ -227,7 +238,10 @@ export function PublicNavbar() {
                   setLiturgyHover(false)
                 }}
               >
-                <NavLink to={item.to} onClick={closeDropdownMenus} className="nav__link nav__link--has-dropdown">
+                <NavLink to={item.to} onClick={event => {
+                  toggleMobileDropdown(event, setLiturgyHover)
+                  if (!event.defaultPrevented) closeDropdownMenus()
+                }} className="nav__link nav__link--has-dropdown">
                   {item.label}
                   <span className="nav__caret" aria-hidden="true" />
                 </NavLink>
@@ -264,7 +278,10 @@ export function PublicNavbar() {
                   setMinistriesHover(false)
                 }}
               >
-                <NavLink to={item.to} onClick={closeDropdownMenus} className="nav__link nav__link--has-dropdown">
+                <NavLink to={item.to} onClick={event => {
+                  toggleMobileDropdown(event, setMinistriesHover)
+                  if (!event.defaultPrevented) closeDropdownMenus()
+                }} className="nav__link nav__link--has-dropdown">
                   {item.label}
                   <span className="nav__caret" aria-hidden="true" />
                 </NavLink>
