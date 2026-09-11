@@ -44,9 +44,20 @@ export function PublicNavbar() {
   return (
     <header className={`nav ${scrolled ? 'nav--scrolled' : ''} ${open ? 'nav--open' : ''}`}>
       <Container className="nav__inner">
-        <Link className="brand" to="/" aria-label={`${churchName} home`}>
-          <span className="brand__mark" aria-hidden="true">✦</span>
-          <span>{churchName}</span>
+        <Link
+          className="brand"
+          to="/"
+          aria-label={`${churchName} home`}
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+          }}
+        >
+          <img
+            src="/st-anthony-logo.jpg"
+            alt={`${churchName} emblem`}
+            className="brand__logo"
+          />
+          <span className="brand__name">{churchName}</span>
         </Link>
         <button
           className={`nav__toggle ${open ? 'nav__toggle--open' : ''}`}
