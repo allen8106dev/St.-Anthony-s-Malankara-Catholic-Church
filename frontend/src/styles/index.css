@@ -2423,7 +2423,7 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
   .nav__dropdown-item { padding: .6rem 0 !important; }
 
   .hp-stage { height: auto; background: #081713; }
-  .hp-backdrop-sticky { position: absolute; height: 100%; }
+  .hp-backdrop-sticky { position: absolute; height: 100svh; }
   .hp-backdrop-layer:not(.hp-backdrop-layer--0), .hp-backdrop-glow { display: none; }
   .hp-foreground-sticky { position: relative; height: auto; margin-top: 0; overflow: visible; }
   .hp-panel { position: relative; inset: auto; height: auto; min-height: 0; padding: 3.5rem 0; pointer-events: auto !important; }
@@ -2439,7 +2439,7 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
   .hp-section-head { margin-bottom: 1.5rem; }
   .hp-contact-box { padding: 1.5rem; }
 
-  .pl-backdrop { position: absolute; height: 100%; margin-bottom: 0; }
+  .pl-backdrop { position: absolute; height: 100svh; margin-bottom: 0; }
   .pl-hero-track { height: 100svh; }
   .pl-hero-sticky { position: relative; height: 100svh; }
   .pl-backdrop-img, .pl-hero-content .hero-text-anim-wrap > * {
