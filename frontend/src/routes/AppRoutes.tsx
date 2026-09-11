@@ -101,6 +101,7 @@ export function AppRoutes() {
           <Route path="content/homepage" element={<HomepagePage />} />
           <Route path="content/about" element={<AboutCmsPage />} />
           <Route path="content/liturgy" element={<LiturgyCmsPage />} />
+          <Route path="content/liturgy/:collectionId" element={<LiturgyCmsPage />} />
           <Route path="content/events" element={<AdminEventsPage />} />
           <Route path="content/events/new" element={<EventFormPage />} />
           <Route path="content/events/:eventId/edit" element={<EventFormPage />} />

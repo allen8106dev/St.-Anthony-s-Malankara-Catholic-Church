@@ -10,7 +10,7 @@ from app.schemas.cms import (
     AnnouncementCreate, AnnouncementRead, AnnouncementUpdate,
     CmsDashboard, EventCreate, EventRead, EventUpdate,
     GalleryImageCreate, GalleryImageRead, GalleryImageUpdate,
-    HeroImageCreate, HeroImageRead, HeroImageUpdate, LiturgyCollectionCreate, LiturgyCollectionRead, LiturgyCollectionUpdate, LiturgyResourceCreate, LiturgyResourceRead,
+    HeroImageCreate, HeroImageRead, HeroImageUpdate, LiturgyCollectionCreate, LiturgyCollectionRead, LiturgyCollectionUpdate, LiturgyResourceCreate, LiturgyResourceRead, LiturgyResourceUpdate,
     PageContentRead, PageContentUpdate,
     PaginatedAlbums, PaginatedAnnouncements, PaginatedEvents,
     ServiceTimeCreate, ServiceTimeRead, ServiceTimeUpdate,
@@ -54,6 +54,25 @@ def add_liturgy_resource(collection_id: uuid.UUID, data: LiturgyResourceCreate, 
     item = svc.get_liturgy_collection(db, collection_id)
     if not item: raise HTTPException(404, "Liturgy collection not found.")
     resource = svc.add_liturgy_resource(db, item, data, actor); db.commit(); db.refresh(resource); return resource
+@router.patch("/liturgy/{collection_id}/resources/{resource_id}", response_model=LiturgyResourceRead)
+def update_liturgy_resource(collection_id: uuid.UUID, resource_id: uuid.UUID, data: LiturgyResourceUpdate, db: DbSession, actor: ContentManage):
+    item = svc.get_liturgy_collection(db, collection_id)
+    resource = next((entry for entry in item.resources if entry.id == resource_id), None) if item else None
+    if not resource: raise HTTPException(404, "Liturgy resource not found.")
+    resource = svc.update_liturgy_resource(db, resource, data, actor); db.commit(); db.refresh(resource); return resource
+@router.delete("/liturgy/{collection_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_liturgy_collection(collection_id: uuid.UUID, db: DbSession, actor: ContentManage):
+    item = svc.get_liturgy_collection(db, collection_id)
+    if not item: raise HTTPException(404, "Liturgy collection not found.")
+    svc.delete_liturgy_collection(db, item, actor)
+    db.commit()
+@router.delete("/liturgy/{collection_id}/resources/{resource_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_liturgy_resource(collection_id: uuid.UUID, resource_id: uuid.UUID, db: DbSession, actor: ContentManage):
+    item = svc.get_liturgy_collection(db, collection_id)
+    resource = next((entry for entry in item.resources if entry.id == resource_id), None) if item else None
+    if not resource: raise HTTPException(404, "Liturgy resource not found.")
+    svc.delete_liturgy_resource(db, resource, actor)
+    db.commit()
 
 
 # ── Dashboard ─────────────────────────────────────────────────────────────────

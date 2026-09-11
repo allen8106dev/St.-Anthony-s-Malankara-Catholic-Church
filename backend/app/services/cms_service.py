@@ -13,7 +13,7 @@ from app.models.domain import (
 from app.schemas.cms import (
     AlbumCreate, AlbumUpdate, AnnouncementCreate, AnnouncementUpdate,
     EventCreate, EventUpdate, GalleryImageCreate, GalleryImageUpdate,
-    HeroImageCreate, HeroImageUpdate, LiturgyCollectionCreate, LiturgyCollectionUpdate, LiturgyResourceCreate, PageContentUpdate,
+    HeroImageCreate, HeroImageUpdate, LiturgyCollectionCreate, LiturgyCollectionUpdate, LiturgyResourceCreate, LiturgyResourceUpdate, PageContentUpdate,
     ServiceTimeCreate, ServiceTimeUpdate, SettingUpsert,
 )
 
@@ -296,8 +296,13 @@ def set_liturgy_status(db: Session, item: LiturgyCollection, status: Publication
     item.status = status; db.flush(); _audit(db, actor, f"content.liturgy.{status.value.lower()}", "liturgy_collection", str(item.id)); return item
 def add_liturgy_resource(db: Session, item: LiturgyCollection, data: LiturgyResourceCreate, actor: AdminUser):
     resource = LiturgyResource(collection_id=item.id, **data.model_dump()); db.add(resource); db.flush(); _audit(db, actor, "content.liturgy.resource_added", "liturgy_resource", str(resource.id)); return resource
+def update_liturgy_resource(db: Session, resource: LiturgyResource, data: LiturgyResourceUpdate, actor: AdminUser):
+    for key, value in data.model_dump(exclude_unset=True).items(): setattr(resource, key, value)
+    db.flush(); _audit(db, actor, "content.liturgy.resource_updated", "liturgy_resource", str(resource.id)); return resource
 def delete_liturgy_resource(db: Session, resource: LiturgyResource, actor: AdminUser):
     _audit(db, actor, "content.liturgy.resource_deleted", "liturgy_resource", str(resource.id)); db.delete(resource); db.flush()
+def delete_liturgy_collection(db: Session, item: LiturgyCollection, actor: AdminUser):
+    _audit(db, actor, "content.liturgy.collection_deleted", "liturgy_collection", str(item.id)); db.delete(item); db.flush()
 
 
 # ── Page Content ──────────────────────────────────────────────────────────────

@@ -59,27 +59,102 @@ export function LiturgyPage() {
         <Reveal><p className="lede">Our liturgical life draws us into communion with God and one another. Explore these parts of our shared worship and return as resources are added.</p></Reveal>
       </div>
     </section>
-    {(collections.length ? collections.map(collection => ({ id: collection.id, eyebrow: 'Liturgy resources', title: collection.title, description: '', details: collection.resources.map(resource => resource.title), resources: collection.resources })) : liturgySections).map((section, index) => (
-      <section id={section.id} className={`section liturgy-section${index % 2 ? ' section--muted' : ''}`} key={section.id}>
-        <div className="container liturgy-section__grid">
-          <Reveal>
-            <p className="eyebrow">{section.eyebrow}</p>
-            <h2 className="heading">{section.title}</h2>
-          </Reveal>
-          <Reveal delay={0.1}>
-            <p className="lede">{section.description}</p>
-            <ul className="liturgy-section__details">
-              {section.details.map((detail, detailIndex) => {
-                const resource = 'resources' in section
-                  ? (section.resources as { id: string; title: string; description: string | null; pdf_url: string }[])[detailIndex]
-                  : undefined
-                return <li key={resource?.id ?? detail}>{resource ? <a href={resource.pdf_url} target="_blank" rel="noreferrer">{resource.title}</a> : detail}</li>
-              })}
-            </ul>
-          </Reveal>
-        </div>
-      </section>
-    ))}
+    {collections.length > 0 ? (
+      collections.map((collection, index) => (
+        <section
+          id={collection.id}
+          className={`section liturgy-section${index % 2 ? ' section--muted' : ''}`}
+          key={collection.id}
+        >
+          <div className="container liturgy-section__grid">
+            <Reveal>
+              <p className="eyebrow">Liturgy folder</p>
+              <h2 className="heading">{collection.title}</h2>
+              {collection.description && (
+                <p className="liturgy-section__desc">{collection.description}</p>
+              )}
+            </Reveal>
+            <Reveal delay={0.1}>
+              {collection.resources.length > 0 ? (
+                <div className="liturgy-public-resources">
+                  <h3 className="liturgy-public-resources__heading">
+                    Texts &amp; Resources ({collection.resources.length})
+                  </h3>
+                  <div className="liturgy-public-resources__list">
+                    {collection.resources.map(resource => (
+                      <a
+                        key={resource.id}
+                        href={resource.pdf_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="liturgy-public-doc-card"
+                        title={`Open ${resource.title} PDF`}
+                      >
+                        <div className="liturgy-public-doc-card__icon" aria-hidden="true">
+                          <svg
+                            width="22"
+                            height="22"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                            <polyline points="14 2 14 8 20 8" />
+                            <path d="M10 13v-2a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2" />
+                          </svg>
+                          <span className="liturgy-pdf-tag">PDF</span>
+                        </div>
+                        <div className="liturgy-public-doc-card__body">
+                          <span className="liturgy-public-doc-card__title">{resource.title}</span>
+                          {resource.description && (
+                            <span className="liturgy-public-doc-card__desc">
+                              {resource.description}
+                            </span>
+                          )}
+                        </div>
+                        <span className="liturgy-public-doc-card__action" aria-hidden="true">
+                          View PDF ↗
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="liturgy-empty-folder-hint">
+                  No PDF documents have been added to this section yet.
+                </p>
+              )}
+            </Reveal>
+          </div>
+        </section>
+      ))
+    ) : (
+      liturgySections.map((section, index) => (
+        <section
+          id={section.id}
+          className={`section liturgy-section${index % 2 ? ' section--muted' : ''}`}
+          key={section.id}
+        >
+          <div className="container liturgy-section__grid">
+            <Reveal>
+              <p className="eyebrow">{section.eyebrow}</p>
+              <h2 className="heading">{section.title}</h2>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className="lede">{section.description}</p>
+              <ul className="liturgy-section__details">
+                {section.details.map(detail => (
+                  <li key={detail}>{detail}</li>
+                ))}
+              </ul>
+            </Reveal>
+          </div>
+        </section>
+      ))
+    )}
     <Cta title="Join us in prayer." label="Plan your visit" to="/about#timings" />
   </>
 }

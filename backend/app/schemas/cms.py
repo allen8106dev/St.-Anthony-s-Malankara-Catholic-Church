@@ -275,6 +275,9 @@ class LiturgyResourceCreate(BaseModel):
     description: str | None = None
     pdf_url: str = Field(min_length=1, max_length=2048)
     sort_order: int = 0
+class LiturgyResourceUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=250)
+    pdf_url: str | None = Field(default=None, min_length=1, max_length=2048)
 class LiturgyResourceRead(CmsModel):
     id: UUID; title: str; description: str | None; pdf_url: str; sort_order: int; created_at: datetime; updated_at: datetime
 class LiturgyCollectionCreate(BaseModel):

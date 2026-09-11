@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '../services/apiClient'
 import type {
   AlbumPayload, AnnouncementPayload, CmsAlbum, CmsAnnouncement, CmsDashboard,
-  CmsEvent, CmsServiceTime, EventPayload, GalleryImage, HeroImage, HeroImagePayload, ImagePayload, LiturgyCollection,
+  CmsEvent, CmsServiceTime, EventPayload, GalleryImage, HeroImage, HeroImagePayload, ImagePayload, LiturgyCollection, LiturgyResource,
   PageContent, PageContentPayload, Paginated,
   ServiceTimePayload, SiteSetting,
 } from '../types/cms'
@@ -32,10 +32,76 @@ export const cmsKeys = {
 }
 
 export function useAdminLiturgy() { return useQuery({ queryKey: cmsKeys.liturgy, queryFn: () => apiClient.get<LiturgyCollection[]>(`${BASE}/liturgy`).then(r => r.data) }) }
-export function useCreateLiturgyCollection() { const qc = useQueryClient(); return useMutation({ mutationFn: (data: { title: string; description?: string }) => apiClient.post<LiturgyCollection>(`${BASE}/liturgy`, data).then(r => r.data), onSuccess: () => qc.invalidateQueries({ queryKey: cmsKeys.liturgy }) }) }
-export function useUpdateLiturgyCollection() { const qc = useQueryClient(); return useMutation({ mutationFn: ({ id, data }: { id: string; data: { title: string; description: string } }) => apiClient.patch<LiturgyCollection>(`${BASE}/liturgy/${id}`, data).then(r => r.data), onSuccess: () => qc.invalidateQueries({ queryKey: cmsKeys.liturgy }) }) }
-export function useLiturgyStatus() { const qc = useQueryClient(); return useMutation({ mutationFn: ({ id, action }: { id: string; action: 'publish' | 'unpublish' }) => apiClient.post<LiturgyCollection>(`${BASE}/liturgy/${id}/status/${action}`).then(r => r.data), onSuccess: () => qc.invalidateQueries({ queryKey: cmsKeys.liturgy }) }) }
-export function useAddLiturgyResource() { const qc = useQueryClient(); return useMutation({ mutationFn: ({ id, data }: { id: string; data: { title: string; description?: string; pdf_url: string } }) => apiClient.post(`${BASE}/liturgy/${id}/resources`, data), onSuccess: () => qc.invalidateQueries({ queryKey: cmsKeys.liturgy }) }) }
+export function useCreateLiturgyCollection() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: { title: string; description?: string }) => apiClient.post<LiturgyCollection>(`${BASE}/liturgy`, data).then(r => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: cmsKeys.liturgy })
+      qc.invalidateQueries({ queryKey: ['public', 'liturgy'] })
+    },
+  })
+}
+export function useUpdateLiturgyCollection() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: { title?: string; description?: string | null } }) => apiClient.patch<LiturgyCollection>(`${BASE}/liturgy/${id}`, data).then(r => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: cmsKeys.liturgy })
+      qc.invalidateQueries({ queryKey: ['public', 'liturgy'] })
+    },
+  })
+}
+export function useDeleteLiturgyCollection() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => apiClient.delete(`${BASE}/liturgy/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: cmsKeys.liturgy })
+      qc.invalidateQueries({ queryKey: ['public', 'liturgy'] })
+    },
+  })
+}
+export function useLiturgyStatus() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, action }: { id: string; action: 'publish' | 'unpublish' }) => apiClient.post<LiturgyCollection>(`${BASE}/liturgy/${id}/status/${action}`).then(r => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: cmsKeys.liturgy })
+      qc.invalidateQueries({ queryKey: ['public', 'liturgy'] })
+    },
+  })
+}
+export function useAddLiturgyResource() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: { title: string; description?: string; pdf_url: string } }) => apiClient.post<LiturgyResource>(`${BASE}/liturgy/${id}/resources`, data).then(r => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: cmsKeys.liturgy })
+      qc.invalidateQueries({ queryKey: ['public', 'liturgy'] })
+    },
+  })
+}
+export function useUpdateLiturgyResource() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ collectionId, resourceId, data }: { collectionId: string; resourceId: string; data: { title?: string; pdf_url?: string } }) => apiClient.patch<LiturgyResource>(`${BASE}/liturgy/${collectionId}/resources/${resourceId}`, data).then(r => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: cmsKeys.liturgy })
+      qc.invalidateQueries({ queryKey: ['public', 'liturgy'] })
+    },
+  })
+}
+export function useDeleteLiturgyResource() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ collectionId, resourceId }: { collectionId: string; resourceId: string }) => apiClient.delete(`${BASE}/liturgy/${collectionId}/resources/${resourceId}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: cmsKeys.liturgy })
+      qc.invalidateQueries({ queryKey: ['public', 'liturgy'] })
+    },
+  })
+}
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 export function useCmsDashboard() {
