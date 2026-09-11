@@ -1,5 +1,5 @@
 export const siteName = "St. Anthony's Malankara Catholic Church"
-export const publicNavigation = [{ label: 'Home', to: '/' }, { label: 'About', to: '/about' }, { label: 'Ministries', to: '/ministries' }, { label: 'Events', to: '/events' }, { label: 'Gallery', to: '/gallery' }, { label: 'Announcements', to: '/announcements' }, { label: 'Contact', to: '/contact' }] as const
+export const publicNavigation = [{ label: 'Home', to: '/' }, { label: 'About', to: '/about' }, { label: 'Ministries', to: '/ministries' }, { label: 'Events', to: '/events' }, { label: 'Gallery', to: '/gallery' }, { label: 'Liturgy', to: '/liturgy' }, { label: 'Announcements', to: '/announcements' }, { label: 'Contact', to: '/contact' }] as const
 
 export type DemoImage = { src: string; alt: string; focal?: string; caption?: string }
 const image = (id: string, alt: string, focal = 'center'): DemoImage => ({ src: `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1400&q=82`, alt, focal })

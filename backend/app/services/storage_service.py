@@ -12,6 +12,19 @@ from app.core.config import settings
 
 ALLOWED_TYPES = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"}
 
+async def upload_pdf(file: UploadFile) -> str:
+    if not settings.SUPABASE_URL or not settings.SUPABASE_SERVICE_ROLE_KEY: raise HTTPException(503, "File storage is not configured.")
+    if file.content_type != "application/pdf": raise HTTPException(415, "Only PDF files are supported.")
+    content = await file.read(settings.MAX_UPLOAD_BYTES + 1)
+    if len(content) > settings.MAX_UPLOAD_BYTES or not content.startswith(b"%PDF-"): raise HTTPException(415, "The selected file is not a valid PDF under the upload size limit.")
+    path = f"liturgy/{uuid.uuid4()}.pdf"; endpoint = f"{settings.SUPABASE_URL.rstrip('/')}/storage/v1/object/{settings.SUPABASE_STORAGE_BUCKET}/{path}"
+    request = urllib.request.Request(endpoint, data=content, method="POST", headers={"Authorization": f"Bearer {settings.SUPABASE_SERVICE_ROLE_KEY}", "apikey": settings.SUPABASE_SERVICE_ROLE_KEY, "Content-Type": "application/pdf", "x-upsert": "false"})
+    try:
+        with urllib.request.urlopen(request, timeout=30) as result:
+            if result.status not in (200, 201): raise HTTPException(502, "File storage rejected the upload.")
+    except urllib.error.URLError as exc: raise HTTPException(502, "File storage is unavailable.") from exc
+    return f"{settings.SUPABASE_URL.rstrip('/')}/storage/v1/object/public/{settings.SUPABASE_STORAGE_BUCKET}/{path}"
+
 async def upload_image(file: UploadFile) -> str:
     missing = [name for name, value in (
         ("SUPABASE_URL", settings.SUPABASE_URL),

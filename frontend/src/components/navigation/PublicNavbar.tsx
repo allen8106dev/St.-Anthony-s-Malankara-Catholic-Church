@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { Container } from '../ui/Container'
 import { publicNavigation, siteName } from '../../data/siteContent'
-import { usePublicSettings, usePublicAnnouncements } from '../../hooks/usePublicContent'
+import { usePublicSettings, usePublicAnnouncements, usePublicLiturgy } from '../../hooks/usePublicContent'
 
 function closeFocusedNav() {
   const active = document.activeElement
@@ -13,16 +13,19 @@ export function PublicNavbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
   const [aboutHover, setAboutHover] = useState(false)
+  const [liturgyHover, setLiturgyHover] = useState(false)
   const suppressAboutHover = useRef(false)
   const { data: settings } = usePublicSettings()
   const { data: announcementsData } = usePublicAnnouncements(1)
+  const { data: liturgyCollections = [] } = usePublicLiturgy()
   const s = Object.fromEntries((settings ?? []).map(item => [item.key, item.value]))
   const churchName = s.church_name || siteName
   const hasAnnouncements = (announcementsData?.meta?.total ?? 0) > 0
 
-  function closeAboutMenu() {
+  function closeDropdownMenus() {
     suppressAboutHover.current = true
     setAboutHover(false)
+    setLiturgyHover(false)
     setOpen(false)
     closeFocusedNav()
   }
@@ -56,7 +59,7 @@ export function PublicNavbar() {
                   setAboutHover(false)
                 }}
               >
-                <NavLink to={item.to} onClick={closeAboutMenu} className="nav__link nav__link--has-dropdown">
+                <NavLink to={item.to} onClick={closeDropdownMenus} className="nav__link nav__link--has-dropdown">
                   {item.label}
                   <span className="nav__caret" aria-hidden="true">▾</span>
                 </NavLink>
@@ -64,7 +67,7 @@ export function PublicNavbar() {
                   <Link
                     to="/about#timings"
                     onClick={() => {
-                      closeAboutMenu()
+                      closeDropdownMenus()
                       document.getElementById('timings')?.scrollIntoView({ behavior: 'smooth' })
                     }}
                     className="nav__dropdown-item"
@@ -75,7 +78,7 @@ export function PublicNavbar() {
                   <Link
                     to="/about#priest"
                     onClick={() => {
-                      closeAboutMenu()
+                      closeDropdownMenus()
                       document.getElementById('priest')?.scrollIntoView({ behavior: 'smooth' })
                     }}
                     className="nav__dropdown-item"
@@ -86,7 +89,7 @@ export function PublicNavbar() {
                   <Link
                     to="/about#history"
                     onClick={() => {
-                      closeAboutMenu()
+                      closeDropdownMenus()
                       document.getElementById('history')?.scrollIntoView({ behavior: 'smooth' })
                     }}
                     className="nav__dropdown-item"
@@ -94,6 +97,44 @@ export function PublicNavbar() {
                   >
                     History
                   </Link>
+                </div>
+              </div>
+            )
+          }
+
+          if (item.to === '/liturgy') {
+            const sections = liturgyCollections.map(collection => [collection.id, collection.title] as const)
+            return (
+              <div
+                key={item.to}
+                className={`nav__item nav__item--dropdown ${liturgyHover ? 'nav__item--dropdown-open' : ''}`}
+                onMouseEnter={() => {
+                  if (!suppressAboutHover.current) setLiturgyHover(true)
+                }}
+                onMouseLeave={() => {
+                  suppressAboutHover.current = false
+                  setLiturgyHover(false)
+                }}
+              >
+                <NavLink to={item.to} onClick={closeDropdownMenus} className="nav__link nav__link--has-dropdown">
+                  {item.label}
+                  <span className="nav__caret" aria-hidden="true">â–¾</span>
+                </NavLink>
+                <div className="nav__dropdown-menu" role="menu" aria-label="Liturgy sections">
+                  {sections.map(([id, label]) => (
+                    <Link
+                      key={id}
+                      to={`/liturgy#${id}`}
+                      onClick={() => {
+                        closeDropdownMenus()
+                        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+                      }}
+                      className="nav__dropdown-item"
+                      role="menuitem"
+                    >
+                      {label}
+                    </Link>
+                  ))}
                 </div>
               </div>
             )

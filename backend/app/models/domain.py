@@ -202,6 +202,25 @@ class HeroImage(Base):
     sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
+class LiturgyCollection(Base, Timestamped):
+    __tablename__ = "liturgy_collections"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    title: Mapped[str] = mapped_column(String(250), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[PublicationStatus] = mapped_column(Enum(PublicationStatus, name="liturgy_collection_status"), default=PublicationStatus.DRAFT, nullable=False)
+    sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    resources: Mapped[list["LiturgyResource"]] = relationship(back_populates="collection", cascade="all, delete-orphan", order_by="LiturgyResource.sort_order")
+
+class LiturgyResource(Base, Timestamped):
+    __tablename__ = "liturgy_resources"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    collection_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("liturgy_collections.id", ondelete="CASCADE"), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(250), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    pdf_url: Mapped[str] = mapped_column(String(2048), nullable=False)
+    sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    collection: Mapped[LiturgyCollection] = relationship(back_populates="resources")
+
 
 class PageContent(Base, Timestamped):
     __tablename__ = "page_content"

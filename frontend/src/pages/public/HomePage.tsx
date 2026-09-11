@@ -22,22 +22,19 @@ export function HomePage() {
   const previewImages = allGalleryImages.slice(0, 3)
 
   return <>
-    <section
-      className="hero hero--full"
-      onMouseEnter={() => setHeroPaused(true)}
-      onMouseLeave={() => setHeroPaused(false)}
-    >
+    <section className="hero hero--full">
       <HeroSlideshow
         slides={heroImages ?? []}
         fallbackSrc={demoImages.sanctuary.src}
         paused={heroPaused}
+        onPauseChange={() => setHeroPaused(value => !value)}
       />
       <div className="hero__art" aria-hidden="true" />
       <Container className="hero__content">
         <Reveal>
-          <p className="eyebrow">A place to belong</p>
-          <h1 className="display">{`Faith, family, and a warm welcome at ${churchName}.`}</h1>
-          <p className="lede">{`${churchName} is preparing a home online for prayer, community, and parish life.`}</p>
+          <p className="eyebrow">Welcome to our parish family</p>
+          <h1 className="display">{`Faith, fellowship, and a place to call home.`}</h1>
+          <p className="lede">{`Join ${churchName} for prayer, worship, and the shared life of our parish community.`}</p>
           <div className="actions">
             <Link className="button button--light" to="/about">Discover our parish <span aria-hidden="true">↗</span></Link>
           </div>

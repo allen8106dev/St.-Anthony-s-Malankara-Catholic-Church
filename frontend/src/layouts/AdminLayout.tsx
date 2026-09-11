@@ -12,6 +12,7 @@ const navGroups: NavGroup[] = [
     items: [
       { to: '/admin/content/homepage', label: 'Homepage', roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
       { to: '/admin/content/about', label: 'About', roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
+      { to: '/admin/content/liturgy', label: 'Liturgy', roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
       { to: '/admin/content/events', label: 'Events', roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
       { to: '/admin/content/announcements', label: 'Announcements', roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
       { to: '/admin/content/gallery', label: 'Gallery', roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },

@@ -270,6 +270,24 @@ class HeroImageRead(CmsModel):
     sort_order: int
     created_at: datetime
 
+class LiturgyResourceCreate(BaseModel):
+    title: str = Field(min_length=1, max_length=250)
+    description: str | None = None
+    pdf_url: str = Field(min_length=1, max_length=2048)
+    sort_order: int = 0
+class LiturgyResourceRead(CmsModel):
+    id: UUID; title: str; description: str | None; pdf_url: str; sort_order: int; created_at: datetime; updated_at: datetime
+class LiturgyCollectionCreate(BaseModel):
+    title: str = Field(min_length=1, max_length=250)
+    description: str | None = None
+    sort_order: int = 0
+class LiturgyCollectionUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=250)
+    description: str | None = None
+    sort_order: int | None = None
+class LiturgyCollectionRead(CmsModel):
+    id: UUID; title: str; description: str | None; status: PublicationStatus; sort_order: int; resources: list[LiturgyResourceRead] = []; created_at: datetime; updated_at: datetime
+
 
 # ── Page Content ──────────────────────────────────────────────────────────────
 class PageContentUpdate(BaseModel):

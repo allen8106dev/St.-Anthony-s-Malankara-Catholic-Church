@@ -29,3 +29,5 @@ class PublicContent(PublicModel):
 class PublicSetting(PublicModel): key: str; value: str
 class PublicServiceTime(PublicModel):
     id: UUID; day_of_week: int; start_time: time; end_time: time | None; service_name: str
+class PublicLiturgyResource(PublicModel): id: UUID; title: str; description: str | None; pdf_url: str; sort_order: int
+class PublicLiturgyCollection(PublicModel): id: UUID; title: str; description: str | None; sort_order: int; resources: list[PublicLiturgyResource] = []

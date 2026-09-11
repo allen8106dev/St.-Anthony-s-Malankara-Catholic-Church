@@ -2,7 +2,7 @@ from typing import Annotated, Literal
 from uuid import UUID
 from fastapi import APIRouter, HTTPException, Query
 from app.api.dependencies import DbSession
-from app.schemas.public import PageMeta, PublicAnnouncement, PublicContent, PublicEvent, PublicGalleryAlbum, PublicHeroImage, PublicServiceTime, PublicSetting
+from app.schemas.public import PageMeta, PublicAnnouncement, PublicContent, PublicEvent, PublicGalleryAlbum, PublicHeroImage, PublicLiturgyCollection, PublicServiceTime, PublicSetting
 from app.services import public_content_service as service
 
 router = APIRouter(prefix="/public")
@@ -27,6 +27,8 @@ def get_gallery_album(album_id: UUID, db: DbSession):
     return PublicGalleryAlbum.model_validate(album)
 @router.get("/hero-images", response_model=list[PublicHeroImage])
 def list_public_hero_images(db: DbSession): return service.hero_images(db)
+@router.get("/liturgy", response_model=list[PublicLiturgyCollection])
+def list_liturgy(db: DbSession): return service.liturgy(db)
 @router.get("/content", response_model=list[PublicContent])
 def list_content(db: DbSession, page: str | None = None): return service.content(db, page)
 @router.get("/settings", response_model=list[PublicSetting])

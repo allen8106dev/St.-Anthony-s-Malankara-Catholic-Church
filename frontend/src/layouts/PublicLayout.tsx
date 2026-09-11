@@ -10,6 +10,7 @@ const pageMeta: Record<string, { title: string; description: string }> = {
   '/about': { title: 'About', description: 'Learn about the parish.' }, '/ministries': { title: 'Ministries', description: 'Explore parish ministries.' },
   '/events': { title: 'Events', description: 'Discover upcoming parish events.' }, '/announcements': { title: 'Announcements', description: 'Read parish announcements.' },
   '/gallery': { title: 'Gallery', description: 'Explore parish moments.' },
+  '/liturgy': { title: 'Liturgy', description: 'Explore the prayers and traditions of our parish.' },
   '/contact': { title: 'Visit & contact', description: 'Plan a visit or contact the parish.' }, '/donate': { title: 'Give', description: 'Learn about future giving opportunities.' },
 }
 
@@ -32,4 +33,3 @@ export function PublicLayout() {
 
   return <div className="site-shell"><PublicNavbar /><main key={location.pathname} className="public-route"><Outlet /></main><PublicFooter /><CustomCursor /><GlobalLoadingIndicator /></div>
 }
-

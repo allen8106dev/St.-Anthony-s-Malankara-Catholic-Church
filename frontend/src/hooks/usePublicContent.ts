@@ -11,6 +11,7 @@ export interface PublicAnnouncement {
 }
 interface PublicGalleryImage { id: string; image_url: string; alt_text: string; caption: string | null; sort_order: number }
 interface PublicAlbum { id: string; title: string; description: string | null; cover_image_url: string | null; images: PublicGalleryImage[] }
+export interface PublicLiturgyCollection { id: string; title: string; description: string | null; sort_order: number; resources: { id: string; title: string; description: string | null; pdf_url: string; sort_order: number }[] }
 export interface PublicHeroImage { id: string; image_url: string; alt_text: string; sort_order: number }
 interface PublicContent { page: string; section: string; heading: string | null; body: string | null; image_url: string | null }
 interface PublicServiceTime { id: string; day_of_week: number; start_time: string; end_time: string | null; service_name: string }
@@ -44,6 +45,7 @@ export function usePublicGallery(limit = 20) {
     staleTime: 120_000,
   })
 }
+export function usePublicLiturgy() { return useQuery({ queryKey: ['public', 'liturgy'], queryFn: () => apiClient.get<PublicLiturgyCollection[]>('/public/liturgy').then(r => r.data) }) }
 
 export function usePublicAlbum(albumId: string | undefined) {
   return useQuery({

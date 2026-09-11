@@ -141,6 +141,8 @@ export interface PageContentPayload {
   image_url?: string | null
   status?: PublicationStatus
 }
+export interface LiturgyResource { id: string; title: string; description: string | null; pdf_url: string; sort_order: number }
+export interface LiturgyCollection { id: string; title: string; description: string | null; status: PublicationStatus; sort_order: number; resources: LiturgyResource[] }
 
 export interface SiteSetting {
   id: string

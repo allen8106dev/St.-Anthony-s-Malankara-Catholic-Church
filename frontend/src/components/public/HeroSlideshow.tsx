@@ -12,10 +12,12 @@ export function HeroSlideshow({
   slides,
   fallbackSrc,
   paused = false,
+  onPauseChange,
 }: {
   slides: HeroSlide[]
   fallbackSrc: string
   paused?: boolean
+  onPauseChange?: () => void
 }) {
   const images = slides.length > 0 ? slides : [{ id: 'fallback', image_url: fallbackSrc, alt_text: '' }]
   const [index, setIndex] = useState(0)
@@ -44,6 +46,15 @@ export function HeroSlideshow({
           </div>
         ))}
       </div>
+      {canRotate && onPauseChange && (
+        <button
+          type="button"
+          className="hero__pause-toggle"
+          aria-pressed={paused}
+          aria-label={paused ? 'Resume homepage photo rotation' : 'Pause homepage photo rotation'}
+          onClick={onPauseChange}
+        />
+      )}
       {canRotate && (
         <div className="hero__pager" role="tablist" aria-label="Homepage photos">
           {images.map((slide, i) => (

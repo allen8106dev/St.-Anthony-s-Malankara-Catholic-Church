@@ -243,7 +243,7 @@ img { max-width: 100%; display: block; }
 .hero__slides {
   position: absolute;
   inset: 0;
-  z-index: -3;
+  z-index: 0;
   overflow: hidden;
 }
 .hero__slide {
@@ -255,6 +255,8 @@ img { max-width: 100%; display: block; }
 .hero__slide.is-active { opacity: 1; }
 .hero__slide .hero__bg-img { z-index: 0; animation: none; }
 .hero__slide.is-active .hero__bg-img { animation: hero-ken-burns 7.5s ease-out forwards; }
+.hero__pause-toggle { position: absolute; inset: 0; z-index: 1; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.hero__pause-toggle:focus-visible { outline: 3px solid rgba(255,255,255,.9); outline-offset: -8px; }
 @keyframes hero-ken-burns {
   from { transform: scale(1); }
   to { transform: scale(1.07); }
@@ -288,7 +290,8 @@ img { max-width: 100%; display: block; }
 .hero__art {
   position: absolute;
   inset: 0;
-  z-index: -2;
+  z-index: 1;
+  pointer-events: none;
   background: linear-gradient(115deg, rgba(11, 24, 21, 0.88) 8%, rgba(20, 52, 45, 0.44) 52%, rgba(18, 33, 29, 0.82) 100%), radial-gradient(circle at 78% 16%, rgba(230, 196, 125, 0.38), transparent 21%), linear-gradient(130deg, #294935 0%, #1e3b32 45%, #0f201d 100%);
 }
 .hero__art::before, .hero__art::after {
@@ -301,7 +304,7 @@ img { max-width: 100%; display: block; }
   opacity: .6;
 }
 .hero__art::after { background: linear-gradient(180deg, rgba(4, 9, 8, 0.22), rgba(4, 9, 8, 0.48)); }
-.hero__content { padding: 10rem 0 5rem; }
+.hero__content { position: relative; z-index: 2; padding: 10rem 0 5rem; }
 .hero .lede { color: rgba(255,255,255,0.82); margin: 1.5rem 0 2rem; max-width: 36rem; }
 .actions { display: flex; flex-wrap: wrap; gap: .85rem; }
 .hero__note { display: flex; align-items: center; gap: .8rem; margin-top: 3.5rem; color: rgba(255,255,255,0.75); font-size: .76rem; letter-spacing: .12em; text-transform: uppercase; }
@@ -1160,7 +1163,7 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
 .hero__bg-img { animation: hero-image-in 1.2s ease-out both; }
 @keyframes hero-image-in { from { opacity: 0; transform: scale(1.04); } to { opacity: 1; transform: scale(1); } }
 .hero__content { padding-bottom: clamp(4rem, 9vw, 7rem); }
-.hero .display { max-width: 11ch; text-wrap: balance; }
+.hero .display { max-width: 17ch; text-wrap: balance; }
 .hero__art { background: linear-gradient(105deg, rgba(8,22,18,.9) 0%, rgba(17,48,40,.46) 58%, rgba(13,28,24,.73) 100%); }
 .hero__art::before { opacity: .3; }
 .schedule { margin-top: -3.25rem; }
@@ -1426,6 +1429,56 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
 
 #timings, #priest, #history, .about-section {
   scroll-margin-top: 6.5rem;
+}
+
+.liturgy-section {
+  scroll-margin-top: 6.5rem;
+}
+
+.liturgy-intro {
+  padding-bottom: 0;
+}
+
+.liturgy-intro .lede {
+  max-width: 48rem;
+}
+
+.liturgy-section__grid {
+  display: grid;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  gap: clamp(2rem, 8vw, 7rem);
+  align-items: start;
+}
+
+.liturgy-section__grid .lede {
+  margin: 0;
+}
+
+.liturgy-section__details {
+  display: grid;
+  gap: .7rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.liturgy-section__details li {
+  display: flex;
+  align-items: flex-start;
+  gap: .7rem;
+}
+
+.liturgy-section__details li::before {
+  content: '✦';
+  color: var(--accent);
+  font-size: .75rem;
+  line-height: 1.8;
+}
+
+@media (max-width: 760px) {
+  .liturgy-section__grid { grid-template-columns: 1fr; gap: 1.5rem; }
 }
 
 .timings-grid {

@@ -10,14 +10,14 @@ from app.schemas.cms import (
     AnnouncementCreate, AnnouncementRead, AnnouncementUpdate,
     CmsDashboard, EventCreate, EventRead, EventUpdate,
     GalleryImageCreate, GalleryImageRead, GalleryImageUpdate,
-    HeroImageCreate, HeroImageRead, HeroImageUpdate,
+    HeroImageCreate, HeroImageRead, HeroImageUpdate, LiturgyCollectionCreate, LiturgyCollectionRead, LiturgyCollectionUpdate, LiturgyResourceCreate, LiturgyResourceRead,
     PageContentRead, PageContentUpdate,
     PaginatedAlbums, PaginatedAnnouncements, PaginatedEvents,
     ServiceTimeCreate, ServiceTimeRead, ServiceTimeUpdate,
     SettingRead, SettingUpsert,
 )
 from app.services import cms_service as svc
-from app.services.storage_service import upload_image
+from app.services.storage_service import upload_image, upload_pdf
 
 router = APIRouter(prefix="/admin/cms")
 ContentManage = Annotated[AdminUser, Depends(require_permission(Permission.CONTENT_MANAGE))]
@@ -25,6 +25,35 @@ ContentManage = Annotated[AdminUser, Depends(require_permission(Permission.CONTE
 @router.post("/uploads/image")
 async def upload_cms_image(_: ContentManage, file: UploadFile = File(...)):
     return {"url": await upload_image(file)}
+@router.post("/uploads/pdf")
+async def upload_cms_pdf(_: ContentManage, file: UploadFile = File(...)):
+    return {"url": await upload_pdf(file)}
+
+@router.get("/liturgy", response_model=list[LiturgyCollectionRead])
+def list_liturgy(db: DbSession, _: ContentManage): return svc.list_liturgy(db)
+@router.post("/liturgy", response_model=LiturgyCollectionRead, status_code=status.HTTP_201_CREATED)
+def create_liturgy(data: LiturgyCollectionCreate, db: DbSession, actor: ContentManage):
+    item = svc.create_liturgy_collection(db, data, actor); db.commit(); return svc.get_liturgy_collection(db, item.id)
+@router.get("/liturgy/{collection_id}", response_model=LiturgyCollectionRead)
+def get_liturgy(collection_id: uuid.UUID, db: DbSession, _: ContentManage):
+    item = svc.get_liturgy_collection(db, collection_id)
+    if not item: raise HTTPException(404, "Liturgy collection not found.")
+    return item
+@router.patch("/liturgy/{collection_id}", response_model=LiturgyCollectionRead)
+def update_liturgy(collection_id: uuid.UUID, data: LiturgyCollectionUpdate, db: DbSession, actor: ContentManage):
+    item = svc.get_liturgy_collection(db, collection_id)
+    if not item: raise HTTPException(404, "Liturgy collection not found.")
+    svc.update_liturgy_collection(db, item, data, actor); db.commit(); return svc.get_liturgy_collection(db, collection_id)
+@router.post("/liturgy/{collection_id}/status/{action}", response_model=LiturgyCollectionRead)
+def publish_liturgy(collection_id: uuid.UUID, action: str, db: DbSession, actor: ContentManage):
+    item = svc.get_liturgy_collection(db, collection_id)
+    if not item or action not in ("publish", "unpublish"): raise HTTPException(404, "Liturgy collection not found.")
+    svc.set_liturgy_status(db, item, PublicationStatus.PUBLISHED if action == "publish" else PublicationStatus.DRAFT, actor); db.commit(); return svc.get_liturgy_collection(db, collection_id)
+@router.post("/liturgy/{collection_id}/resources", response_model=LiturgyResourceRead, status_code=status.HTTP_201_CREATED)
+def add_liturgy_resource(collection_id: uuid.UUID, data: LiturgyResourceCreate, db: DbSession, actor: ContentManage):
+    item = svc.get_liturgy_collection(db, collection_id)
+    if not item: raise HTTPException(404, "Liturgy collection not found.")
+    resource = svc.add_liturgy_resource(db, item, data, actor); db.commit(); db.refresh(resource); return resource
 
 
 # ── Dashboard ─────────────────────────────────────────────────────────────────

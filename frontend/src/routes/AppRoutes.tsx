@@ -10,6 +10,7 @@ import { MinistriesPage } from '../pages/public/MinistriesPage'
 import { EventsPage } from '../pages/public/EventsPage'
 import { AnnouncementsPage } from '../pages/public/AnnouncementsPage'
 import { GalleryPage } from '../pages/public/GalleryPage'
+import { LiturgyPage } from '../pages/public/LiturgyPage'
 import { AlbumDetailPage } from '../pages/public/AlbumDetailPage'
 import { ContactPage } from '../pages/public/ContactPage'
 import { DonatePage } from '../pages/public/DonatePage'
@@ -29,6 +30,7 @@ import { GalleryPage as AdminGalleryPage, AlbumFormPage, AlbumEditorPage } from 
 import { ServiceTimesPage } from '../pages/admin/cms/ServiceTimesPage'
 import { HomepagePage } from '../pages/admin/cms/HomepagePage'
 import { AboutCmsPage } from '../pages/admin/cms/AboutCmsPage'
+import { LiturgyCmsPage } from '../pages/admin/cms/LiturgyCmsPage'
 import { SettingsPage } from '../pages/admin/cms/SettingsPage'
 
 import { CreateDuePage } from '../pages/admin/finance/CreateDuePage'
@@ -77,6 +79,7 @@ export function AppRoutes() {
         <Route path="/events" element={<EventsPage />} />
         <Route path="/announcements" element={<AnnouncementsPage />} />
         <Route path="/gallery" element={<GalleryPage />} />
+        <Route path="/liturgy" element={<LiturgyPage />} />
         <Route path="/gallery/:albumId" element={<AlbumDetailPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/donate" element={<DonatePage />} />
@@ -97,6 +100,7 @@ export function AppRoutes() {
           <Route path="content/settings" element={<Navigate to="/admin/settings" replace />} />
           <Route path="content/homepage" element={<HomepagePage />} />
           <Route path="content/about" element={<AboutCmsPage />} />
+          <Route path="content/liturgy" element={<LiturgyCmsPage />} />
           <Route path="content/events" element={<AdminEventsPage />} />
           <Route path="content/events/new" element={<EventFormPage />} />
           <Route path="content/events/:eventId/edit" element={<EventFormPage />} />

@@ -7,13 +7,13 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.models.domain import (
     AdminUser, Announcement, AuditLog, Event, EventStatus,
-    GalleryAlbum, GalleryImage, HeroImage, PageContent, PublicationStatus,
+    GalleryAlbum, GalleryImage, HeroImage, LiturgyCollection, LiturgyResource, PageContent, PublicationStatus,
     ServiceTime, ServiceTimeStatus, SiteSetting,
 )
 from app.schemas.cms import (
     AlbumCreate, AlbumUpdate, AnnouncementCreate, AnnouncementUpdate,
     EventCreate, EventUpdate, GalleryImageCreate, GalleryImageUpdate,
-    HeroImageCreate, HeroImageUpdate, PageContentUpdate,
+    HeroImageCreate, HeroImageUpdate, LiturgyCollectionCreate, LiturgyCollectionUpdate, LiturgyResourceCreate, PageContentUpdate,
     ServiceTimeCreate, ServiceTimeUpdate, SettingUpsert,
 )
 
@@ -281,6 +281,23 @@ def remove_hero_image(db: Session, image: HeroImage, actor: AdminUser) -> None:
     _audit(db, actor, "content.hero.image_removed", "hero_image", str(image.id))
     db.delete(image)
     db.flush()
+
+def list_liturgy(db: Session):
+    return db.scalars(select(LiturgyCollection).options(selectinload(LiturgyCollection.resources)).order_by(LiturgyCollection.sort_order, LiturgyCollection.created_at)).all()
+def get_liturgy_collection(db: Session, collection_id: uuid.UUID):
+    return db.scalar(select(LiturgyCollection).options(selectinload(LiturgyCollection.resources)).where(LiturgyCollection.id == collection_id))
+def create_liturgy_collection(db: Session, data: LiturgyCollectionCreate, actor: AdminUser):
+    item = LiturgyCollection(**data.model_dump()); db.add(item); db.flush(); _audit(db, actor, "content.liturgy.collection_created", "liturgy_collection", str(item.id)); return item
+def update_liturgy_collection(db: Session, item: LiturgyCollection, data: LiturgyCollectionUpdate, actor: AdminUser):
+    changes = data.model_dump(exclude_unset=True)
+    for key, value in changes.items(): setattr(item, key, value)
+    db.flush(); _audit(db, actor, "content.liturgy.collection_updated", "liturgy_collection", str(item.id)); return item
+def set_liturgy_status(db: Session, item: LiturgyCollection, status: PublicationStatus, actor: AdminUser):
+    item.status = status; db.flush(); _audit(db, actor, f"content.liturgy.{status.value.lower()}", "liturgy_collection", str(item.id)); return item
+def add_liturgy_resource(db: Session, item: LiturgyCollection, data: LiturgyResourceCreate, actor: AdminUser):
+    resource = LiturgyResource(collection_id=item.id, **data.model_dump()); db.add(resource); db.flush(); _audit(db, actor, "content.liturgy.resource_added", "liturgy_resource", str(resource.id)); return resource
+def delete_liturgy_resource(db: Session, resource: LiturgyResource, actor: AdminUser):
+    _audit(db, actor, "content.liturgy.resource_deleted", "liturgy_resource", str(resource.id)); db.delete(resource); db.flush()
 
 
 # ── Page Content ──────────────────────────────────────────────────────────────

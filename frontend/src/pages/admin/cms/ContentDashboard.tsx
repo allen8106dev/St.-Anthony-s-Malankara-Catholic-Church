@@ -47,6 +47,7 @@ export function ContentDashboard() {
           <Link to="/admin/content/gallery/new" className="button button--primary">+ New Album</Link>
           <Link to="/admin/content/homepage" className="button button--outline">Edit Homepage</Link>
           <Link to="/admin/content/about" className="button button--outline">Edit About</Link>
+          <Link to="/admin/content/liturgy" className="button button--outline">Edit Liturgy</Link>
           <Link to="/admin/content/service-times" className="button button--outline">Service Times</Link>
           <Link to="/admin/settings" className="button button--outline">Settings</Link>
         </div>
