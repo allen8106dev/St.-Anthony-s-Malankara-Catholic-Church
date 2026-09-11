@@ -56,13 +56,15 @@ export function AboutPage() {
       {/* 1. Timings Section */}
       <section id="timings" className="section about-section">
         <div className="container">
-          <div className="section-head">
-            <div>
-              <p className="eyebrow">Worship &amp; Prayer</p>
-              <h2 className="heading">Service Timings</h2>
+          <Reveal>
+            <div className="section-head">
+              <div>
+                <p className="eyebrow">Worship &amp; Prayer</p>
+                <h2 className="heading">Service Timings</h2>
+              </div>
+              <Link className="text-link" to="/contact">Directions &amp; visit details <span aria-hidden="true">→</span></Link>
             </div>
-            <Link className="text-link" to="/contact">Directions &amp; visit details <span aria-hidden="true">→</span></Link>
-          </div>
+          </Reveal>
 
           <Reveal>
             <p className="lede">
@@ -150,12 +152,14 @@ export function AboutPage() {
       {/* 3. History Section */}
       <section id="history" className="section about-section">
         <div className="container">
-          <div className="section-head">
-            <div>
-              <p className="eyebrow">Our Heritage</p>
-              <h2 className="heading">Parish History</h2>
+          <Reveal>
+            <div className="section-head">
+              <div>
+                <p className="eyebrow">Our Heritage</p>
+                <h2 className="heading">Parish History</h2>
+              </div>
             </div>
-          </div>
+          </Reveal>
 
           <div className="history-grid">
             <Reveal>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { demoImages } from '../../data/siteContent'
 import { PageHeader } from '../../components/public/PublicElements'
+import { Reveal } from '../../components/animation/Reveal'
 import { usePublicSettings } from '../../hooks/usePublicContent'
 
 function safeGoogleMapsConfig(rawUrl: string | null) {
@@ -57,7 +58,8 @@ export function ContactPage() {
 
       <section className="section" style={{ paddingTop: '3.5rem', paddingBottom: '3.5rem' }}>
         <div className="container">
-          <div className="contact-map-layout">
+          <Reveal>
+            <div className="contact-map-layout">
             <div className="contact-map-frame" aria-live="polite">
               {embedUrl ? (
                 <iframe
@@ -186,32 +188,36 @@ export function ContactPage() {
               </a>
             </div>
           </div>
+          </Reveal>
         </div>
       </section>
 
       {/* Message Inquiry Form Section */}
       <section id="contact-note" className="section section--muted">
         <div className="container contact-inquiry-layout">
-          <div>
-            <p className="eyebrow">Send a Note</p>
-            <h2 className="heading heading--small">We would love to hear from you.</h2>
-            <p className="lede" style={{ marginTop: '1rem' }}>
-              Have a question regarding Holy Qurbana, sacrament preparations, parish registration, or pastoral support? Please send a message and our parish team will be glad to assist.
-            </p>
+          <Reveal>
+            <div>
+              <p className="eyebrow">Send a Note</p>
+              <h2 className="heading heading--small">We would love to hear from you.</h2>
+              <p className="lede" style={{ marginTop: '1rem' }}>
+                Have a question regarding Holy Qurbana, sacrament preparations, parish registration, or pastoral support? Please send a message and our parish team will be glad to assist.
+              </p>
 
-            <div className="contact-form-notice" style={{ marginTop: '2rem' }}>
-              <span className="contact-form-notice__icon" aria-hidden="true">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"/>
-                  <line x1="12" x2="12" y1="8" y2="12"/>
-                  <line x1="12" x2="12.01" y1="16" y2="16"/>
-                </svg>
-              </span>
-              <span>Direct message dispatch is in demo mode. For urgent pastoral needs, please call the parish office directly.</span>
+              <div className="contact-form-notice" style={{ marginTop: '2rem' }}>
+                <span className="contact-form-notice__icon" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" x2="12" y1="8" y2="12"/>
+                    <line x1="12" x2="12.01" y1="16" y2="16"/>
+                  </svg>
+                </span>
+                <span>Direct message dispatch is in demo mode. For urgent pastoral needs, please call the parish office directly.</span>
+              </div>
             </div>
-          </div>
+          </Reveal>
 
-          <div className="contact-form-panel">
+          <Reveal delay={0.1}>
+            <div className="contact-form-panel">
             {submitted ? (
               <div style={{ textAlign: 'center', padding: '2.5rem 1.5rem' }}>
                 <div style={{ width: '3.5rem', height: '3.5rem', borderRadius: '50%', background: 'rgba(23, 59, 50, 0.1)', color: 'var(--primary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.25rem' }}>
@@ -266,6 +272,7 @@ export function ContactPage() {
               </form>
             )}
           </div>
+          </Reveal>
         </div>
       </section>
     </>

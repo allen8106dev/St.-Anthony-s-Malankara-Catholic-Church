@@ -20,12 +20,14 @@ export function EventsPage() {
       />
       <section className="section">
         <div className="container">
-          <div className="section-head">
-            <div>
-              <p className="eyebrow">Calendar</p>
-              <h2 className="heading">Upcoming events</h2>
+          <Reveal>
+            <div className="section-head">
+              <div>
+                <p className="eyebrow">Calendar</p>
+                <h2 className="heading">Upcoming events</h2>
+              </div>
             </div>
-          </div>
+          </Reveal>
           {loadingUp && <LoadingState text="Loading upcoming events…" />}
           {!loadingUp && upcoming.length === 0 && (
             <EmptyPublicState title="No upcoming events" detail="Check back soon for parish gatherings." />
@@ -64,19 +66,23 @@ export function EventsPage() {
       {(loadingPast || past.length > 0) && (
         <section className="section section--muted">
           <div className="container">
-            <p className="eyebrow">Archive</p>
-            <h2 className="heading heading--small">Past events</h2>
+            <Reveal>
+              <p className="eyebrow">Archive</p>
+              <h2 className="heading heading--small">Past events</h2>
+            </Reveal>
             <div className="card-grid card-grid--single">
-              {past.map((ev) => (
-                <article key={ev.id} className="content-card">
-                  <div>
-                    <p className="eyebrow">
-                      {new Date(ev.start_datetime).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                    </p>
-                    <h3>{ev.title}</h3>
-                    <p>{ev.description ?? ''}</p>
-                  </div>
-                </article>
+              {past.map((ev, i) => (
+                <Reveal key={ev.id} delay={i * 0.08}>
+                  <article className="content-card">
+                    <div>
+                      <p className="eyebrow">
+                        {new Date(ev.start_datetime).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                      </p>
+                      <h3>{ev.title}</h3>
+                      <p>{ev.description ?? ''}</p>
+                    </div>
+                  </article>
+                </Reveal>
               ))}
             </div>
           </div>

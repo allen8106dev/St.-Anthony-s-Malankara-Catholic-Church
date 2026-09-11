@@ -4,41 +4,43 @@ import { motion, useReducedMotion, useScroll, useTransform, useSpring } from 'mo
 import { demoImages, type Album, type Announcement, type DemoImage, type Event, type Ministry } from '../../data/siteContent'
 
 export function PageHeader({ eyebrow, title, intro, image }: { eyebrow: string; title: string; intro: string; image?: DemoImage }) {
-  const containerRef = useRef<HTMLElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
   const reduced = useReducedMotion()
 
   // Fallback to sanctuary demo image if no image is passed
   const activeImage = image ?? demoImages.sanctuary
 
-  // Scroll tracking identical to homepage
+  // Scroll tracking across the pinned hero track (exact same as homepage)
   const { scrollYProgress } = useScroll({
-    target: containerRef,
+    target: trackRef,
     offset: ['start start', 'end start'],
   })
 
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 65,
-    damping: 22,
+    stiffness: 75,
+    damping: 24,
     restDelta: 0.0005,
   })
 
   // Background 3D Camera / Parallax Zoom (exact same as homepage hero)
-  const bgScale = useTransform(smoothProgress, [0, 1], [1.00, 1.10])
-  const bgY = useTransform(smoothProgress, [0, 1], [0, -45])
+  const bgScale = useTransform(smoothProgress, [0, 0.85], [1.00, 1.12])
+  const bgY = useTransform(smoothProgress, [0, 0.85], [0, -40])
 
   // Waterfall Cascade Dissolution on Scroll
-  const promptOpacity = useTransform(smoothProgress, [0, 0.18], [1, 0])
-  const promptScale = useTransform(smoothProgress, [0, 0.18], [1, 0.88])
+  const promptOpacity = useTransform(smoothProgress, [0, 0.14], [1, 0])
+  const promptScale = useTransform(smoothProgress, [0, 0.14], [1, 0.85])
 
-  const eyebrowOpacity = useTransform(smoothProgress, [0.03, 0.45], [1, 0])
-  const eyebrowY = useTransform(smoothProgress, [0.03, 0.45], [0, -28])
+  const eyebrowOpacity = useTransform(smoothProgress, [0.04, 0.42], [1, 0])
+  const eyebrowY = useTransform(smoothProgress, [0.04, 0.42], [0, -30])
 
-  const headingOpacity = useTransform(smoothProgress, [0.08, 0.60], [1, 0])
-  const headingY = useTransform(smoothProgress, [0.08, 0.60], [0, -36])
-  const headingScale = useTransform(smoothProgress, [0.08, 0.60], [1, 0.97])
+  const headingOpacity = useTransform(smoothProgress, [0.08, 0.58], [1, 0])
+  const headingY = useTransform(smoothProgress, [0.08, 0.58], [0, -42])
+  const headingScale = useTransform(smoothProgress, [0.08, 0.58], [1, 0.95])
 
   const ledeOpacity = useTransform(smoothProgress, [0.14, 0.72], [1, 0])
-  const ledeY = useTransform(smoothProgress, [0.14, 0.72], [0, -30])
+  const ledeY = useTransform(smoothProgress, [0.14, 0.72], [0, -32])
+
+  const pointerEvents = useTransform(smoothProgress, v => (v < 0.65 ? 'auto' : 'none'))
 
   // Initial Load Choreography
   const easeOutExpo = [0.16, 1, 0.3, 1] as const
@@ -76,65 +78,75 @@ export function PageHeader({ eyebrow, title, intro, image }: { eyebrow: string; 
       }
 
   const handleScrollDown = () => {
-    containerRef.current?.nextElementSibling?.scrollIntoView({ behavior: 'smooth' })
+    const nextSection = trackRef.current?.nextElementSibling as HTMLElement | null
+    if (nextSection) {
+      nextSection.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      window.scrollTo({ top: window.innerHeight * 0.85, behavior: 'smooth' })
+    }
   }
 
   return (
-    <header ref={containerRef} className="page-hero page-header page-header--image">
-      {/* Background Image Layer with Parallax & Scale */}
-      <div className="page-hero__bg" aria-hidden="true">
-        <motion.img
-          src={activeImage.src}
-          alt={activeImage.alt || title}
-          className="page-hero__bg-img"
-          style={reduced ? undefined : { scale: bgScale, y: bgY }}
-        />
-        {/* Cinematic Scrim Gradient (Ensures clean contrast for text and navbar) */}
-        <div className="page-hero__scrim" />
-      </div>
-
-      {/* Foreground Content */}
-      <div className="container page-hero__content">
-        <div className="hero-text-anim-wrap">
-          <motion.p
-            className="eyebrow page-hero__eyebrow"
-            {...eyebrowAnim}
-            style={reduced ? undefined : { opacity: eyebrowOpacity, y: eyebrowY }}
-          >
-            {eyebrow}
-          </motion.p>
-          <motion.h1
-            className="display page-hero__title"
-            {...headingAnim}
-            style={reduced ? undefined : { opacity: headingOpacity, y: headingY, scale: headingScale }}
-          >
-            {title}
-          </motion.h1>
-          <motion.p
-            className="lede page-hero__intro"
-            {...ledeAnim}
-            style={reduced ? undefined : { opacity: ledeOpacity, y: ledeY }}
-          >
-            {intro}
-          </motion.p>
+    <div ref={trackRef} className="page-hero-track">
+      <header className="page-hero-sticky page-hero page-header page-header--image">
+        {/* Background Image Layer with Parallax & Scale */}
+        <div className="page-hero__bg" aria-hidden="true">
+          <motion.img
+            src={activeImage.src}
+            alt={activeImage.alt || title}
+            className="page-hero__bg-img"
+            style={reduced ? undefined : { scale: bgScale, y: bgY }}
+          />
+          {/* Cinematic Scrim Gradient */}
+          <div className="page-hero__scrim" />
         </div>
-      </div>
 
-      {/* Scroll Indicator Prompt */}
-      <motion.button
-        type="button"
-        className="hero-scroll-indicator"
-        onClick={handleScrollDown}
-        aria-label="Scroll down to page content"
-        {...promptAnim}
-        style={reduced ? undefined : { opacity: promptOpacity, scale: promptScale }}
-      >
-        <span className="hero-scroll-indicator__text">Scroll to explore</span>
-        <span className="hero-scroll-indicator__mouse" aria-hidden="true">
-          <span className="hero-scroll-indicator__wheel" />
-        </span>
-      </motion.button>
-    </header>
+        {/* Foreground Content */}
+        <motion.div
+          className="container page-hero__content"
+          style={{ pointerEvents: reduced ? 'auto' : pointerEvents }}
+        >
+          <div className="hero-text-anim-wrap">
+            <motion.p
+              className="eyebrow page-hero__eyebrow"
+              {...eyebrowAnim}
+              style={reduced ? undefined : { opacity: eyebrowOpacity, y: eyebrowY }}
+            >
+              {eyebrow}
+            </motion.p>
+            <motion.h1
+              className="display page-hero__title"
+              {...headingAnim}
+              style={reduced ? undefined : { opacity: headingOpacity, y: headingY, scale: headingScale }}
+            >
+              {title}
+            </motion.h1>
+            <motion.p
+              className="lede page-hero__intro"
+              {...ledeAnim}
+              style={reduced ? undefined : { opacity: ledeOpacity, y: ledeY }}
+            >
+              {intro}
+            </motion.p>
+          </div>
+        </motion.div>
+
+        {/* Scroll Indicator Prompt */}
+        <motion.button
+          type="button"
+          className="hero-scroll-indicator"
+          onClick={handleScrollDown}
+          aria-label="Scroll down to page content"
+          {...promptAnim}
+          style={reduced ? undefined : { opacity: promptOpacity, scale: promptScale }}
+        >
+          <span className="hero-scroll-indicator__text">Scroll to explore</span>
+          <span className="hero-scroll-indicator__mouse" aria-hidden="true">
+            <span className="hero-scroll-indicator__wheel" />
+          </span>
+        </motion.button>
+      </header>
+    </div>
   )
 }
 export const formatDate = (date: string) => new Intl.DateTimeFormat('en', { month: 'long', day: 'numeric', year: 'numeric' }).format(new Date(`${date}T12:00:00`))
