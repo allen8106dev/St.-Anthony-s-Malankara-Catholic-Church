@@ -199,7 +199,9 @@ export function LiturgyCmsPage() {
         if (replacementFile) {
           const form = new FormData()
           form.append('file', replacementFile)
-          const uploadRes = await apiClient.post<{ url: string }>('/admin/cms/uploads/pdf', form)
+          const uploadRes = await apiClient.post<{ url: string }>('/admin/cms/uploads/pdf', form, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          })
           newPdfUrl = uploadRes.data.url
         }
 
@@ -220,7 +222,9 @@ export function LiturgyCmsPage() {
         if (item.file) {
           const form = new FormData()
           form.append('file', item.file)
-          const uploadRes = await apiClient.post<{ url: string }>('/admin/cms/uploads/pdf', form)
+          const uploadRes = await apiClient.post<{ url: string }>('/admin/cms/uploads/pdf', form, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          })
           await addResource.mutateAsync({
             id: folder.id,
             data: {
@@ -237,7 +241,20 @@ export function LiturgyCmsPage() {
       setNewResources([])
       setSaveMessage({ type: 'success', text: 'All changes saved successfully.' })
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'An error occurred while saving.'
+      let msg = 'An error occurred while saving.'
+      if (err instanceof Error) {
+        msg = err.message
+      } else if (typeof err === 'string') {
+        msg = err
+      } else if (err && typeof err === 'object') {
+        const anyErr = err as Record<string, unknown>
+        const resp = anyErr.response as { data?: { detail?: unknown } } | undefined
+        const d = resp?.data?.detail
+        if (typeof d === 'string') msg = d
+        else if (Array.isArray(d)) msg = d.map((x: { msg?: string }) => x.msg || JSON.stringify(x)).join(', ')
+        else if (d) msg = JSON.stringify(d)
+        else if (anyErr.message) msg = String(anyErr.message)
+      }
       setSaveMessage({ type: 'error', text: `Failed to save changes: ${msg}` })
     } finally {
       setIsSaving(false)
