@@ -59,7 +59,7 @@ export function LiturgyPage() {
         <Reveal><p className="lede">Our liturgical life draws us into communion with God and one another. Explore these parts of our shared worship and return as resources are added.</p></Reveal>
       </div>
     </section>
-    {(collections.length ? collections.map(collection => ({ id: collection.id, eyebrow: 'Liturgy resources', title: collection.title, description: collection.description || '', details: collection.resources.map(resource => resource.description || resource.title), resources: collection.resources })) : liturgySections).map((section, index) => (
+    {(collections.length ? collections.map(collection => ({ id: collection.id, eyebrow: 'Liturgy resources', title: collection.title, description: '', details: collection.resources.map(resource => resource.title), resources: collection.resources })) : liturgySections).map((section, index) => (
       <section id={section.id} className={`section liturgy-section${index % 2 ? ' section--muted' : ''}`} key={section.id}>
         <div className="container liturgy-section__grid">
           <Reveal>
@@ -73,7 +73,7 @@ export function LiturgyPage() {
                 const resource = 'resources' in section
                   ? (section.resources as { id: string; title: string; description: string | null; pdf_url: string }[])[detailIndex]
                   : undefined
-                return <li key={resource?.id ?? detail}>{resource ? <a href={resource.pdf_url} target="_blank" rel="noreferrer">{resource.title}{resource.description ? ` — ${resource.description}` : ''}</a> : detail}</li>
+                return <li key={resource?.id ?? detail}>{resource ? <a href={resource.pdf_url} target="_blank" rel="noreferrer">{resource.title}</a> : detail}</li>
               })}
             </ul>
           </Reveal>
