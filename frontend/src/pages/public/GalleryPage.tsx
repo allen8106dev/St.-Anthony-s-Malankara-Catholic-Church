@@ -15,7 +15,7 @@ export function GalleryPage() {
       eyebrow="Gallery"
       title="Moments held close."
       intro="Parish photo albums."
-      image={demoImages.architecture}
+      image={demoImages.prayer}
     >
       <section className="section">
         <div className="container">

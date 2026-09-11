@@ -44,6 +44,7 @@ export function PublicNavbar() {
       clearTimeout(hoverTimeoutRef.current)
       hoverTimeoutRef.current = null
     }
+    setHovered(true)
   }
 
   const handleNavMouseLeave = () => {
@@ -70,6 +71,26 @@ export function PublicNavbar() {
       setHovered(true)
     }
   }
+
+  // Hovering mouse into top comfortable zone (Y <= 80px) uncollapses navbar & church name
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (window.scrollY > 24) {
+        if (e.clientY <= 80) {
+          if (hoverTimeoutRef.current) {
+            clearTimeout(hoverTimeoutRef.current)
+            hoverTimeoutRef.current = null
+          }
+          setHovered(true)
+        } else if (e.clientY > 125 && !lockedOpen) {
+          setHovered(false)
+        }
+      }
+    }
+
+    window.addEventListener('mousemove', handleMouseMove, { passive: true })
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [lockedOpen])
 
   useEffect(() => {
     const onScroll = () => {
@@ -113,7 +134,9 @@ export function PublicNavbar() {
           to="/"
           aria-label={`${churchName} home`}
           onClick={() => {
-            window.scrollTo({ top: 0, behavior: 'smooth' })
+            if (window.location.pathname === '/') {
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+            }
           }}
         >
           <img

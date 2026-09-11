@@ -24,7 +24,7 @@ export function MinistriesPage() {
       eyebrow="Parish life & ministries"
       title="Many ways to grow together."
       intro="Discover the vibrant youth movements, children's formation, lay associations, liturgical service, choir, and prayer fellowships that shape our parish life."
-      image={demoImages.hands}
+      image={ministries[0]?.image || demoImages.community}
     >
       {/* Quick Jump Navigation */}
       <section className="section--tight">

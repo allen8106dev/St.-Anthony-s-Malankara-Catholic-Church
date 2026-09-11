@@ -508,13 +508,6 @@ export function HomePage() {
                 <Link className="button button--light" to="/about">
                   Discover our parish <span aria-hidden="true">↗</span>
                 </Link>
-                <Link
-                  className="button button--outline"
-                  to="/liturgy"
-                  style={{ color: '#fff', borderColor: 'rgba(255, 255, 255, 0.45)' }}
-                >
-                  Liturgy & Tradition
-                </Link>
               </motion.div>
             </div>
           </Container>

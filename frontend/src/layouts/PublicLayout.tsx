@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { CustomCursor } from '../components/animation/CustomCursor'
 import { PublicFooter } from '../components/layout/PublicFooter'
 import { PublicNavbar } from '../components/navigation/PublicNavbar'
@@ -31,12 +31,22 @@ function getPageMeta(pathname: string): { title: string; description: string } {
 export function PublicLayout() {
   const location = useLocation()
 
+  useLayoutEffect(() => {
+    if (!location.hash) {
+      document.documentElement.style.scrollBehavior = 'auto'
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior })
+      const frame = requestAnimationFrame(() => {
+        document.documentElement.style.scrollBehavior = ''
+      })
+      return () => cancelAnimationFrame(frame)
+    }
+  }, [location.pathname])
+
   useEffect(() => {
     const meta = getPageMeta(location.pathname)
     document.title = `${meta.title} | St. Anthony's Malankara Catholic Church`
     document.querySelector('meta[name="description"]')?.setAttribute('content', meta.description)
-    if (!location.hash) window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
-  }, [location.pathname, location.hash])
+  }, [location.pathname])
 
   return <div className="site-shell"><PublicNavbar /><main key={location.pathname} className="public-route"><Outlet /></main><PublicFooter /><CustomCursor /><GlobalLoadingIndicator /></div>
 }
