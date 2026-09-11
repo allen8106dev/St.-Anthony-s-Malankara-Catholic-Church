@@ -45,44 +45,51 @@ export function HomePage() {
   // BACKGROUND CROSSFADES (Stacked layers with scroll-driven opacity)
   // Layer 0: Hero Slideshow (Base, always opacity 1)
   // Layer 1: Ministries Image
-  const ministriesBgOpacity = useTransform(smoothProgress, [0.10, 0.20], [0, 1])
+  const ministriesBgOpacity = useTransform(smoothProgress, [0.12, 0.18], [0, 1])
   // Layer 2: Events Image
-  const eventsBgOpacity = useTransform(smoothProgress, [0.32, 0.42], [0, 1])
+  const eventsBgOpacity = useTransform(smoothProgress, [0.38, 0.44], [0, 1])
   // Layer 3: Gallery Image
-  const galleryBgOpacity = useTransform(smoothProgress, [0.54, 0.64], [0, 1])
+  const galleryBgOpacity = useTransform(smoothProgress, [0.64, 0.70], [0, 1])
   // Layer 4: Contact Image
-  const contactBgOpacity = useTransform(smoothProgress, [0.76, 0.86], [0, 1])
+  const contactBgOpacity = useTransform(smoothProgress, [0.90, 0.95], [0, 1])
+
+  // Dynamic Scrim (drops to 0 when background is solo/crossfading, so images are completely clear and undimmed)
+  const scrimOpacity = useTransform(
+    smoothProgress,
+    [0, 0.03, 0.08, 0.21, 0.25, 0.31, 0.35, 0.47, 0.51, 0.57, 0.61, 0.73, 0.77, 0.83, 0.87, 0.95, 0.98, 1.0],
+    [0.55, 0.55, 0, 0, 0.45, 0.45, 0, 0, 0.45, 0.45, 0, 0, 0.45, 0.45, 0, 0, 0.55, 0.55]
+  )
 
   // --------------------------------------------------------------------------
-  // CHAPTER 0: HERO (Entrance choreography on load, then smooth scroll fade-out)
-  const heroOpacity = useTransform(smoothProgress, [0.08, 0.18], [1, 0])
-  const heroY = useTransform(smoothProgress, [0.08, 0.18], [0, -60])
-  const heroPromptOpacity = useTransform(smoothProgress, [0, 0.04], [1, 0])
-  const heroPointer = useTransform(smoothProgress, v => (v <= 0.14 ? 'auto' : 'none'))
+  // CHAPTER 0: HERO (Visible on load -> Fades out on scroll -> Background clearly visible)
+  const heroOpacity = useTransform(smoothProgress, [0.03, 0.08], [1, 0])
+  const heroY = useTransform(smoothProgress, [0.03, 0.08], [0, -40])
+  const heroPromptOpacity = useTransform(smoothProgress, [0, 0.03], [1, 0])
+  const heroPointer = useTransform(smoothProgress, v => (v <= 0.05 ? 'auto' : 'none'))
 
   // --------------------------------------------------------------------------
-  // CHAPTER 1: MINISTRIES (First 3 on PC, explore button, smooth in & out)
-  const ministriesOpacity = useTransform(smoothProgress, [0.12, 0.20, 0.34, 0.40], [0, 1, 1, 0])
-  const ministriesY = useTransform(smoothProgress, [0.12, 0.20, 0.34, 0.40], [50, 0, 0, -50])
-  const ministriesPointer = useTransform(smoothProgress, v => (v >= 0.14 && v <= 0.38 ? 'auto' : 'none'))
+  // CHAPTER 1: MINISTRIES (Background transitions first, then text/widgets glide in)
+  const ministriesOpacity = useTransform(smoothProgress, [0.21, 0.25, 0.31, 0.35], [0, 1, 1, 0])
+  const ministriesY = useTransform(smoothProgress, [0.21, 0.25, 0.31, 0.35], [40, 0, 0, -40])
+  const ministriesPointer = useTransform(smoothProgress, v => (v >= 0.23 && v <= 0.33 ? 'auto' : 'none'))
 
   // --------------------------------------------------------------------------
-  // CHAPTER 2: EVENTS (Upcoming events cards, smooth in & out)
-  const eventsOpacity = useTransform(smoothProgress, [0.34, 0.42, 0.56, 0.62], [0, 1, 1, 0])
-  const eventsY = useTransform(smoothProgress, [0.34, 0.42, 0.56, 0.62], [50, 0, 0, -50])
-  const eventsPointer = useTransform(smoothProgress, v => (v >= 0.36 && v <= 0.60 ? 'auto' : 'none'))
+  // CHAPTER 2: EVENTS (Background transitions first, then text/widgets glide in)
+  const eventsOpacity = useTransform(smoothProgress, [0.47, 0.51, 0.57, 0.61], [0, 1, 1, 0])
+  const eventsY = useTransform(smoothProgress, [0.47, 0.51, 0.57, 0.61], [40, 0, 0, -40])
+  const eventsPointer = useTransform(smoothProgress, v => (v >= 0.49 && v <= 0.59 ? 'auto' : 'none'))
 
   // --------------------------------------------------------------------------
-  // CHAPTER 3: GALLERY (3 Preview photos, smooth in & out)
-  const galleryOpacity = useTransform(smoothProgress, [0.56, 0.64, 0.78, 0.84], [0, 1, 1, 0])
-  const galleryY = useTransform(smoothProgress, [0.56, 0.64, 0.78, 0.84], [50, 0, 0, -50])
-  const galleryPointer = useTransform(smoothProgress, v => (v >= 0.58 && v <= 0.82 ? 'auto' : 'none'))
+  // CHAPTER 3: GALLERY (Background transitions first, then text/widgets glide in)
+  const galleryOpacity = useTransform(smoothProgress, [0.73, 0.77, 0.83, 0.87], [0, 1, 1, 0])
+  const galleryY = useTransform(smoothProgress, [0.73, 0.77, 0.83, 0.87], [40, 0, 0, -40])
+  const galleryPointer = useTransform(smoothProgress, v => (v >= 0.75 && v <= 0.85 ? 'auto' : 'none'))
 
   // --------------------------------------------------------------------------
-  // CHAPTER 4: CONTACT (Parish info & visit actions, settles into place)
-  const contactOpacity = useTransform(smoothProgress, [0.78, 0.88], [0, 1])
-  const contactY = useTransform(smoothProgress, [0.78, 0.88], [50, 0])
-  const contactPointer = useTransform(smoothProgress, v => (v >= 0.80 ? 'auto' : 'none'))
+  // CHAPTER 4: CONTACT (Background transitions first, then contact details glide in)
+  const contactOpacity = useTransform(smoothProgress, [0.95, 0.98], [0, 1])
+  const contactY = useTransform(smoothProgress, [0.95, 0.98], [40, 0])
+  const contactPointer = useTransform(smoothProgress, v => (v >= 0.96 ? 'auto' : 'none'))
 
   // Initial Load Choreography for Hero Chapter
   const easeOutExpo = [0.16, 1, 0.3, 1] as const
@@ -201,9 +208,12 @@ export function HomePage() {
           />
         </motion.div>
 
-        {/* Cinematic Scrim & Subtle Art Grid */}
-        <div className="hero__art" aria-hidden="true" />
-        <div className="hp-backdrop-scrim" aria-hidden="true" />
+        {/* Dynamic Readability Scrim (drops to 0 when background is solo, active only when text is present) */}
+        <motion.div
+          className="hp-backdrop-scrim"
+          aria-hidden="true"
+          style={{ opacity: reduced ? 0.45 : scrimOpacity }}
+        />
       </div>
 
       {/* ====================================================================
@@ -260,7 +270,12 @@ export function HomePage() {
             type="button"
             className="hero-scroll-indicator"
             onClick={() => {
-              window.scrollTo({ top: window.innerHeight * 1.15, behavior: 'smooth' })
+              if (stageRef.current) {
+                const stageHeight = stageRef.current.offsetHeight
+                window.scrollTo({ top: stageHeight * 0.26, behavior: 'smooth' })
+              } else {
+                window.scrollTo({ top: window.innerHeight * 2, behavior: 'smooth' })
+              }
             }}
             aria-label="Scroll down to explore parish content"
             {...promptAnim}

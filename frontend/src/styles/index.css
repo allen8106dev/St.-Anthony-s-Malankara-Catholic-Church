@@ -469,7 +469,7 @@ img { max-width: 100%; display: block; }
   height: 100%;
   object-fit: cover;
   z-index: -3;
-  filter: saturate(.9) contrast(1.08);
+  filter: none;
 }
 .hero__slides {
   position: absolute;
@@ -573,7 +573,7 @@ img { max-width: 100%; display: block; }
 .hp-stage {
   position: relative;
   width: 100%;
-  height: 520vh;
+  height: 850vh;
 }
 
 .hp-backdrop-sticky {
@@ -621,10 +621,9 @@ img { max-width: 100%; display: block; }
   inset: 0;
   z-index: 6;
   pointer-events: none;
-  background: radial-gradient(circle at 50% 45%, rgba(8, 20, 16, 0.42) 0%, rgba(5, 13, 10, 0.88) 100%);
-  background-image: 
-    radial-gradient(circle at 50% 40%, rgba(10, 24, 20, 0.35) 0%, rgba(5, 12, 10, 0.88) 100%),
-    linear-gradient(180deg, rgba(6, 15, 13, 0.25) 0%, rgba(5, 12, 10, 0.65) 100%);
+  background: radial-gradient(circle at 50% 50%, rgba(4, 10, 8, 0.3) 0%, rgba(4, 10, 8, 0.75) 100%),
+              linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 100%);
+  will-change: opacity;
 }
 
 .hp-foreground-sticky {
