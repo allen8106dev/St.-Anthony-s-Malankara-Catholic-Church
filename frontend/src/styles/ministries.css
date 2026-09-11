@@ -1,0 +1,387 @@
+/* ==========================================================================
+   Parish Ministries & Ministry Detail Pages
+   ========================================================================== */
+
+/* Navbar Dropdown for Ministries */
+.nav__dropdown-menu--ministries {
+  min-width: 22rem;
+  max-height: 82vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(23, 59, 50, 0.25) transparent;
+}
+
+.nav__dropdown-item--ministry {
+  display: flex !important;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.65rem 0.95rem !important;
+}
+
+.nav__dropdown-title {
+  display: block;
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--foreground);
+}
+
+.nav__dropdown-desc {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--muted);
+  font-weight: 400;
+  white-space: normal;
+  line-height: 1.35;
+}
+
+.nav__dropdown-item--ministry:hover .nav__dropdown-title,
+.nav__dropdown-item--ministry:focus .nav__dropdown-title {
+  color: var(--primary);
+}
+
+/* Ministries Page: Quick Jump Navigation */
+.ministry-jump-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ministry-jump-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.ministry-jump-nav__label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.ministry-jump-nav__pills {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+}
+
+.ministry-jump-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.85rem;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--foreground);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.18s ease;
+}
+
+.ministry-jump-pill:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+/* Ministry Card Enhancements */
+.ministry-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.ministry-card > div {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.ministry-card > div > div:last-child {
+  margin-top: auto;
+}
+
+.ministry-card__image-link {
+  display: block;
+  overflow: hidden;
+}
+
+.ministry-card__image-link img {
+  transition: transform 0.35s ease;
+}
+
+.ministry-card:hover .ministry-card__image-link img {
+  transform: scale(1.04);
+}
+
+.ministry-card__title-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.18s ease;
+}
+
+.ministry-card__title-link:hover {
+  color: var(--accent);
+}
+
+/* Ministry Detail Page Layout */
+.ministry-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 2rem;
+  font-size: 0.88rem;
+}
+
+.ministry-breadcrumb__sep {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.ministry-breadcrumb__current {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.ministry-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.85fr) minmax(18rem, 1fr);
+  gap: clamp(2rem, 4vw, 3.5rem);
+  align-items: start;
+}
+
+.ministry-overview-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: clamp(1.75rem, 3.5vw, 2.75rem);
+  box-shadow: var(--shadow-card);
+}
+
+.ministry-badge {
+  display: inline-block;
+  padding: 0.28rem 0.75rem;
+  background: rgba(183, 125, 76, 0.14);
+  color: var(--accent);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: var(--radius-pill);
+}
+
+.ministry-lede {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: var(--foreground);
+  margin: 0.75rem 0 1.25rem;
+  font-weight: 450;
+}
+
+.ministry-body {
+  color: var(--muted);
+  line-height: 1.75;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.ministry-activities-section {
+  margin-top: 2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: clamp(1.75rem, 3vw, 2.5rem);
+  box-shadow: var(--shadow-card);
+}
+
+.ministry-subheading {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.45rem;
+  margin: 0.35rem 0 1.25rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.ministry-activities-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.ministry-activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.96rem;
+  line-height: 1.5;
+  color: var(--foreground);
+}
+
+.ministry-activity-icon {
+  color: var(--accent);
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  flex-shrink: 0;
+}
+
+.ministry-feature-photo {
+  margin: 2rem 0 0;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.ministry-feature-photo img {
+  width: 100%;
+  max-height: 26rem;
+  object-fit: cover;
+  display: block;
+}
+
+.ministry-feature-photo figcaption {
+  padding: 0.75rem 1.2rem;
+  background: var(--surface-muted);
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-style: italic;
+  border-top: 1px solid var(--border);
+}
+
+/* Prev / Next ministry switcher */
+.ministry-nav-pager {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.ministry-pager-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+}
+
+.ministry-pager-link--next {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.ministry-pager-link:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+}
+
+.ministry-pager-label {
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.ministry-pager-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.12rem;
+  color: var(--foreground);
+}
+
+/* Sidebar Info & Join Cards */
+.ministry-detail-sidebar {
+  display: grid;
+  gap: 1.5rem;
+  position: sticky;
+  top: 6rem;
+}
+
+.ministry-info-card,
+.ministry-join-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-card);
+}
+
+.ministry-sidebar-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.3rem;
+  margin: 0 0 1.25rem;
+  font-weight: 600;
+  color: var(--foreground);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.75rem;
+}
+
+.ministry-info-list {
+  display: grid;
+  gap: 1.1rem;
+  margin: 0;
+}
+
+.ministry-info-list dt {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.2rem;
+}
+
+.ministry-info-list dd {
+  margin: 0;
+  font-size: 0.93rem;
+  line-height: 1.45;
+  color: var(--foreground);
+}
+
+.ministry-join-card h4 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.25rem;
+  margin: 0.3rem 0 0.6rem;
+  color: var(--foreground);
+}
+
+.ministry-join-card p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 900px) {
+  .ministry-detail-layout {
+    grid-template-columns: 1fr;
+  }
+  .ministry-detail-sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  .ministry-nav-pager {
+    grid-template-columns: 1fr;
+  }
+  .ministry-pager-link--next {
+    text-align: left;
+    align-items: flex-start;
+  }
+}
+

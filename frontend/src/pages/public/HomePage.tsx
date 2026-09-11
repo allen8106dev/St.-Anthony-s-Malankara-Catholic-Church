@@ -120,8 +120,17 @@ export function HomePage() {
             <Reveal key={ministry.number} delay={index * .07}>
               <article className="ministry">
                 <span>{ministry.number}</span>
-                <h3>{ministry.title}</h3>
+                <h3>
+                  <Link to={`/ministries/${ministry.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                    {ministry.title}
+                  </Link>
+                </h3>
                 <p>{ministry.detail}</p>
+                <div style={{ marginTop: '0.8rem' }}>
+                  <Link to={`/ministries/${ministry.id}`} className="text-link">
+                    View ministry <span aria-hidden="true">→</span>
+                  </Link>
+                </div>
               </article>
             </Reveal>
           ))}

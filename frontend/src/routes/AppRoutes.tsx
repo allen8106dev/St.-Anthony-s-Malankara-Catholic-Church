@@ -7,6 +7,7 @@ import { AdminRouteGuard } from './ProtectedRoute'
 import { HomePage } from '../pages/public/HomePage'
 import { AboutPage } from '../pages/public/AboutPage'
 import { MinistriesPage } from '../pages/public/MinistriesPage'
+import { MinistryDetailPage } from '../pages/public/MinistryDetailPage'
 import { EventsPage } from '../pages/public/EventsPage'
 import { AnnouncementsPage } from '../pages/public/AnnouncementsPage'
 import { GalleryPage } from '../pages/public/GalleryPage'
@@ -76,6 +77,7 @@ export function AppRoutes() {
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/ministries" element={<MinistriesPage />} />
+        <Route path="/ministries/:ministryId" element={<MinistryDetailPage />} />
         <Route path="/events" element={<EventsPage />} />
         <Route path="/announcements" element={<AnnouncementsPage />} />
         <Route path="/gallery" element={<GalleryPage />} />

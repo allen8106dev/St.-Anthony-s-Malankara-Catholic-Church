@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { Container } from '../ui/Container'
-import { publicNavigation, siteName } from '../../data/siteContent'
+import { ministries, publicNavigation, siteName } from '../../data/siteContent'
 import { usePublicSettings, usePublicAnnouncements, usePublicLiturgy } from '../../hooks/usePublicContent'
 
 function closeFocusedNav() {
@@ -14,7 +14,9 @@ export function PublicNavbar() {
   const [open, setOpen] = useState(false)
   const [aboutHover, setAboutHover] = useState(false)
   const [liturgyHover, setLiturgyHover] = useState(false)
+  const [ministriesHover, setMinistriesHover] = useState(false)
   const suppressAboutHover = useRef(false)
+  const suppressMinistriesHover = useRef(false)
   const { data: settings } = usePublicSettings()
   const { data: announcementsData } = usePublicAnnouncements(1)
   const { data: liturgyCollections = [] } = usePublicLiturgy()
@@ -24,8 +26,10 @@ export function PublicNavbar() {
 
   function closeDropdownMenus() {
     suppressAboutHover.current = true
+    suppressMinistriesHover.current = true
     setAboutHover(false)
     setLiturgyHover(false)
+    setMinistriesHover(false)
     setOpen(false)
     closeFocusedNav()
   }
@@ -133,6 +137,41 @@ export function PublicNavbar() {
                       role="menuitem"
                     >
                       {label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )
+          }
+
+          if (item.to === '/ministries') {
+            return (
+              <div
+                key={item.to}
+                className={`nav__item nav__item--dropdown ${ministriesHover ? 'nav__item--dropdown-open' : ''}`}
+                onMouseEnter={() => {
+                  if (!suppressMinistriesHover.current) setMinistriesHover(true)
+                }}
+                onMouseLeave={() => {
+                  suppressMinistriesHover.current = false
+                  setMinistriesHover(false)
+                }}
+              >
+                <NavLink to={item.to} onClick={closeDropdownMenus} className="nav__link nav__link--has-dropdown">
+                  {item.label}
+                  <span className="nav__caret" aria-hidden="true" />
+                </NavLink>
+                <div className="nav__dropdown-menu nav__dropdown-menu--ministries" role="menu" aria-label="Ministries">
+                  {ministries.map((ministry) => (
+                    <Link
+                      key={ministry.id}
+                      to={`/ministries/${ministry.id}`}
+                      onClick={closeDropdownMenus}
+                      className="nav__dropdown-item nav__dropdown-item--ministry"
+                      role="menuitem"
+                    >
+                      <span className="nav__dropdown-title">{ministry.name}</span>
+                      <span className="nav__dropdown-desc">{ministry.fullName}</span>
                     </Link>
                   ))}
                 </div>

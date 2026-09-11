@@ -4,6 +4,7 @@ import { CustomCursor } from '../components/animation/CustomCursor'
 import { PublicFooter } from '../components/layout/PublicFooter'
 import { PublicNavbar } from '../components/navigation/PublicNavbar'
 import { GlobalLoadingIndicator } from '../components/ui/GlobalLoadingIndicator'
+import { ministries } from '../data/siteContent'
 
 const pageMeta: Record<string, { title: string; description: string }> = {
   '/': { title: "St. Anthony's Malankara Catholic Church", description: 'A welcoming online home for prayer, community, and parish life.' },
@@ -18,6 +19,12 @@ function getPageMeta(pathname: string): { title: string; description: string } {
   if (pageMeta[pathname]) return pageMeta[pathname]
   if (pathname.startsWith('/gallery/')) return { title: 'Photo Album', description: 'Explore parish moments.' }
   if (pathname.startsWith('/events/')) return { title: 'Event Details', description: 'Discover upcoming parish events.' }
+  if (pathname.startsWith('/ministries/')) {
+    const slug = pathname.replace('/ministries/', '').split('/')[0]
+    const found = ministries.find(m => m.id === slug)
+    if (found) return { title: `${found.name} (${found.fullName})`, description: found.description }
+    return { title: 'Parish Ministry', description: 'Explore parish ministries.' }
+  }
   return { title: 'Page not found', description: 'The requested page is unavailable.' }
 }
 
