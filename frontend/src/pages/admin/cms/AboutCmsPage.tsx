@@ -9,41 +9,11 @@ const PAGE = 'about'
 
 const SECTIONS = [
   {
-    key: 'intro', label: 'Introduction',
-    fields: [
-      { field: 'heading' as keyof PageContentPayload, label: 'Page title' },
-      { field: 'body' as keyof PageContentPayload, label: 'Introduction text', type: 'textarea' as const },
-      { field: 'image_url' as keyof PageContentPayload, label: 'Header Image', type: 'url' as const },
-    ],
-  },
-  {
-    key: 'history', label: 'Church History',
-    fields: [
-      { field: 'heading' as keyof PageContentPayload, label: 'Section heading' },
-      { field: 'body' as keyof PageContentPayload, label: 'History text', type: 'textarea' as const },
-    ],
-  },
-  {
-    key: 'mission', label: 'Mission & Vision',
-    fields: [
-      { field: 'heading' as keyof PageContentPayload, label: 'Heading' },
-      { field: 'body' as keyof PageContentPayload, label: 'Mission and vision statement', type: 'textarea' as const },
-    ],
-  },
-  {
     key: 'pastor', label: 'Pastor / Priest',
     fields: [
       { field: 'heading' as keyof PageContentPayload, label: 'Name and title' },
       { field: 'body' as keyof PageContentPayload, label: 'Bio / message', type: 'textarea' as const },
       { field: 'image_url' as keyof PageContentPayload, label: 'Pastor / Priest Photo', type: 'url' as const },
-    ],
-  },
-  {
-    key: 'contact', label: 'Contact & Location',
-    fields: [
-      { field: 'heading' as keyof PageContentPayload, label: 'Heading' },
-      { field: 'body' as keyof PageContentPayload, label: 'Address, phone, email, directions', type: 'textarea' as const },
-      { field: 'image_url' as keyof PageContentPayload, label: 'Map / Location Image', type: 'url' as const },
     ],
   },
 ]
@@ -135,7 +105,7 @@ export function AboutCmsPage() {
       <div className="admin-page-header">
         <div>
           <h1>About Page</h1>
-          <p>Edit the content displayed on the public About page</p>
+          <p>Edit the pastor and priest details displayed on the public About page</p>
         </div>
       </div>
       <div className="cms-page-editor">

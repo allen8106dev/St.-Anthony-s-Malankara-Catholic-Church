@@ -50,7 +50,7 @@ export function AboutPage() {
         eyebrow="About our parish"
         title={introSection?.heading || "Faith, fellowship, and sacred tradition."}
         intro={introSection?.body || "Discover our Holy Qurbana timings, meet our parish priest, and explore our historic Malankara Catholic heritage."}
-        image={introSection?.image_url ? { src: introSection.image_url, alt: churchName } : demoImages.sanctuary}
+        image={demoImages.sanctuary}
       />
 
       {/* 1. Timings Section */}

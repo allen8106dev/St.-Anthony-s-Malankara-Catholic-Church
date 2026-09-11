@@ -29,7 +29,6 @@ export function AdminDashboardPage() {
 
   const canSeeFinance = currentUser?.role === 'SUPER_ADMIN' || currentUser?.role === 'TREASURER' || currentUser?.role === 'MEMBER_ADMIN'
   const canSeeMembers = currentUser?.role === 'SUPER_ADMIN' || currentUser?.role === 'MEMBER_ADMIN'
-  const canSeeContent = currentUser?.role === 'SUPER_ADMIN' || currentUser?.role === 'CONTENT_ADMIN'
 
   const greeting = (() => {
     const h = new Date().getHours()
@@ -47,9 +46,6 @@ export function AdminDashboardPage() {
           <p className="dash-subtitle">
             {greeting}{currentUser?.name ? `, ${currentUser.name}` : ''}. Keep an eye on parish operations, content updates, and financial activity.
           </p>
-        </div>
-        <div className="dash-header-actions">
-          {canSeeContent && <Link to="/admin/content/events/new" className="button button--primary">+ New Event</Link>}
         </div>
       </header>
 
@@ -116,49 +112,9 @@ export function AdminDashboardPage() {
               )}
             </section>
           )}
-
-          {canSeeContent && (
-            <section className="dash-section">
-              <div className="dash-section-head">
-                <h2>Parish Content</h2>
-                <Link to="/admin/content" className="text-link" style={{ fontSize: '.85rem' }}>Manage →</Link>
-              </div>
-              <div className="dash-content-links">
-                <Link to="/admin/content/events" className="dash-content-link"><span className="dash-content-link__icon dash-icon--calendar" aria-hidden="true" /><span>Events</span></Link>
-                <Link to="/admin/content/announcements" className="dash-content-link"><span className="dash-content-link__icon dash-icon--notice" aria-hidden="true" /><span>Announcements</span></Link>
-                <Link to="/admin/content/gallery" className="dash-content-link"><span className="dash-content-link__icon dash-icon--gallery" aria-hidden="true" /><span>Gallery</span></Link>
-                <Link to="/admin/content/service-times" className="dash-content-link"><span className="dash-content-link__icon dash-icon--clock" aria-hidden="true" /><span>Service Times</span></Link>
-                <Link to="/admin/settings" className="dash-content-link"><span className="dash-content-link__icon dash-icon--settings" aria-hidden="true" /><span>Settings</span></Link>
-              </div>
-            </section>
-          )}
         </div>
 
-        <aside className="dash-col-side">
-          <section className="dash-section">
-            <h2>Quick Actions</h2>
-            <div className="dash-actions">
-              {canSeeContent && (
-                <>
-                  <Link to="/admin/content/announcements/new" className="button button--primary dash-action-btn">+ New Announcement</Link>
-                  <Link to="/admin/content/events/new" className="button button--outline dash-action-btn">+ New Event</Link>
-                </>
-              )}
-              {canSeeMembers && (
-                <>
-                  <Link to="/admin/members/new" className="button button--outline dash-action-btn">+ Add Member</Link>
-                  <Link to="/admin/families/new" className="button button--outline dash-action-btn">+ Add Family</Link>
-                </>
-              )}
-              {canSeeFinance && (
-                <>
-                  <Link to="/admin/finance/dues/new" className="button button--outline dash-action-btn">+ Create Due</Link>
-                  <Link to="/admin/finance/payments/record" className="button button--outline dash-action-btn">Record Payment</Link>
-                </>
-              )}
-            </div>
-          </section>
-
+        <aside className="dash-col-side" style={!canSeeFinance ? { gridColumn: '1 / -1' } : undefined}>
           <section className="dash-section dash-section--muted">
             <h2>Online Donations</h2>
             <p className="dash-notice">

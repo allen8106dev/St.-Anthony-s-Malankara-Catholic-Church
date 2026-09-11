@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import { demoImages } from '../../data/siteContent'
 import { EmptyPublicState, PageHeader } from '../../components/public/PublicElements'
 import { LoadingState } from '../../components/ui/Feedback'
 import { Reveal } from '../../components/animation/Reveal'
@@ -39,6 +40,7 @@ export function AnnouncementsPage() {
         eyebrow="Parish news"
         title="Notices, shared with care."
         intro="Current parish announcements."
+        image={demoImages.community}
       />
       <section className="section">
         <div className="container">
