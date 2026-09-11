@@ -34,12 +34,36 @@ export function PublicNavbar() {
     closeFocusedNav()
   }
 
-  useEffect(() => { const onScroll = () => setScrolled(window.scrollY > 24); onScroll(); window.addEventListener('scroll', onScroll, { passive: true }); return () => window.removeEventListener('scroll', onScroll) }, [])
-  return <header className={`nav ${scrolled || open ? 'nav--scrolled' : ''}`}>
-    <Container className="nav__inner">
-      <Link className="brand" to="/" aria-label={`${churchName} home`}><span className="brand__mark" aria-hidden="true">✦</span><span>{churchName}</span></Link>
-      <button className="nav__toggle" type="button" aria-expanded={open} aria-controls="public-navigation" onClick={() => setOpen(!open)}><span aria-hidden="true">{open ? '×' : '☰'}</span><span className="sr-only">{open ? 'Close' : 'Open'} navigation</span></button>
-      <nav id="public-navigation" className={`nav__links ${open ? 'nav__links--open' : ''}`} aria-label="Public navigation">
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  return (
+    <header className={`nav ${scrolled ? 'nav--scrolled' : ''} ${open ? 'nav--open' : ''}`}>
+      <Container className="nav__inner">
+        <Link className="brand" to="/" aria-label={`${churchName} home`}>
+          <span className="brand__mark" aria-hidden="true">✦</span>
+          <span>{churchName}</span>
+        </Link>
+        <button
+          className={`nav__toggle ${open ? 'nav__toggle--open' : ''}`}
+          type="button"
+          aria-expanded={open}
+          aria-controls="public-navigation"
+          onClick={() => setOpen(!open)}
+          aria-label={open ? 'Close navigation' : 'Open navigation'}
+        >
+          <span className="nav__hamburger" aria-hidden="true">
+            <span className="nav__line nav__line--1" />
+            <span className="nav__line nav__line--2" />
+            <span className="nav__line nav__line--3" />
+          </span>
+          <span className="sr-only">{open ? 'Close' : 'Open'} navigation</span>
+        </button>
+        <nav id="public-navigation" className={`nav__links ${open ? 'nav__links--open' : ''}`} aria-label="Public navigation">
         {publicNavigation.map((item) => {
           if (item.to === '/announcements') {
             return (
@@ -187,4 +211,5 @@ export function PublicNavbar() {
       </nav>
     </Container>
   </header>
+  )
 }
