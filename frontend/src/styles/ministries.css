@@ -90,41 +90,58 @@
   transform: translateY(-1px);
 }
 
-/* Ministries Page: Horizontal Scroll Track */
-.ministry-scroll-track {
+/* ── Ministries: Sticky Horizontal Scroll ── */
+
+/* Outer tunnel — height set via JS to create vertical scroll room */
+.ministry-hscroll-tunnel {
+  position: relative;
+}
+
+/* Pinned slab — stays fixed at top of viewport while inside the tunnel */
+.ministry-hscroll-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.ministry-hscroll-sticky > .container {
+  width: 100%;
+  overflow: visible;
+}
+
+/* Translating card row — JS sets translateX on this element */
+.ministry-hscroll-track {
   display: flex;
   gap: 1.4rem;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(23, 59, 50, 0.25) transparent;
-  padding-bottom: 1rem;
+  will-change: transform;
 }
 
-.ministry-scroll-track::-webkit-scrollbar {
-  height: 5px;
-}
-
-.ministry-scroll-track::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.ministry-scroll-track::-webkit-scrollbar-thumb {
-  background: rgba(23, 59, 50, 0.25);
-  border-radius: 999px;
-}
-
-/* Each card in the track takes 1/3 of container width on desktop */
-.ministry-scroll-track > * {
+/* Each card: exactly 1/3 width so 3 are visible at a time on desktop */
+.ministry-hscroll-track > * {
   flex: 0 0 calc((100% - 2 * 1.4rem) / 3);
   min-width: 18rem;
-  scroll-snap-align: start;
 }
 
 @media (max-width: 760px) {
-  .ministry-scroll-track > * {
-    flex: 0 0 85vw;
+  /* Mobile: revert to normal stacked layout — no scroll-jacking */
+  .ministry-hscroll-tunnel {
+    height: auto !important;
+  }
+  .ministry-hscroll-sticky {
+    position: static;
+    height: auto;
+    overflow: visible;
+  }
+  .ministry-hscroll-track {
+    flex-direction: column;
+    transform: none !important;
+  }
+  .ministry-hscroll-track > * {
+    flex: 1 1 auto;
     min-width: 0;
   }
 }

@@ -1,9 +1,9 @@
-import { useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { demoImages, ministries } from '../../data/siteContent'
-import { Cta, MinistryCard } from '../../components/public/PublicElements'
+import { Cta } from '../../components/public/PublicElements'
 import { PageLayout } from '../../components/public/PageLayout'
-import { Reveal } from '../../components/animation/Reveal'
+import { MinistryHScrollSection } from '../../components/public/MinistryHScrollSection'
 
 export function MinistriesPage() {
   const location = useLocation()
@@ -26,19 +26,8 @@ export function MinistriesPage() {
       intro="Discover the vibrant youth movements, children's formation, lay associations, liturgical service, choir, and prayer fellowships that shape our parish life."
       image={ministries[0]?.image || demoImages.community}
     >
-      <section className="section">
-        <div className="container">
-          <div className="ministry-scroll-track">
-            {ministries.map((item, index) => (
-              <Reveal key={item.id} delay={index * 0.08}>
-                <MinistryCard ministry={item} />
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      <MinistryHScrollSection />
       <Cta title="Find a way to connect." to="/contact" label="Get in touch" />
     </PageLayout>
   )
 }
-
