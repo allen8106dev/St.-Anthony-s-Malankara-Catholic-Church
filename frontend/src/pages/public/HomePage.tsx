@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useScroll, useTransform, useSpring, useReducedMotion, type MotionValue } from 'motion/react'
 import { Container } from '../../components/ui/Container'
@@ -71,20 +71,6 @@ function useStaggeredChapter(
   }
 }
 
-function useMobileViewport() {
-  const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 760px)').matches)
-
-  useEffect(() => {
-    const media = window.matchMedia('(max-width: 760px)')
-    const update = () => setIsMobile(media.matches)
-    update()
-    media.addEventListener('change', update)
-    return () => media.removeEventListener('change', update)
-  }, [])
-
-  return isMobile
-}
-
 export function HomePage() {
   const { data: eventsData } = usePublicEvents({ timeframe: 'upcoming', limit: 3 })
   const { data: settings } = usePublicSettings()
@@ -105,7 +91,7 @@ export function HomePage() {
 
   // Single stage ref for the continuous scroll storytelling canvas
   const stageRef = useRef<HTMLDivElement>(null)
-  const reduced = useReducedMotion() || useMobileViewport()
+  const reduced = useReducedMotion()
 
   // Track the continuous scroll progress of the entire stage from 0 to 1
   const { scrollYProgress } = useScroll({
@@ -202,7 +188,7 @@ export function HomePage() {
   const scrimOpacity = useTransform(
     smoothProgress,
     [0, 0.03, 0.08, 0.20, 0.25, 0.31, 0.37, 0.46, 0.51, 0.57, 0.63, 0.72, 0.77, 0.83, 0.89, 0.94, 0.98, 1.0],
-    [0.55, 0.55, 0, 0, 0.45, 0.45, 0, 0, 0.45, 0.45, 0, 0, 0.45, 0.45, 0, 0, 0.55, 0.55]
+    [0.58, 0.58, 0, 0, 0.62, 0.62, 0, 0, 0.62, 0.62, 0, 0, 0.62, 0.62, 0, 0, 0.58, 0.58]
   )
 
   // --------------------------------------------------------------------------

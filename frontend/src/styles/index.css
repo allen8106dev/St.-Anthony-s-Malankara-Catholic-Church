@@ -2421,13 +2421,22 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
   .nav__links a:not(.button)::after { display: none; }
   .nav__dropdown-menu { margin: .15rem 0 .5rem .75rem; padding: .15rem .75rem; background: rgba(255, 255, 255, .06); }
   .nav__dropdown-item { padding: .6rem 0 !important; }
+  .nav__dropdown-item--all-ministries {
+    margin: .45rem 0 .65rem;
+    padding: .7rem .85rem !important;
+    color: #fff !important;
+    font-weight: 700;
+    background: rgba(230, 200, 135, .18);
+    border: 1px solid rgba(230, 200, 135, .38);
+    border-radius: .5rem;
+  }
 
-  .hp-stage { height: auto; background: #081713; }
-  .hp-backdrop-sticky { position: absolute; height: 100svh; }
-  .hp-backdrop-layer:not(.hp-backdrop-layer--0), .hp-backdrop-glow { display: none; }
-  .hp-foreground-sticky { position: relative; height: auto; margin-top: 0; overflow: visible; }
-  .hp-panel { position: relative; inset: auto; height: auto; min-height: 0; padding: 3.5rem 0; pointer-events: auto !important; }
-  .hp-panel--hero { min-height: 100svh; justify-content: flex-end; padding: 7rem 0 4rem; }
+  .hp-stage { height: 680vh; }
+  .hp-backdrop-sticky { position: sticky; height: 100svh; }
+  .hp-backdrop-layer:not(.hp-backdrop-layer--0), .hp-backdrop-glow { display: block; }
+  .hp-foreground-sticky { position: sticky; height: 100svh; margin-top: -100svh; overflow: hidden; }
+  .hp-panel { position: absolute; inset: 0; height: 100%; min-height: 0; padding: 1.5rem 0; }
+  .hp-panel--hero { min-height: 0; justify-content: flex-end; padding: 7rem 0 4rem; }
   .hero-scroll-indicator { display: none; }
   .hp-hero-display { font-size: clamp(2.55rem, 11vw, 3.6rem); }
   .hp-hero-lede { margin-bottom: 0; }
@@ -2439,13 +2448,11 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
   .hp-section-head { margin-bottom: 1.5rem; }
   .hp-contact-box { padding: 1.5rem; }
 
-  .pl-backdrop { position: absolute; height: 100svh; margin-bottom: 0; }
-  .pl-hero-track { height: 100svh; }
-  .pl-hero-sticky { position: relative; height: 100svh; }
-  .pl-backdrop-img, .pl-hero-content .hero-text-anim-wrap > * {
-    opacity: 1 !important;
-    transform: none !important;
-    filter: none !important;
+  .pl-backdrop { position: sticky; height: 100svh; margin-bottom: -100svh; }
+  .pl-hero-track { height: 165svh; }
+  .pl-hero-sticky { position: sticky; height: 100svh; }
+  .pl-backdrop-scrim {
+    background: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, .38) 0%, rgba(0, 0, 0, .8) 100%);
   }
   .pl-content .section { padding: 3.75rem 0; }
   .footer__grid, .footer__bottom { grid-template-columns: 1fr; flex-direction: column; }

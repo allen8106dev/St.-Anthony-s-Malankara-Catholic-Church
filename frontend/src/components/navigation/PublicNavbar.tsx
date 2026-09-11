@@ -269,6 +269,14 @@ export function PublicNavbar() {
                   <span className="nav__caret" aria-hidden="true" />
                 </NavLink>
                 <div className="nav__dropdown-menu nav__dropdown-menu--ministries" role="menu" aria-label="Ministries">
+                  <Link
+                    to="/ministries"
+                    onClick={closeDropdownMenus}
+                    className="nav__dropdown-item nav__dropdown-item--all-ministries"
+                    role="menuitem"
+                  >
+                    All ministries
+                  </Link>
                   {ministries.map((ministry) => (
                     <Link
                       key={ministry.id}

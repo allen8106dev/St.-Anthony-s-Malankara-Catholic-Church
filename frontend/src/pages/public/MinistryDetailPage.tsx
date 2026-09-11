@@ -34,11 +34,6 @@ export function MinistryDetailPage() {
     )
   }
 
-  // Find index for previous / next ministry navigation
-  const currentIndex = ministries.findIndex((item) => item.id === ministry.id)
-  const prevMinistry = ministries[(currentIndex - 1 + ministries.length) % ministries.length]
-  const nextMinistry = ministries[(currentIndex + 1) % ministries.length]
-
   return (
     <PageLayout
       eyebrow="Parish ministry"
@@ -94,17 +89,6 @@ export function MinistryDetailPage() {
                 </figure>
               </Reveal>
 
-              {/* Prev / Next ministry switcher */}
-              <div className="ministry-nav-pager">
-                <Link to={`/ministries/${prevMinistry.id}`} className="ministry-pager-link">
-                  <span className="ministry-pager-label">← Previous ministry</span>
-                  <strong className="ministry-pager-title">{prevMinistry.name}</strong>
-                </Link>
-                <Link to={`/ministries/${nextMinistry.id}`} className="ministry-pager-link ministry-pager-link--next">
-                  <span className="ministry-pager-label">Next ministry →</span>
-                  <strong className="ministry-pager-title">{nextMinistry.name}</strong>
-                </Link>
-              </div>
             </div>
 
             {/* Sidebar */}
@@ -156,4 +140,3 @@ export function MinistryDetailPage() {
     </PageLayout>
   )
 }
-
