@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
 import { useLocation, Link } from 'react-router-dom'
 import { demoImages, ministries } from '../../data/siteContent'
-import { Cta, MinistryCard, PageHeader } from '../../components/public/PublicElements'
+import { Cta, MinistryCard } from '../../components/public/PublicElements'
+import { PageLayout } from '../../components/public/PageLayout'
 import { Reveal } from '../../components/animation/Reveal'
 
 export function MinistriesPage() {
@@ -19,16 +20,14 @@ export function MinistriesPage() {
   }, [location.hash])
 
   return (
-    <>
-      <PageHeader
-        eyebrow="Parish life & ministries"
-        title="Many ways to grow together."
-        intro="Discover the vibrant youth movements, children's formation, lay associations, liturgical service, choir, and prayer fellowships that shape our parish life."
-        image={demoImages.hands}
-      />
-      
+    <PageLayout
+      eyebrow="Parish life & ministries"
+      title="Many ways to grow together."
+      intro="Discover the vibrant youth movements, children's formation, lay associations, liturgical service, choir, and prayer fellowships that shape our parish life."
+      image={demoImages.hands}
+    >
       {/* Quick Jump Navigation */}
-      <section className="section--tight" style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
+      <section className="section--tight">
         <div className="container">
           <div className="ministry-jump-nav" aria-label="Quick jump to ministry">
             <span className="ministry-jump-nav__label">Ministries:</span>
@@ -53,7 +52,7 @@ export function MinistriesPage() {
         </div>
       </section>
       <Cta title="Find a way to connect." to="/contact" label="Get in touch" />
-    </>
+    </PageLayout>
   )
 }
 

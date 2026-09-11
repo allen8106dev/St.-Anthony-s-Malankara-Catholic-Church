@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { demoImages } from '../../data/siteContent'
-import { Cta, PageHeader } from '../../components/public/PublicElements'
+import { Cta } from '../../components/public/PublicElements'
+import { PageLayout } from '../../components/public/PageLayout'
 import { LoadingState } from '../../components/ui/Feedback'
 import { Reveal } from '../../components/animation/Reveal'
 import { usePublicContent, usePublicServiceTimes, usePublicSettings } from '../../hooks/usePublicContent'
@@ -45,13 +46,12 @@ export function AboutPage() {
   const activeServices = serviceTimesData ?? []
 
   return (
-    <>
-      <PageHeader
-        eyebrow="About our parish"
-        title={introSection?.heading || "Faith, fellowship, and sacred tradition."}
-        intro={introSection?.body || "Discover our Holy Qurbana timings, meet our parish priest, and explore our historic Malankara Catholic heritage."}
-        image={demoImages.sanctuary}
-      />
+    <PageLayout
+      eyebrow="About our parish"
+      title={introSection?.heading || "Faith, fellowship, and sacred tradition."}
+      intro={introSection?.body || "Discover our Holy Qurbana timings, meet our parish priest, and explore our historic Malankara Catholic heritage."}
+      image={demoImages.sanctuary}
+    >
 
       {/* 1. Timings Section */}
       <section id="timings" className="section about-section">
@@ -232,6 +232,6 @@ export function AboutPage() {
         label="Plan a visit or get in touch"
         to="/contact"
       />
-    </>
+    </PageLayout>
   )
 }

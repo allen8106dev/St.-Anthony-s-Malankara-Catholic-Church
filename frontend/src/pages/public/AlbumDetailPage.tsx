@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useParams } from 'react-router-dom'
 import { demoImages } from '../../data/siteContent'
-import { EmptyPublicState, PageHeader } from '../../components/public/PublicElements'
+import { EmptyPublicState } from '../../components/public/PublicElements'
+import { PageLayout } from '../../components/public/PageLayout'
 import { LoadingState } from '../../components/ui/Feedback'
 import { usePublicAlbum, type PublicAlbum } from '../../hooks/usePublicContent'
 
@@ -73,13 +74,12 @@ export function AlbumDetailPage() {
   const { data: album, isLoading, isError } = usePublicAlbum(albumId)
 
   return (
-    <>
-      <PageHeader
-        eyebrow="Album"
-        title={album?.title ?? 'Photo Album'}
-        intro={album?.description ?? 'Moments and memories from parish life.'}
-        image={album?.cover_image_url ? { src: album.cover_image_url, alt: album.title } : demoImages.architecture}
-      />
+    <PageLayout
+      eyebrow="Album"
+      title={album?.title ?? 'Photo Album'}
+      intro={album?.description ?? 'Moments and memories from parish life.'}
+      image={album?.cover_image_url ? { src: album.cover_image_url, alt: album.title } : demoImages.architecture}
+    >
       <section className="section">
         <div className="container">
           <div style={{ marginBottom: '2rem' }}>
@@ -110,7 +110,7 @@ export function AlbumDetailPage() {
           )}
         </div>
       </section>
-    </>
+    </PageLayout>
   )
 }
 

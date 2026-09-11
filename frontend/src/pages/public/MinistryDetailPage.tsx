@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 import { ministries } from '../../data/siteContent'
-import { Cta, PageHeader } from '../../components/public/PublicElements'
+import { Cta } from '../../components/public/PublicElements'
+import { PageLayout } from '../../components/public/PageLayout'
 import { Reveal } from '../../components/animation/Reveal'
 import { Container } from '../../components/ui/Container'
 
@@ -10,12 +11,11 @@ export function MinistryDetailPage() {
 
   if (!ministry) {
     return (
-      <>
-        <PageHeader
-          eyebrow="Ministries"
-          title="Ministry not found"
-          intro="The ministry you are looking for is not listed or has moved."
-        />
+      <PageLayout
+        eyebrow="Ministries"
+        title="Ministry not found"
+        intro="The ministry you are looking for is not listed or has moved."
+      >
         <section className="section">
           <Container>
             <div className="empty-state">
@@ -30,7 +30,7 @@ export function MinistryDetailPage() {
             </div>
           </Container>
         </section>
-      </>
+      </PageLayout>
     )
   }
 
@@ -40,13 +40,12 @@ export function MinistryDetailPage() {
   const nextMinistry = ministries[(currentIndex + 1) % ministries.length]
 
   return (
-    <>
-      <PageHeader
-        eyebrow="Parish ministry"
-        title={`${ministry.name} · ${ministry.fullName}`}
-        intro={ministry.tagline}
-        image={ministry.image}
-      />
+    <PageLayout
+      eyebrow="Parish ministry"
+      title={`${ministry.name} · ${ministry.fullName}`}
+      intro={ministry.tagline}
+      image={ministry.image}
+    >
 
       <section className="section">
         <Container>
@@ -154,7 +153,7 @@ export function MinistryDetailPage() {
         to="/contact"
         label="Get in touch"
       />
-    </>
+    </PageLayout>
   )
 }
 

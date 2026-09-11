@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { demoImages } from '../../data/siteContent'
-import { EmptyPublicState, PageHeader } from '../../components/public/PublicElements'
+import { EmptyPublicState } from '../../components/public/PublicElements'
+import { PageLayout } from '../../components/public/PageLayout'
 import { LoadingState } from '../../components/ui/Feedback'
 import { Reveal } from '../../components/animation/Reveal'
 import { usePublicGallery } from '../../hooks/usePublicContent'
@@ -10,13 +11,12 @@ export function GalleryPage() {
   const items = data?.items ?? []
 
   return (
-    <>
-      <PageHeader
-        eyebrow="Gallery"
-        title="Moments held close."
-        intro="Parish photo albums."
-        image={demoImages.architecture}
-      />
+    <PageLayout
+      eyebrow="Gallery"
+      title="Moments held close."
+      intro="Parish photo albums."
+      image={demoImages.architecture}
+    >
       <section className="section">
         <div className="container">
           {isLoading && <LoadingState text="Loading photo albums…" />}
@@ -52,7 +52,7 @@ export function GalleryPage() {
           </div>
         </div>
       </section>
-    </>
+    </PageLayout>
   )
 }
 

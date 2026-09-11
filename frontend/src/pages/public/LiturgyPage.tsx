@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Cta, PageHeader } from '../../components/public/PublicElements'
+import { Cta } from '../../components/public/PublicElements'
+import { PageLayout } from '../../components/public/PageLayout'
 import { Reveal } from '../../components/animation/Reveal'
 import { demoImages } from '../../data/siteContent'
 import { usePublicLiturgy } from '../../hooks/usePublicContent'
@@ -47,13 +48,13 @@ export function LiturgyPage() {
     return () => window.clearTimeout(timeout)
   }, [location.hash])
 
-  return <>
-    <PageHeader
+  return (
+    <PageLayout
       eyebrow="Worship & tradition"
       title="Praying together in the Malankara tradition."
       intro="Discover the prayerful rhythm of our parish liturgy, from the Holy Qurbono to the sacred days of Holy Week."
       image={demoImages.sanctuary}
-    />
+    >
     <section className="section liturgy-intro">
       <div className="container">
         <Reveal><p className="lede">Our liturgical life draws us into communion with God and one another. Explore these parts of our shared worship and return as resources are added.</p></Reveal>
@@ -156,5 +157,6 @@ export function LiturgyPage() {
       ))
     )}
     <Cta title="Join us in prayer." label="Plan your visit" to="/about#timings" />
-  </>
+  </PageLayout>
+  )
 }

@@ -1,15 +1,14 @@
 import { demoImages } from '../../data/siteContent'
-import { PageHeader } from '../../components/public/PublicElements'
+import { PageLayout } from '../../components/public/PageLayout'
 
 export function DonatePage() {
   return (
-    <>
-      <PageHeader
-        eyebrow="Give"
-        title="Support what matters."
-        intro="This is a visual demonstration only. No payments, personal financial details, or payment processing are collected in this phase."
-        image={demoImages.hands}
-      />
+    <PageLayout
+      eyebrow="Give"
+      title="Support what matters."
+      intro="This is a visual demonstration only. No payments, personal financial details, or payment processing are collected in this phase."
+      image={demoImages.hands}
+    >
       <section className="section">
         <div className="container donate-grid">
           <div>
@@ -51,7 +50,7 @@ export function DonatePage() {
           </form>
         </div>
       </section>
-    </>
+    </PageLayout>
   )
 }
 

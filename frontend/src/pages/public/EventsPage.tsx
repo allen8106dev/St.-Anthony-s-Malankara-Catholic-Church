@@ -1,5 +1,6 @@
 import { demoImages } from '../../data/siteContent'
-import { EmptyPublicState, PageHeader } from '../../components/public/PublicElements'
+import { EmptyPublicState } from '../../components/public/PublicElements'
+import { PageLayout } from '../../components/public/PageLayout'
 import { LoadingState } from '../../components/ui/Feedback'
 import { Reveal } from '../../components/animation/Reveal'
 import { usePublicEvents } from '../../hooks/usePublicContent'
@@ -11,13 +12,12 @@ export function EventsPage() {
   const past = pastData?.items ?? []
 
   return (
-    <>
-      <PageHeader
-        eyebrow="Events"
-        title="Gatherings to look forward to."
-        intro="Upcoming and past parish events."
-        image={demoImages.gathering}
-      />
+    <PageLayout
+      eyebrow="Events"
+      title="Gatherings to look forward to."
+      intro="Upcoming and past parish events."
+      image={demoImages.gathering}
+    >
       <section className="section">
         <div className="container">
           <Reveal>
@@ -88,7 +88,7 @@ export function EventsPage() {
           </div>
         </section>
       )}
-    </>
+    </PageLayout>
   )
 }
 

@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { demoImages } from '../../data/siteContent'
-import { EmptyPublicState, PageHeader } from '../../components/public/PublicElements'
+import { EmptyPublicState } from '../../components/public/PublicElements'
+import { PageLayout } from '../../components/public/PageLayout'
 import { LoadingState } from '../../components/ui/Feedback'
 import { Reveal } from '../../components/animation/Reveal'
 import { AnnouncementVisual } from '../../components/public/AnnouncementVisual'
@@ -35,13 +36,12 @@ export function AnnouncementsPage() {
     )
 
   return (
-    <>
-      <PageHeader
-        eyebrow="Parish news"
-        title="Notices, shared with care."
-        intro="Current parish announcements."
-        image={demoImages.community}
-      />
+    <PageLayout
+      eyebrow="Parish news"
+      title="Notices, shared with care."
+      intro="Current parish announcements."
+      image={demoImages.community}
+    >
       <section className="section">
         <div className="container">
           {isLoading && <LoadingState text="Loading parish announcements…" />}
@@ -54,7 +54,7 @@ export function AnnouncementsPage() {
           {renderGroup(items)}
         </div>
       </section>
-    </>
+    </PageLayout>
   )
 }
 

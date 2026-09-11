@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { demoImages } from '../../data/siteContent'
-import { PageHeader } from '../../components/public/PublicElements'
+import { PageLayout } from '../../components/public/PageLayout'
 import { Reveal } from '../../components/animation/Reveal'
 import { usePublicSettings } from '../../hooks/usePublicContent'
 
@@ -48,13 +48,12 @@ export function ContactPage() {
   const { safeUrl, embedUrl } = safeGoogleMapsConfig(s.google_maps_url || null)
 
   return (
-    <>
-      <PageHeader
-        eyebrow="Visit &amp; Contact"
-        title="Come as you are."
-        intro="Whether joining us for Holy Qurbana, exploring the Malankara Catholic tradition, or reaching out to the parish office, you are warmly welcomed."
-        image={demoImages.sanctuary}
-      />
+    <PageLayout
+      eyebrow="Visit &amp; Contact"
+      title="Come as you are."
+      intro="Whether joining us for Holy Qurbana, exploring the Malankara Catholic tradition, or reaching out to the parish office, you are warmly welcomed."
+      image={demoImages.sanctuary}
+    >
 
       <section className="section" style={{ paddingTop: '3.5rem', paddingBottom: '3.5rem' }}>
         <div className="container">
@@ -275,7 +274,7 @@ export function ContactPage() {
           </Reveal>
         </div>
       </section>
-    </>
+    </PageLayout>
   )
 }
 
