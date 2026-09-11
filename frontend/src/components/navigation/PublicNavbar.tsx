@@ -61,7 +61,7 @@ export function PublicNavbar() {
               >
                 <NavLink to={item.to} onClick={closeDropdownMenus} className="nav__link nav__link--has-dropdown">
                   {item.label}
-                  <span className="nav__caret" aria-hidden="true">▾</span>
+                  <span className="nav__caret" aria-hidden="true" />
                 </NavLink>
                 <div className="nav__dropdown-menu" role="menu" aria-label="About sections">
                   <Link
@@ -118,7 +118,7 @@ export function PublicNavbar() {
               >
                 <NavLink to={item.to} onClick={closeDropdownMenus} className="nav__link nav__link--has-dropdown">
                   {item.label}
-                  <span className="nav__caret" aria-hidden="true">â–¾</span>
+                  <span className="nav__caret" aria-hidden="true" />
                 </NavLink>
                 <div className="nav__dropdown-menu" role="menu" aria-label="Liturgy sections">
                   {sections.map(([id, label]) => (

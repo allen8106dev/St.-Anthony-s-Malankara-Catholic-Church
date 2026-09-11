@@ -152,12 +152,16 @@ img { max-width: 100%; display: block; }
   gap: 0.25rem;
 }
 .nav__caret {
-  font-size: 0.65em;
+  width: .42rem;
+  height: .42rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translateY(-.12rem);
   transition: transform 0.2s ease;
   opacity: 0.8;
 }
 .nav__item--dropdown-open .nav__caret {
-  transform: rotate(180deg);
+  transform: rotate(225deg) translateY(-.12rem);
 }
 .nav__dropdown-menu {
   position: absolute;
@@ -1476,6 +1480,17 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
   font-size: .75rem;
   line-height: 1.8;
 }
+
+.liturgy-cms__new, .liturgy-cms__folders, .liturgy-cms__editor { padding: 1.5rem; background: #fff; border: 1px solid var(--admin-border); border-radius: var(--admin-radius-card); }
+.liturgy-cms__new { display: grid; grid-template-columns: 1fr 1fr auto auto; gap: .75rem; margin-bottom: 1.5rem; }
+.liturgy-cms__layout { display: grid; grid-template-columns: minmax(14rem, .6fr) minmax(0, 1.7fr); gap: 1.5rem; align-items: start; }
+.liturgy-cms__folders { display: grid; gap: .5rem; }.liturgy-cms__folders h2 { margin: 0 0 .5rem; font-size: 1.1rem; }
+.liturgy-cms__folder { display: grid; gap: .25rem; width: 100%; padding: .85rem 1rem; text-align: left; color: var(--foreground); background: transparent; border: 1px solid transparent; border-radius: .5rem; cursor: pointer; }
+.liturgy-cms__folder:hover, .liturgy-cms__folder.is-selected { background: rgba(23,59,50,.06); border-color: rgba(23,59,50,.12); }.liturgy-cms__folder small { color: var(--muted); }
+.liturgy-cms__editor { display: grid; gap: 1rem; }.liturgy-cms__editor label, .liturgy-cms__add-resource { display: grid; gap: .45rem; font-weight: 600; }.liturgy-cms__editor input, .liturgy-cms__editor textarea { width: 100%; }
+.liturgy-cms__editor-head { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid var(--admin-border); }.liturgy-cms__editor-head h2 { margin: 0; }.liturgy-cms__editor-head div { display: flex; gap: .65rem; }
+.liturgy-cms__resources, .liturgy-cms__add-resource { padding-top: 1rem; border-top: 1px solid var(--admin-border); }.liturgy-cms__resources a { display: grid; gap: .2rem; padding: .75rem 0; color: var(--primary); border-bottom: 1px solid var(--admin-border); text-decoration: none; }.liturgy-cms__resources span, .liturgy-cms__add-resource p { color: var(--muted); font-size: .88rem; }
+@media (max-width: 760px) { .liturgy-cms__layout, .liturgy-cms__new { grid-template-columns: 1fr; }.liturgy-cms__editor-head { align-items: flex-start; flex-direction: column; } }
 
 @media (max-width: 760px) {
   .liturgy-section__grid { grid-template-columns: 1fr; gap: 1.5rem; }
