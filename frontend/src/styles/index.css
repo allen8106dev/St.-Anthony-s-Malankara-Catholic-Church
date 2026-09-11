@@ -1359,13 +1359,16 @@ img { max-width: 100%; display: block; }
 
 /* ==========================================================================
    PageLayout — Persistent pinned hero backdrop for inner public pages
-   Mirrors the homepage hp-stage architecture: backdrop stays pinned while
-   content sections scroll over it with dark glassmorphism surfaces.
+   Mirrors the homepage hp-stage architecture:
+   - Persistent hero image backdrop stays pinned across the entire scroll
+   - Neutral subtle scrim (no green wash)
+   - Sections are 100% transparent (NO green tinted backgrounds)
+   - Only text and widget cards float over the background, just like the homepage
    ========================================================================== */
 
 .pl-stage {
   position: relative;
-  background: #081713;
+  background: #000;
 }
 
 /* Sticky full-viewport backdrop — occupies no document flow space */
@@ -1378,7 +1381,7 @@ img { max-width: 100%; display: block; }
   height: 100dvh;
   overflow: hidden;
   z-index: 1;
-  background: #081713;
+  background: #000;
   margin-bottom: -100vh;
   margin-bottom: -100dvh;
   pointer-events: none;
@@ -1395,14 +1398,15 @@ img { max-width: 100%; display: block; }
   will-change: transform;
 }
 
+/* Neutral subtle readability scrim — no green tint, allows photo colors to shine */
 .pl-backdrop-scrim {
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% 45%, rgba(6,18,14,0.18) 0%, rgba(6,18,14,0.72) 100%),
-    linear-gradient(180deg, rgba(6,18,14,0.58) 0%, rgba(6,18,14,0.14) 35%, rgba(6,18,14,0.88) 100%);
+    radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.65) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0.12) 35%, rgba(0, 0, 0, 0.68) 100%);
 }
 
 /* Hero track — gives scroll room so hero text dissolves before content begins */
@@ -1440,43 +1444,61 @@ img { max-width: 100%; display: block; }
   z-index: 10;
 }
 
-/* Dark glassmorphism surfaces for all sections inside PageLayout */
-.pl-content .section {
-  background: rgba(6,16,12,0.76) !important;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-}
-.pl-content .section--muted {
-  background: rgba(4,12,9,0.84) !important;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-}
-.pl-content .section--tight {
-  background: rgba(4,12,9,0.82) !important;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom-color: rgba(255,255,255,0.10) !important;
+/* ── All sections are 100% TRANSPARENT: NO green tinted background anywhere ── */
+.pl-content .section,
+.pl-content .section--muted,
+.pl-content .section--tight,
+.pl-content .cta {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
-/* Typography overrides for dark context */
+/* Typography — floats cleanly over the hero background image with readability shadows */
 .pl-content .heading,
 .pl-content .display,
+.pl-content h1,
 .pl-content h2,
 .pl-content h3,
-.pl-content h4 { color: #fff !important; }
-.pl-content .eyebrow { color: #e5c288 !important; }
-.pl-content .lede,
-.pl-content p:not(.eyebrow) { color: rgba(255,255,255,0.82) !important; }
-.pl-content .quiet { color: rgba(255,255,255,0.60) !important; }
-.pl-content .text-link { color: #e5c288; border-bottom-color: rgba(229,194,136,0.5); }
-.pl-content .text-link:hover { color: #fff; }
-.pl-content .section-head {
-  border-bottom: 1px solid rgba(255,255,255,0.12);
-  padding-bottom: 1.5rem;
+.pl-content h4 {
+  color: #fff !important;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.55);
 }
-.pl-content .rule { border-top-color: rgba(255,255,255,0.12); }
+.pl-content .eyebrow {
+  color: var(--accent-soft, #e6c887) !important;
+  letter-spacing: 0.16em;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.65);
+}
+.pl-content .lede {
+  color: rgba(255, 255, 255, 0.92) !important;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.65);
+}
+.pl-content p:not(.eyebrow) {
+  color: rgba(255, 255, 255, 0.86);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+}
+.pl-content .quiet {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+.pl-content .text-link {
+  color: #e6c887;
+  border-bottom-color: rgba(230, 200, 135, 0.5);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+.pl-content .text-link:hover {
+  color: #fff;
+  border-bottom-color: #fff;
+}
+.pl-content .section-head {
+  border-bottom: none !important;
+}
+.pl-content .rule {
+  border-top-color: rgba(255, 255, 255, 0.15);
+}
 
-/* Cards — glassmorphism */
+/* ── Widgets & Cards — exactly matching the homepage hp-card / hp-contact-box style ── */
 .pl-content .content-card,
 .pl-content .timing-card,
 .pl-content .priest-card,
@@ -1489,115 +1511,259 @@ img { max-width: 100%; display: block; }
 .pl-content .donate-form,
 .pl-content .empty-state,
 .pl-content .timings-note {
-  background: rgba(14,32,26,0.70) !important;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.14) !important;
-  box-shadow: 0 16px 36px rgba(0,0,0,0.35) !important;
+  background: rgba(14, 32, 26, 0.68) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: var(--radius-card, 1.25rem);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35) !important;
   color: #fff;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
-.pl-content .content-card:hover { border-color: rgba(255,255,255,0.30) !important; background: rgba(18,42,34,0.80) !important; }
-.pl-content .timing-card__day { color: #e5c288 !important; }
-.pl-content .timing-card__title { color: #fff !important; }
-.pl-content .timing-card__time { color: rgba(255,255,255,0.82) !important; }
-.pl-content .timing-card--featured { border-color: rgba(229,194,136,0.45) !important; background: rgba(20,48,38,0.80) !important; }
-.pl-content .priest-card__role { color: #e5c288 !important; }
-.pl-content .priest-card__name { color: #fff !important; }
-.pl-content .priest-card__quote { color: rgba(255,255,255,0.78) !important; border-left-color: rgba(229,194,136,0.5) !important; }
-.pl-content .priest-card__bio { color: rgba(255,255,255,0.80) !important; }
-.pl-content .history-milestone__header h4 { color: #fff !important; }
-.pl-content .history-milestone__badge { background: rgba(229,194,136,0.18) !important; color: #e5c288 !important; border-color: rgba(229,194,136,0.35) !important; }
-.pl-content .history-milestone p { color: rgba(255,255,255,0.80) !important; }
+.pl-content .content-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  background: rgba(18, 42, 34, 0.78) !important;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45) !important;
+}
 
-/* Liturgy */
-.pl-content .liturgy-public-doc-card { background: rgba(14,32,26,0.70) !important; border: 1px solid rgba(255,255,255,0.14) !important; color: #fff !important; }
-.pl-content .liturgy-public-doc-card:hover { border-color: rgba(229,194,136,0.5) !important; background: rgba(20,48,38,0.80) !important; }
+/* Service timings */
+.pl-content .timing-card__day { color: var(--accent-soft, #e6c887) !important; font-weight: 700; }
+.pl-content .timing-card__title { color: #fff !important; }
+.pl-content .timing-card__time { color: rgba(255, 255, 255, 0.85) !important; }
+.pl-content .timing-card--featured {
+  border-color: rgba(230, 200, 135, 0.45) !important;
+  background: rgba(20, 48, 38, 0.78) !important;
+}
+
+/* Priest card */
+.pl-content .priest-card__role { color: var(--accent-soft, #e6c887) !important; font-weight: 700; letter-spacing: 0.12em; }
+.pl-content .priest-card__name { color: #fff !important; }
+.pl-content .priest-card__quote {
+  color: rgba(255, 255, 255, 0.88) !important;
+  border-left: 2px solid var(--accent-soft, #e6c887) !important;
+}
+.pl-content .priest-card__bio { color: rgba(255, 255, 255, 0.85) !important; }
+
+/* History milestones */
+.pl-content .history-milestone__header h4 { color: #fff !important; }
+.pl-content .history-milestone__badge {
+  background: rgba(230, 200, 135, 0.16) !important;
+  color: var(--accent-soft, #e6c887) !important;
+  border: 1px solid rgba(230, 200, 135, 0.35) !important;
+}
+.pl-content .history-milestone p { color: rgba(255, 255, 255, 0.85) !important; }
+
+/* Liturgy documents */
+.pl-content .liturgy-public-doc-card {
+  background: rgba(14, 32, 26, 0.68) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: var(--radius-card, 1.25rem);
+  color: #fff !important;
+}
+.pl-content .liturgy-public-doc-card:hover {
+  border-color: rgba(230, 200, 135, 0.5) !important;
+  background: rgba(20, 48, 38, 0.78) !important;
+}
 .pl-content .liturgy-public-doc-card__title { color: #fff !important; }
-.pl-content .liturgy-public-doc-card__desc { color: rgba(255,255,255,0.72) !important; }
-.pl-content .liturgy-public-doc-card__action { color: #e5c288 !important; }
-.pl-content .liturgy-section__details li { color: rgba(255,255,255,0.82) !important; }
-.pl-content .liturgy-empty-folder-hint { color: rgba(255,255,255,0.60) !important; }
+.pl-content .liturgy-public-doc-card__desc { color: rgba(255, 255, 255, 0.76) !important; }
+.pl-content .liturgy-public-doc-card__action { color: var(--accent-soft, #e6c887) !important; }
+.pl-content .liturgy-section__details li { color: rgba(255, 255, 255, 0.85) !important; }
+.pl-content .liturgy-empty-folder-hint { color: rgba(255, 255, 255, 0.65) !important; }
 
 /* Ministries */
-.pl-content .ministry-card { background: rgba(14,32,26,0.70) !important; border: 1px solid rgba(255,255,255,0.14) !important; box-shadow: 0 16px 36px rgba(0,0,0,0.35) !important; }
-.pl-content .ministry-card:hover { border-color: rgba(255,255,255,0.30) !important; background: rgba(18,42,34,0.80) !important; }
+.pl-content .ministry-card {
+  background: rgba(14, 32, 26, 0.68) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: var(--radius-card, 1.25rem);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35) !important;
+}
+.pl-content .ministry-card:hover {
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  background: rgba(18, 42, 34, 0.78) !important;
+}
 .pl-content .ministry-card__title-link { color: #fff !important; }
-.pl-content .ministry-card p { color: rgba(255,255,255,0.80) !important; }
-.pl-content .ministry-badge { background: rgba(229,194,136,0.18); color: #e5c288; border: 1px solid rgba(229,194,136,0.35); }
-.pl-content .ministry-lede { color: rgba(255,255,255,0.88) !important; }
-.pl-content .ministry-body { color: rgba(255,255,255,0.76) !important; }
+.pl-content .ministry-card p { color: rgba(255, 255, 255, 0.85) !important; }
+.pl-content .ministry-badge {
+  background: rgba(230, 200, 135, 0.16);
+  color: var(--accent-soft, #e6c887);
+  border: 1px solid rgba(230, 200, 135, 0.35);
+}
+.pl-content .ministry-lede { color: rgba(255, 255, 255, 0.90) !important; }
+.pl-content .ministry-body { color: rgba(255, 255, 255, 0.82) !important; }
 .pl-content .ministry-subheading { color: #fff !important; }
-.pl-content .ministry-activity-item { color: rgba(255,255,255,0.84) !important; }
-.pl-content .ministry-activity-icon { color: #e5c288 !important; }
+.pl-content .ministry-activity-item { color: rgba(255, 255, 255, 0.86) !important; }
+.pl-content .ministry-activity-icon { color: var(--accent-soft, #e6c887) !important; }
 .pl-content .ministry-sidebar-title { color: #fff !important; }
-.pl-content .ministry-info-list dt { color: #e5c288 !important; }
-.pl-content .ministry-info-list dd { color: rgba(255,255,255,0.82) !important; }
+.pl-content .ministry-info-list dt { color: var(--accent-soft, #e6c887) !important; }
+.pl-content .ministry-info-list dd { color: rgba(255, 255, 255, 0.85) !important; }
 .pl-content .ministry-join-card h4 { color: #fff !important; }
-.pl-content .ministry-join-card p { color: rgba(255,255,255,0.80) !important; }
-.pl-content .ministry-nav-pager { border-top: 1px solid rgba(255,255,255,0.14) !important; }
-.pl-content .ministry-pager-link { background: rgba(14,32,26,0.70) !important; border-color: rgba(255,255,255,0.14) !important; color: #fff !important; }
-.pl-content .ministry-pager-link:hover { border-color: rgba(229,194,136,0.45) !important; background: rgba(20,48,38,0.80) !important; }
-.pl-content .ministry-pager-label { color: rgba(255,255,255,0.65) !important; }
+.pl-content .ministry-join-card p { color: rgba(255, 255, 255, 0.85) !important; }
+.pl-content .ministry-nav-pager { border-top: 1px solid rgba(255, 255, 255, 0.16) !important; }
+.pl-content .ministry-pager-link {
+  background: rgba(14, 32, 26, 0.68) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: var(--radius-card, 1.25rem);
+  color: #fff !important;
+}
+.pl-content .ministry-pager-link:hover {
+  border-color: rgba(230, 200, 135, 0.5) !important;
+  background: rgba(20, 48, 38, 0.78) !important;
+}
+.pl-content .ministry-pager-label { color: rgba(255, 255, 255, 0.65) !important; }
 .pl-content .ministry-pager-title { color: #fff !important; }
-.pl-content .ministry-jump-nav { background: rgba(14,32,26,0.70) !important; border-color: rgba(255,255,255,0.14) !important; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
-.pl-content .ministry-jump-nav__label { color: rgba(255,255,255,0.65) !important; }
-.pl-content .ministry-jump-pill { background: rgba(255,255,255,0.10) !important; color: rgba(255,255,255,0.85) !important; border-color: rgba(255,255,255,0.18) !important; }
-.pl-content .ministry-jump-pill:hover { background: rgba(229,194,136,0.20) !important; color: #e5c288 !important; border-color: rgba(229,194,136,0.45) !important; }
+.pl-content .ministry-jump-nav {
+  background: rgba(14, 32, 26, 0.68) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: 999px;
+  padding: 0.6rem 1.2rem;
+  width: fit-content;
+  margin: 0 auto;
+}
+.pl-content .ministry-jump-nav__label { color: rgba(255, 255, 255, 0.7) !important; }
+.pl-content .ministry-jump-pill {
+  background: rgba(255, 255, 255, 0.10) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+}
+.pl-content .ministry-jump-pill:hover {
+  background: rgba(230, 200, 135, 0.22) !important;
+  color: var(--accent-soft, #e6c887) !important;
+  border-color: rgba(230, 200, 135, 0.45) !important;
+}
 
 /* Gallery / Album */
-.pl-content .album { border: 1px solid rgba(255,255,255,0.12); }
-.pl-content .gallery-image { background: rgba(14,32,26,0.5); }
+.pl-content .album {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-card, 1.25rem);
+}
+.pl-content .gallery-image {
+  background: rgba(14, 32, 26, 0.5);
+  border-radius: var(--radius-card, 1.25rem);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
 
 /* Announcements */
-.pl-content .announcement-grid { background: rgba(255,255,255,0.08); }
-.pl-content .announcement { background: rgba(14,32,26,0.72) !important; border: 1px solid rgba(255,255,255,0.10) !important; }
+.pl-content .announcement-grid {
+  background: transparent;
+  gap: 1.5rem;
+}
+.pl-content .announcement {
+  background: rgba(14, 32, 26, 0.68) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: var(--radius-card, 1.25rem);
+}
 .pl-content .announcement h3 { color: #fff !important; }
-.pl-content .announcement p { color: rgba(255,255,255,0.80) !important; }
+.pl-content .announcement p { color: rgba(255, 255, 255, 0.85) !important; }
 
-/* Contact */
-.pl-content .contact-map-frame { background: rgba(14,32,26,0.70) !important; border-color: rgba(255,255,255,0.14) !important; }
-.pl-content .contact-map-panel { background: rgba(14,32,26,0.70) !important; border-color: rgba(255,255,255,0.14) !important; }
-.pl-content .map-placeholder { background: rgba(8,20,16,0.70) !important; color: rgba(255,255,255,0.70) !important; }
+/* Contact page */
+.pl-content .contact-map-frame {
+  background: rgba(14, 32, 26, 0.68) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: var(--radius-card, 1.25rem);
+}
+.pl-content .contact-map-panel {
+  background: rgba(14, 32, 26, 0.68) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: var(--radius-card, 1.25rem);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+.pl-content .map-placeholder {
+  background: rgba(10, 20, 16, 0.70) !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+}
 .pl-content .map-placeholder strong { color: #fff !important; }
-.pl-content .contact-action-row { border-bottom-color: rgba(255,255,255,0.10) !important; color: #fff !important; }
-.pl-content .contact-action-row:hover { background: rgba(255,255,255,0.06) !important; }
-.pl-content .contact-action-row__text strong { color: #e5c288 !important; }
-.pl-content .contact-action-row__text span { color: rgba(255,255,255,0.78) !important; }
-.pl-content .contact-form-notice { background: rgba(229,194,136,0.12) !important; border-color: rgba(229,194,136,0.30) !important; color: rgba(255,255,255,0.80) !important; }
-.pl-content .contact-form-panel { background: rgba(14,32,26,0.72) !important; border: 1px solid rgba(255,255,255,0.14) !important; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: var(--radius-card); padding: 2rem; box-shadow: 0 16px 36px rgba(0,0,0,0.35); }
-.pl-content .contact-field-label { color: rgba(255,255,255,0.85) !important; }
+.pl-content .contact-action-row {
+  border-bottom-color: rgba(255, 255, 255, 0.12) !important;
+  color: #fff !important;
+}
+.pl-content .contact-action-row:hover { background: rgba(255, 255, 255, 0.08) !important; }
+.pl-content .contact-action-row__text strong { color: var(--accent-soft, #e6c887) !important; }
+.pl-content .contact-action-row__text span { color: rgba(255, 255, 255, 0.82) !important; }
+.pl-content .contact-form-notice {
+  background: rgba(230, 200, 135, 0.12) !important;
+  border-color: rgba(230, 200, 135, 0.30) !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+.pl-content .contact-form-panel {
+  background: rgba(14, 32, 26, 0.70) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--radius-card, 1.5rem);
+  padding: 2.2rem;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.38);
+}
+.pl-content .contact-field-label { color: rgba(255, 255, 255, 0.88) !important; }
 .pl-content .contact-field-input,
-.pl-content .contact-field-textarea { background: rgba(255,255,255,0.08) !important; border-color: rgba(255,255,255,0.18) !important; color: #fff !important; }
+.pl-content .contact-field-textarea {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #fff !important;
+  border-radius: 0.5rem;
+}
 .pl-content .contact-field-input::placeholder,
-.pl-content .contact-field-textarea::placeholder { color: rgba(255,255,255,0.40) !important; }
+.pl-content .contact-field-textarea::placeholder { color: rgba(255, 255, 255, 0.45) !important; }
 .pl-content .contact-field-input:focus,
-.pl-content .contact-field-textarea:focus { border-color: rgba(229,194,136,0.55) !important; background: rgba(255,255,255,0.11) !important; }
+.pl-content .contact-field-textarea:focus {
+  border-color: rgba(230, 200, 135, 0.6) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+}
 
-/* Donate */
-.pl-content .donate-form fieldset { border-color: rgba(255,255,255,0.18) !important; }
-.pl-content .donate-form legend { color: rgba(255,255,255,0.80) !important; }
-.pl-content .donate-form label { color: rgba(255,255,255,0.85) !important; }
+/* Donate page */
+.pl-content .donate-form fieldset { border-color: rgba(255, 255, 255, 0.18) !important; }
+.pl-content .donate-form legend { color: rgba(255, 255, 255, 0.85) !important; }
+.pl-content .donate-form label { color: rgba(255, 255, 255, 0.88) !important; }
 .pl-content .donate-form input,
-.pl-content .donate-form select { background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.18) !important; color: #fff !important; border-radius: .4rem; padding: .65rem .9rem; }
-.pl-content .amounts button { background: rgba(255,255,255,0.10) !important; border: 1px solid rgba(255,255,255,0.18) !important; color: #fff !important; }
-.pl-content .amounts button:hover { background: rgba(229,194,136,0.20) !important; border-color: rgba(229,194,136,0.45) !important; color: #e5c288 !important; }
+.pl-content .donate-form select {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #fff !important;
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.9rem;
+}
+.pl-content .amounts button {
+  background: rgba(255, 255, 255, 0.10) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #fff !important;
+}
+.pl-content .amounts button:hover {
+  background: rgba(230, 200, 135, 0.22) !important;
+  border-color: rgba(230, 200, 135, 0.45) !important;
+  color: var(--accent-soft, #e6c887) !important;
+}
 
 /* Breadcrumb */
-.pl-content .ministry-breadcrumb { color: rgba(255,255,255,0.65) !important; }
+.pl-content .ministry-breadcrumb { color: rgba(255, 255, 255, 0.68) !important; }
 .pl-content .ministry-breadcrumb__current { color: #fff !important; }
-.pl-content .ministry-breadcrumb__sep { color: rgba(255,255,255,0.35) !important; }
-
-/* CTA — keep warm amber gradient as visual anchor */
-.pl-content .cta { background: linear-gradient(180deg, #b77d4c 0%, #9a6337 100%) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
-.pl-content .cta p { color: rgba(255,255,255,0.86) !important; }
+.pl-content .ministry-breadcrumb__sep { color: rgba(255, 255, 255, 0.35) !important; }
 
 /* Empty state */
-.pl-content .empty-state { border-radius: var(--radius-card); padding: 3rem 2rem; text-align: center; }
-.pl-content .empty-state p { color: rgba(255,255,255,0.80) !important; }
+.pl-content .empty-state {
+  background: rgba(14, 32, 26, 0.68) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: var(--radius-card, 1.25rem);
+  padding: 3rem 2rem;
+  text-align: center;
+}
+.pl-content .empty-state p { color: rgba(255, 255, 255, 0.85) !important; }
 
 /* Meta labels (events) */
-.pl-content .meta dt { color: #e5c288 !important; }
-.pl-content .meta dd { color: rgba(255,255,255,0.78) !important; }
+.pl-content .meta dt { color: var(--accent-soft, #e6c887) !important; }
+.pl-content .meta dd { color: rgba(255, 255, 255, 0.82) !important; }
 
 @media (max-width: 760px) {
   .pl-hero-track { height: 160vh; }
