@@ -59,21 +59,6 @@ export function PublicNavbar() {
           />
           <span className="brand__name">{churchName}</span>
         </Link>
-        <button
-          className={`nav__toggle ${open ? 'nav__toggle--open' : ''}`}
-          type="button"
-          aria-expanded={open}
-          aria-controls="public-navigation"
-          onClick={() => setOpen(!open)}
-          aria-label={open ? 'Close navigation' : 'Open navigation'}
-        >
-          <span className="nav__hamburger" aria-hidden="true">
-            <span className="nav__line nav__line--1" />
-            <span className="nav__line nav__line--2" />
-            <span className="nav__line nav__line--3" />
-          </span>
-          <span className="sr-only">{open ? 'Close' : 'Open'} navigation</span>
-        </button>
         <nav id="public-navigation" className={`nav__links ${open ? 'nav__links--open' : ''}`} aria-label="Public navigation">
         {publicNavigation.map((item) => {
           if (item.to === '/announcements') {
@@ -218,8 +203,22 @@ export function PublicNavbar() {
             <NavLink key={item.to} to={item.to} onClick={() => setOpen(false)}>{item.label}</NavLink>
           )
         })}
-        <NavLink className="button button--primary" to="/donate" onClick={() => setOpen(false)}>Donate <span aria-hidden="true">↗</span></NavLink>
       </nav>
+      <button
+        className={`nav__toggle ${open ? 'nav__toggle--open' : ''}`}
+        type="button"
+        aria-expanded={open}
+        aria-controls="public-navigation"
+        onClick={() => setOpen(!open)}
+        aria-label={open ? 'Close navigation' : 'Open navigation'}
+      >
+        <span className="nav__hamburger" aria-hidden="true">
+          <span className="nav__line nav__line--1" />
+          <span className="nav__line nav__line--2" />
+          <span className="nav__line nav__line--3" />
+        </span>
+        <span className="sr-only">{open ? 'Close' : 'Open'} navigation</span>
+      </button>
     </Container>
   </header>
   )

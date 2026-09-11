@@ -91,6 +91,7 @@ img { max-width: 100%; display: block; }
   justify-content: space-between;
   gap: 1rem;
   pointer-events: auto;
+  position: relative;
 }
 .brand {
   display: flex;
@@ -278,33 +279,45 @@ img { max-width: 100%; display: block; }
   .nav:not(.nav--scrolled) .nav__links > *:nth-child(2) { transition-delay: 180ms; }
   .nav:not(.nav--scrolled) .nav__links > *:nth-child(1) { transition-delay: 210ms; }
 
-  /* 3-lines toggle appears on the right */
+  /* 3-lines toggle positioned top right */
   .nav__toggle {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
     transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
                 transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
                 background-color 0.25s ease,
-                border-color 0.25s ease;
+                border-color 0.25s ease,
+                box-shadow 0.25s ease;
   }
   .nav:not(.nav--scrolled) .nav__toggle {
-    display: none;
     opacity: 0;
-    transform: scale(0.8) translateX(12px);
+    visibility: hidden;
+    transform: translateY(-50%) scale(0.8) translateX(12px);
     pointer-events: none;
   }
   .nav--scrolled .nav__toggle {
     display: flex;
     opacity: 1;
-    transform: scale(1) translateX(0);
+    visibility: visible;
+    transform: translateY(-50%) scale(1);
     pointer-events: auto;
     transition-delay: 240ms;
+  }
+  .nav--scrolled .nav__toggle:hover {
+    transform: translateY(-50%) scale(1.06);
   }
 
   /* When 3 lines is clicked, open dropdown */
   .nav--scrolled.nav--open .nav__links,
   .nav--scrolled .nav__links--open {
     position: absolute;
-    top: 5.35rem;
-    right: 2rem;
+    top: calc(100% + 0.5rem);
+    right: 0;
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -1839,8 +1852,6 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
 .visit__body { padding: clamp(2.2rem, 6vw, 5rem); }
 .cta { background: linear-gradient(115deg, #9b653d 0%, #b77d4c 48%, #8d5835 100%); }
 .footer { padding-top: 5.5rem; }
-.nav__toggle { transition: background-color .2s ease, color .2s ease, border-color .2s ease; }
-.nav__toggle:hover { background: rgba(255,255,255,.18); }
 
 @media (max-width: 760px) {
   .hero:not(.hero--full) { min-height: 44rem; }
