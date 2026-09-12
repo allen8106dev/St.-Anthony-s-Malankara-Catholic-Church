@@ -2421,7 +2421,10 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
     overflow: visible;
     pointer-events: auto;
   }
-  .nav__toggle { margin-top: .1rem; }
+  /* Show hamburger; the desktop inline link bar is replaced by the slide-in drawer */
+  .nav__toggle { display: flex; margin-top: .1rem; }
+  /* The drawer (position:fixed .nav__links) takes over; hide the desktop flex bar */
+  .nav__inner > .nav__links:not(.nav__links--open) { display: none; }
 }
 
 /* Phase 10 - public experience polish */
@@ -2857,6 +2860,67 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
   .gallery > img, .gallery > img:nth-child(2), .gallery > img:nth-child(3) { height: 15rem; margin-top: 0; }
   .gallery > img:first-child { grid-column: span 2; height: 19rem; }
   .footer__grid, .footer__bottom { grid-template-columns: 1fr; flex-direction: column; }
+}
+
+/* ─── Mobile Homepage flat layout ──────────────────────────────────────────
+   Rendered only on mobile via isMobile branch in HomePage.tsx.
+   Uses the same class names as the desktop versions where possible.
+   ────────────────────────────────────────────────────────────────────────── */
+.hp-mobile {
+  background: var(--background);
+}
+
+/* Full-screen hero with CSS fixed background */
+.hp-mobile-hero {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.hp-mobile-hero__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    rgba(0,0,0,0.25) 0%,
+    rgba(0,0,0,0.15) 35%,
+    rgba(0,0,0,0.72) 100%);
+  pointer-events: none;
+}
+
+.hp-mobile-hero__content {
+  position: relative;
+  z-index: 2;
+  padding: 8rem 1.5rem 3.5rem;
+  color: #fff;
+}
+
+.hp-mobile-hero__content .hp-hero-eyebrow,
+.hp-mobile-hero__content .hp-hero-display,
+.hp-mobile-hero__content .hp-hero-display span,
+.hp-mobile-hero__content .hp-hero-lede {
+  color: #fff !important;
+}
+
+/* Content sections */
+.hp-mobile-section {
+  padding: 3.5rem 0;
+  background: var(--background);
+}
+
+.hp-mobile-section--contact {
+  background: #081713;
+  color: #fff;
+}
+
+.hp-mobile-section--contact .hp-eyebrow,
+.hp-mobile-section--contact .hp-heading {
+  color: #fff !important;
 }
 @media (prefers-reduced-motion: reduce) {
   .public-route, .hero__bg-img, .marquee__track { animation: none; }

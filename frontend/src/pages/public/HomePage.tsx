@@ -326,6 +326,171 @@ export function HomePage() {
         transition: { duration: 0.75, delay: 1.0, ease: easeOutExpo },
       }
 
+  // ─── Mobile: flat normal-scroll layout ───────────────────────────────────
+  if (isMobile) {
+    const heroImg = heroImages?.[0]?.image_url ?? demoImages.sanctuary.src
+    return (
+      <div className="hp-mobile">
+        {/* Hero — full-screen fixed background, text over scrim */}
+        <div className="hp-mobile-hero" style={{ backgroundImage: `url(${heroImg})` }}>
+          <div className="hp-mobile-hero__scrim" />
+          <div className="hp-mobile-hero__content">
+            <p className="hp-hero-eyebrow">Welcome to our parish family</p>
+            <h1 className="hp-hero-display">
+              Faith, fellowship,{' '}
+              <span style={{ display: 'block' }}>and a place to call home.</span>
+            </h1>
+            <p className="hp-hero-lede">
+              {`Join ${churchName} for prayer, worship, and the shared life of our parish community.`}
+            </p>
+            <div className="actions" style={{ marginTop: '1.5rem' }}>
+              <Link className="button button--light" to="/about">
+                Discover our parish <span aria-hidden="true">↗</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Ministries */}
+        <section className="hp-mobile-section">
+          <Container>
+            <div className="hp-section-head" style={{ marginBottom: '1.5rem' }}>
+              <div>
+                <p className="eyebrow hp-eyebrow">Parish Life</p>
+                <h2 className="heading hp-heading">Many ways to grow together.</h2>
+              </div>
+              <Link className="button" to="/ministries">
+                Explore ministries <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+            <div className="hp-grid-3">
+              {ministryPreviews.slice(0, 3).map((ministry) => (
+                <article key={ministry.id} className="hp-card">
+                  <Link to={`/ministries/${ministry.id}`} className="hp-card-image-link" tabIndex={-1} aria-hidden="true">
+                    <img className="hp-card-image" src={ministry.image.src} alt="" loading="lazy" />
+                  </Link>
+                  <span className="hp-card-num">{ministry.number}</span>
+                  <h3 className="hp-card-title">
+                    <Link to={`/ministries/${ministry.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                      {ministry.title}
+                    </Link>
+                  </h3>
+                  <p className="hp-card-detail">{ministry.detail}</p>
+                  <div>
+                    <Link to={`/ministries/${ministry.id}`} className="hp-card-link">
+                      View ministry <span aria-hidden="true">→</span>
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </Container>
+        </section>
+
+        {/* Events */}
+        <section className="hp-mobile-section">
+          <Container>
+            <div className="hp-section-head" style={{ marginBottom: '1.5rem' }}>
+              <div>
+                <p className="eyebrow hp-eyebrow">What's Ahead</p>
+                <h2 className="heading hp-heading">Gatherings to look forward to.</h2>
+              </div>
+              <Link className="button" to="/events">
+                View all events <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+            <div className="hp-grid-3">
+              {upcomingEvents.length > 0 ? (
+                upcomingEvents.slice(0, 3).map((event) => (
+                  <article key={event.id} className="hp-card">
+                    <span className="hp-card-badge">
+                      {new Date(event.start_datetime).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                    <h3 className="hp-card-title">{event.title}</h3>
+                    <p className="hp-card-detail">{event.description || 'Join us for this parish event.'}</p>
+                    <Link to="/events" className="hp-card-link">Details <span aria-hidden="true">→</span></Link>
+                  </article>
+                ))
+              ) : (
+                <article className="hp-card" style={{ gridColumn: 'span 3' }}>
+                  <span className="hp-card-badge">Upcoming</span>
+                  <h3 className="hp-card-title">Parish Gatherings &amp; Celebrations</h3>
+                  <p className="hp-card-detail">Check back soon for upcoming Holy Qurbana feasts, youth activities, and parish events.</p>
+                  <Link to="/events" className="hp-card-link">Explore Events Calendar <span aria-hidden="true">→</span></Link>
+                </article>
+              )}
+            </div>
+          </Container>
+        </section>
+
+        {/* Gallery */}
+        <section className="hp-mobile-section">
+          <Container>
+            <div className="hp-section-head" style={{ marginBottom: '1.5rem' }}>
+              <div>
+                <p className="eyebrow hp-eyebrow">Our Community</p>
+                <h2 className="heading hp-heading">The beauty of being together.</h2>
+              </div>
+              <Link className="button" to="/gallery">
+                View gallery <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+            <div className="hp-gallery-grid">
+              {(previewImages.length > 0
+                ? previewImages.slice(0, 3)
+                : [demoImages.sanctuary, demoImages.prayer, demoImages.community].map(d => ({ id: d.src, image_url: d.src, alt_text: d.alt }))
+              ).map((img) => (
+                <div key={img.id} className="hp-gallery-card">
+                  <img src={img.image_url} alt={img.alt_text} loading="lazy" />
+                </div>
+              ))}
+            </div>
+          </Container>
+        </section>
+
+        {/* Contact */}
+        <section className="hp-mobile-section hp-mobile-section--contact">
+          <Container>
+            <div className="hp-contact-box">
+              <p className="eyebrow hp-eyebrow">Visit &amp; Connect</p>
+              <h2 className="heading hp-heading" style={{ fontSize: 'clamp(2rem, 3.5vw, 2.8rem)' }}>
+                There is a place for you here.
+              </h2>
+              <p className="hp-contact-desc">
+                Whether you are visiting for the first time, seeking prayer, or looking for a parish home, we warmly welcome you to join our family.
+              </p>
+              <div className="actions" style={{ marginTop: '1.75rem' }}>
+                <Link className="button button--light" to="/contact">
+                  Plan your visit <span aria-hidden="true">↗</span>
+                </Link>
+              </div>
+              <div className="hp-contact-details">
+                <div className="hp-contact-item">
+                  <h4>Parish Sanctuary</h4>
+                  <p>{churchAddress}</p>
+                </div>
+                <div className="hp-contact-item">
+                  <h4>Holy Qurbana &amp; Worship</h4>
+                  <p>Sundays: Morning Prayer &amp; Holy Qurbana<br />Feast days &amp; special liturgies as scheduled</p>
+                </div>
+                {(churchEmail || churchPhone) && (
+                  <div className="hp-contact-item">
+                    <h4>Get in Touch</h4>
+                    <p>
+                      {churchEmail && <><a href={`mailto:${churchEmail}`} style={{ color: '#fff', textDecoration: 'underline' }}>{churchEmail}</a><br /></>}
+                      {churchPhone && <a href={`tel:${churchPhone.replace(/\s+/g, '')}`} style={{ color: '#fff' }}>{churchPhone}</a>}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Container>
+        </section>
+      </div>
+    )
+  }
+
+  // ─── Desktop: cinematic parallax stage (unchanged) ────────────────────────
   return (
     <div ref={stageRef} className="hp-stage">
       {/* ====================================================================
@@ -333,6 +498,7 @@ export function HomePage() {
           Stays sticky and never scrolls with the page content.
           Layers stacked with z-index crossfade seamlessly as user scrolls.
           ==================================================================== */}
+
       <div className="hp-backdrop-sticky" aria-hidden="true">
         {/* Layer 0: Hero Slideshow / Sanctuary (Base) */}
         <motion.div
