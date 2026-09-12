@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Dispatch, MouseEvent as ReactMouseEvent, SetStateAction } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { Container } from '../ui/Container'
 import { ministries, publicNavigation, siteName } from '../../data/siteContent'
@@ -73,13 +72,6 @@ export function PublicNavbar() {
     }
   }
 
-  function toggleMobileDropdown(event: ReactMouseEvent<HTMLAnchorElement>, setter: Dispatch<SetStateAction<boolean>>) {
-    if (window.matchMedia('(max-width: 760px)').matches) {
-      event.preventDefault()
-      setter(value => !value)
-    }
-  }
-
   // Hovering mouse into top comfortable zone (Y <= 80px) uncollapses navbar & church name
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -129,210 +121,271 @@ export function PublicNavbar() {
     return () => document.removeEventListener('mousedown', handleOutside)
   }, [open])
 
+  // Lock body scroll on mobile when drawer is open
+  useEffect(() => {
+    if (open && window.matchMedia('(max-width: 760px)').matches) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [open])
+
   return (
-    <header
-      ref={navRef}
-      className={`nav ${scrolled ? 'nav--scrolled' : ''} ${open ? 'nav--open' : ''}`}
-      onMouseEnter={handleNavMouseEnter}
-      onMouseLeave={handleNavMouseLeave}
-    >
-      <Container className="nav__inner">
-        <Link
-          className="brand"
-          to="/"
-          aria-label={`${churchName} home`}
-          onClick={() => {
-            if (window.location.pathname === '/') {
-              window.scrollTo({ top: 0, behavior: 'smooth' })
+    <>
+      <div
+        className={`nav__backdrop ${open ? 'nav__backdrop--open' : ''}`}
+        onClick={closeDropdownMenus}
+        aria-hidden="true"
+      />
+      <header
+        ref={navRef}
+        className={`nav ${scrolled ? 'nav--scrolled' : ''} ${open ? 'nav--open' : ''}`}
+        onMouseEnter={handleNavMouseEnter}
+        onMouseLeave={handleNavMouseLeave}
+      >
+        <Container className="nav__inner">
+          <Link
+            className="brand"
+            to="/"
+            aria-label={`${churchName} home`}
+            onClick={() => {
+              if (window.location.pathname === '/') {
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              }
+            }}
+          >
+            <img
+              src="/st-anthony-logo.jpg"
+              alt={`${churchName} emblem`}
+              className="brand__logo"
+            />
+            <span className="brand__name">{churchName}</span>
+          </Link>
+          <nav id="public-navigation" className={`nav__links ${open ? 'nav__links--open' : ''}`} aria-label="Public navigation">
+          {publicNavigation.map((item) => {
+            if (item.to === '/announcements') {
+              return (
+                <NavLink key={item.to} to={item.to} onClick={closeDropdownMenus} className="nav__announcements-link">
+                  {item.label}
+                  {hasAnnouncements && <span className="nav__announcement-dot" aria-label="New announcements" />}
+                </NavLink>
+              )
             }
-          }}
-        >
-          <img
-            src="/st-anthony-logo.jpg"
-            alt={`${churchName} emblem`}
-            className="brand__logo"
-          />
-          <span className="brand__name">{churchName}</span>
-        </Link>
-        <nav id="public-navigation" className={`nav__links ${open ? 'nav__links--open' : ''}`} aria-label="Public navigation">
-        {publicNavigation.map((item) => {
-          if (item.to === '/announcements') {
-            return (
-              <NavLink key={item.to} to={item.to} onClick={closeDropdownMenus} className="nav__announcements-link">
-                {item.label}
-                {hasAnnouncements && <span className="nav__announcement-dot" aria-label="New announcements" />}
-              </NavLink>
-            )
-          }
 
-          if (item.to === '/about') {
-            return (
-              <div
-                key={item.to}
-                className={`nav__item nav__item--dropdown ${aboutHover ? 'nav__item--dropdown-open' : ''}`}
-                onMouseEnter={() => {
-                  if (!suppressAboutHover.current) setAboutHover(true)
-                }}
-                onMouseLeave={() => {
-                  suppressAboutHover.current = false
-                  setAboutHover(false)
-                }}
-              >
-                <NavLink to={item.to} onClick={event => {
-                  toggleMobileDropdown(event, setAboutHover)
-                  if (!event.defaultPrevented) closeDropdownMenus()
-                }} className="nav__link nav__link--has-dropdown">
-                  {item.label}
-                  <span className="nav__caret" aria-hidden="true" />
-                </NavLink>
-                <div className="nav__dropdown-menu" role="menu" aria-label="About sections">
-                  <Link
-                    to="/about#timings"
-                    onClick={() => {
-                      closeDropdownMenus()
-                      document.getElementById('timings')?.scrollIntoView({ behavior: 'smooth' })
-                    }}
-                    className="nav__dropdown-item"
-                    role="menuitem"
-                  >
-                    Timings
-                  </Link>
-                  <Link
-                    to="/about#priest"
-                    onClick={() => {
-                      closeDropdownMenus()
-                      document.getElementById('priest')?.scrollIntoView({ behavior: 'smooth' })
-                    }}
-                    className="nav__dropdown-item"
-                    role="menuitem"
-                  >
-                    Our Priest
-                  </Link>
-                  <Link
-                    to="/about#history"
-                    onClick={() => {
-                      closeDropdownMenus()
-                      document.getElementById('history')?.scrollIntoView({ behavior: 'smooth' })
-                    }}
-                    className="nav__dropdown-item"
-                    role="menuitem"
-                  >
-                    History
-                  </Link>
-                </div>
-              </div>
-            )
-          }
-
-          if (item.to === '/liturgy') {
-            const sections = liturgyCollections.map(collection => [collection.id, collection.title] as const)
-            return (
-              <div
-                key={item.to}
-                className={`nav__item nav__item--dropdown ${liturgyHover ? 'nav__item--dropdown-open' : ''}`}
-                onMouseEnter={() => {
-                  if (!suppressAboutHover.current) setLiturgyHover(true)
-                }}
-                onMouseLeave={() => {
-                  suppressAboutHover.current = false
-                  setLiturgyHover(false)
-                }}
-              >
-                <NavLink to={item.to} onClick={event => {
-                  toggleMobileDropdown(event, setLiturgyHover)
-                  if (!event.defaultPrevented) closeDropdownMenus()
-                }} className="nav__link nav__link--has-dropdown">
-                  {item.label}
-                  <span className="nav__caret" aria-hidden="true" />
-                </NavLink>
-                <div className="nav__dropdown-menu" role="menu" aria-label="Liturgy sections">
-                  {sections.map(([id, label]) => (
+            if (item.to === '/about') {
+              return (
+                <div
+                  key={item.to}
+                  className={`nav__item nav__item--dropdown ${aboutHover ? 'nav__item--dropdown-open' : ''}`}
+                  onMouseEnter={() => {
+                    if (!suppressAboutHover.current) setAboutHover(true)
+                  }}
+                  onMouseLeave={() => {
+                    suppressAboutHover.current = false
+                    setAboutHover(false)
+                  }}
+                >
+                  <div className="nav__link-row">
+                    <NavLink
+                      to={item.to}
+                      onClick={closeDropdownMenus}
+                      className="nav__link"
+                    >
+                      {item.label}
+                    </NavLink>
+                    <button
+                      type="button"
+                      className={`nav__caret-button ${aboutHover ? 'nav__caret-button--open' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setAboutHover(v => !v)
+                      }}
+                      aria-expanded={aboutHover}
+                      aria-label="Toggle About submenu"
+                    >
+                      <span className="nav__caret" aria-hidden="true" />
+                    </button>
+                  </div>
+                  <div className="nav__dropdown-menu" role="menu" aria-label="About sections">
                     <Link
-                      key={id}
-                      to={`/liturgy#${id}`}
+                      to="/about#timings"
                       onClick={() => {
                         closeDropdownMenus()
-                        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+                        document.getElementById('timings')?.scrollIntoView({ behavior: 'smooth' })
                       }}
                       className="nav__dropdown-item"
                       role="menuitem"
                     >
-                      {label}
+                      Timings
                     </Link>
-                  ))}
-                </div>
-              </div>
-            )
-          }
-
-          if (item.to === '/ministries') {
-            return (
-              <div
-                key={item.to}
-                className={`nav__item nav__item--dropdown ${ministriesHover ? 'nav__item--dropdown-open' : ''}`}
-                onMouseEnter={() => {
-                  if (!suppressMinistriesHover.current) setMinistriesHover(true)
-                }}
-                onMouseLeave={() => {
-                  suppressMinistriesHover.current = false
-                  setMinistriesHover(false)
-                }}
-              >
-                <NavLink to={item.to} onClick={event => {
-                  toggleMobileDropdown(event, setMinistriesHover)
-                  if (!event.defaultPrevented) closeDropdownMenus()
-                }} className="nav__link nav__link--has-dropdown">
-                  {item.label}
-                  <span className="nav__caret" aria-hidden="true" />
-                </NavLink>
-                <div className="nav__dropdown-menu nav__dropdown-menu--ministries" role="menu" aria-label="Ministries">
-                  <Link
-                    to="/ministries"
-                    onClick={closeDropdownMenus}
-                    className="nav__dropdown-item nav__dropdown-item--all-ministries"
-                    role="menuitem"
-                  >
-                    All ministries
-                  </Link>
-                  {ministries.map((ministry) => (
                     <Link
-                      key={ministry.id}
-                      to={`/ministries/${ministry.id}`}
-                      onClick={closeDropdownMenus}
-                      className="nav__dropdown-item nav__dropdown-item--ministry"
+                      to="/about#priest"
+                      onClick={() => {
+                        closeDropdownMenus()
+                        document.getElementById('priest')?.scrollIntoView({ behavior: 'smooth' })
+                      }}
+                      className="nav__dropdown-item"
                       role="menuitem"
                     >
-                      <span className="nav__dropdown-title">{ministry.name}</span>
-                      <span className="nav__dropdown-desc">{ministry.fullName}</span>
+                      Our Priest
                     </Link>
-                  ))}
+                    <Link
+                      to="/about#history"
+                      onClick={() => {
+                        closeDropdownMenus()
+                        document.getElementById('history')?.scrollIntoView({ behavior: 'smooth' })
+                      }}
+                      className="nav__dropdown-item"
+                      role="menuitem"
+                    >
+                      History
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            )
-          }
+              )
+            }
 
-          return (
-            <NavLink key={item.to} to={item.to} onClick={closeDropdownMenus}>{item.label}</NavLink>
-          )
-        })}
-      </nav>
-      <button
-        className={`nav__toggle ${open ? 'nav__toggle--open' : ''}`}
-        type="button"
-        aria-expanded={open}
-        aria-controls="public-navigation"
-        onClick={handleToggleClick}
-        onMouseEnter={handleToggleMouseEnter}
-        aria-label={open ? 'Close navigation' : 'Open navigation'}
-      >
-        <span className="nav__hamburger" aria-hidden="true">
-          <span className="nav__line nav__line--1" />
-          <span className="nav__line nav__line--2" />
-          <span className="nav__line nav__line--3" />
-        </span>
-        <span className="sr-only">{open ? 'Close' : 'Open'} navigation</span>
-      </button>
-    </Container>
-  </header>
+            if (item.to === '/liturgy') {
+              const sections = liturgyCollections.map(collection => [collection.id, collection.title] as const)
+              return (
+                <div
+                  key={item.to}
+                  className={`nav__item nav__item--dropdown ${liturgyHover ? 'nav__item--dropdown-open' : ''}`}
+                  onMouseEnter={() => {
+                    if (!suppressAboutHover.current) setLiturgyHover(true)
+                  }}
+                  onMouseLeave={() => {
+                    suppressAboutHover.current = false
+                    setLiturgyHover(false)
+                  }}
+                >
+                  <div className="nav__link-row">
+                    <NavLink
+                      to={item.to}
+                      onClick={closeDropdownMenus}
+                      className="nav__link"
+                    >
+                      {item.label}
+                    </NavLink>
+                    <button
+                      type="button"
+                      className={`nav__caret-button ${liturgyHover ? 'nav__caret-button--open' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setLiturgyHover(v => !v)
+                      }}
+                      aria-expanded={liturgyHover}
+                      aria-label="Toggle Liturgy submenu"
+                    >
+                      <span className="nav__caret" aria-hidden="true" />
+                    </button>
+                  </div>
+                  <div className="nav__dropdown-menu" role="menu" aria-label="Liturgy sections">
+                    {sections.map(([id, label]) => (
+                      <Link
+                        key={id}
+                        to={`/liturgy#${id}`}
+                        onClick={() => {
+                          closeDropdownMenus()
+                          document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+                        }}
+                        className="nav__dropdown-item"
+                        role="menuitem"
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )
+            }
+
+            if (item.to === '/ministries') {
+              return (
+                <div
+                  key={item.to}
+                  className={`nav__item nav__item--dropdown ${ministriesHover ? 'nav__item--dropdown-open' : ''}`}
+                  onMouseEnter={() => {
+                    if (!suppressMinistriesHover.current) setMinistriesHover(true)
+                  }}
+                  onMouseLeave={() => {
+                    suppressMinistriesHover.current = false
+                    setMinistriesHover(false)
+                  }}
+                >
+                  <div className="nav__link-row">
+                    <NavLink
+                      to={item.to}
+                      onClick={closeDropdownMenus}
+                      className="nav__link"
+                    >
+                      {item.label}
+                    </NavLink>
+                    <button
+                      type="button"
+                      className={`nav__caret-button ${ministriesHover ? 'nav__caret-button--open' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setMinistriesHover(v => !v)
+                      }}
+                      aria-expanded={ministriesHover}
+                      aria-label="Toggle Ministries submenu"
+                    >
+                      <span className="nav__caret" aria-hidden="true" />
+                    </button>
+                  </div>
+                  <div className="nav__dropdown-menu nav__dropdown-menu--ministries" role="menu" aria-label="Ministries">
+                    <Link
+                      to="/ministries"
+                      onClick={closeDropdownMenus}
+                      className="nav__dropdown-item nav__dropdown-item--all-ministries"
+                      role="menuitem"
+                    >
+                      All ministries
+                    </Link>
+                    {ministries.map((ministry) => (
+                      <Link
+                        key={ministry.id}
+                        to={`/ministries/${ministry.id}`}
+                        onClick={closeDropdownMenus}
+                        className="nav__dropdown-item nav__dropdown-item--ministry"
+                        role="menuitem"
+                      >
+                        <span className="nav__dropdown-title">{ministry.name}</span>
+                        <span className="nav__dropdown-desc">{ministry.fullName}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )
+            }
+
+            return (
+              <NavLink key={item.to} to={item.to} onClick={closeDropdownMenus}>{item.label}</NavLink>
+            )
+          })}
+        </nav>
+        <button
+          className={`nav__toggle ${open ? 'nav__toggle--open' : ''}`}
+          type="button"
+          aria-expanded={open}
+          aria-controls="public-navigation"
+          onClick={handleToggleClick}
+          onMouseEnter={handleToggleMouseEnter}
+          aria-label={open ? 'Close navigation' : 'Open navigation'}
+        >
+          <span className="nav__hamburger" aria-hidden="true">
+            <span className="nav__line nav__line--1" />
+            <span className="nav__line nav__line--2" />
+            <span className="nav__line nav__line--3" />
+          </span>
+          <span className="sr-only">{open ? 'Close' : 'Open'} navigation</span>
+        </button>
+      </Container>
+    </header>
+  </>
   )
 }

@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform, useSpring, useReducedMotion } from 'motion/react'
 import { demoImages, type DemoImage } from '../../data/siteContent'
 
@@ -13,16 +13,31 @@ interface PageLayoutProps {
 /**
  * Full-page layout shell for inner public pages.
  *
- * Renders the hero image as a permanently sticky backdrop (identical to the
- * homepage pattern). Hero text animates in on load and cascades out on scroll.
- * All children scroll over the pinned backdrop with semi-transparent
- * glassmorphism backgrounds so the image always shows through.
+ * On desktop: renders the hero image as a sticky backdrop with 3D camera parallax zoom.
+ * On mobile: renders a full-screen fixed hero background that does not move with scroll,
+ * while hero text and widgets scroll up normally in document flow and smoothly fade out.
  */
 export function PageLayout({ eyebrow, title, intro, image, children }: PageLayoutProps) {
   const heroTrackRef = useRef<HTMLDivElement>(null)
   const reduced = useReducedMotion()
   const activeImage = image ?? demoImages.sanctuary
 
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 760px)').matches : false
+  )
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 760px)')
+    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mql.addEventListener('change', onChange)
+    return () => mql.removeEventListener('change', onChange)
+  }, [])
+
+  // Window scroll tracking for natural mobile fade-out
+  const { scrollY } = useScroll()
+  const mobileHeroOpacity = useTransform(scrollY, [0, 240], [1, 0])
+
+  // Track scroll on hero track for desktop parallax
   const { scrollYProgress } = useScroll({
     target: heroTrackRef,
     offset: ['start start', 'end start'],
@@ -50,22 +65,22 @@ export function PageLayout({ eyebrow, title, intro, image, children }: PageLayou
 
   const easeOutExpo = [0.16, 1, 0.3, 1] as const
 
-  const eyebrowAnim = reduced ? {} : {
+  const eyebrowAnim = (reduced || isMobile) ? {} : {
     initial: { opacity: 0, y: -16, letterSpacing: '0.08em' },
     animate: { opacity: 1, y: 0, letterSpacing: '0.14em' },
     transition: { duration: 0.85, delay: 0.15, ease: easeOutExpo },
   }
-  const headingAnim = reduced ? {} : {
+  const headingAnim = (reduced || isMobile) ? {} : {
     initial: { opacity: 0, y: 38, filter: 'blur(6px)' },
     animate: { opacity: 1, y: 0, filter: 'blur(0px)' },
     transition: { duration: 0.95, delay: 0.28, ease: easeOutExpo },
   }
-  const ledeAnim = reduced ? {} : {
+  const ledeAnim = (reduced || isMobile) ? {} : {
     initial: { opacity: 0, y: 24 },
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.85, delay: 0.52, ease: easeOutExpo },
   }
-  const promptAnim = reduced ? {} : {
+  const promptAnim = (reduced || isMobile) ? {} : {
     initial: { opacity: 0, y: 15 },
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.75, delay: 0.95, ease: easeOutExpo },
@@ -81,43 +96,47 @@ export function PageLayout({ eyebrow, title, intro, image, children }: PageLayou
 
   return (
     <div className="pl-stage">
-      {/* Persistent pinned backdrop — stays in view for the entire page */}
+      {/* Persistent pinned backdrop - stays in view for the entire page */}
       <div className="pl-backdrop" aria-hidden="true">
         <motion.img
           src={activeImage.src}
           alt=""
           className="pl-backdrop-img"
-          style={reduced ? undefined : { scale: bgScale, y: bgY }}
+          style={isMobile || reduced ? undefined : { scale: bgScale, y: bgY }}
         />
         <div className="pl-backdrop-scrim" />
       </div>
 
-      {/* Hero track — gives scroll room for the hero text to dissolve out */}
+      {/* Hero track - full viewport hero on mobile, 200vh track on desktop */}
       <div ref={heroTrackRef} className="pl-hero-track">
         <div className="pl-hero-sticky">
           <motion.div
             className="container pl-hero-content"
-            style={{ pointerEvents: reduced ? 'auto' : pointerEvents }}
+            style={
+              isMobile
+                ? { opacity: mobileHeroOpacity }
+                : { pointerEvents: reduced ? 'auto' : pointerEvents }
+            }
           >
             <div className="hero-text-anim-wrap">
               <motion.p
                 className="eyebrow page-hero__eyebrow"
                 {...eyebrowAnim}
-                style={reduced ? undefined : { opacity: eyebrowOpacity, y: eyebrowY }}
+                style={isMobile ? undefined : (reduced ? undefined : { opacity: eyebrowOpacity, y: eyebrowY })}
               >
                 {eyebrow}
               </motion.p>
               <motion.h1
                 className="display page-hero__title"
                 {...headingAnim}
-                style={reduced ? undefined : { opacity: headingOpacity, y: headingY, scale: headingScale }}
+                style={isMobile ? undefined : (reduced ? undefined : { opacity: headingOpacity, y: headingY, scale: headingScale })}
               >
                 {title}
               </motion.h1>
               <motion.p
                 className="lede page-hero__intro"
                 {...ledeAnim}
-                style={reduced ? undefined : { opacity: ledeOpacity, y: ledeY }}
+                style={isMobile ? undefined : (reduced ? undefined : { opacity: ledeOpacity, y: ledeY })}
               >
                 {intro}
               </motion.p>
@@ -130,7 +149,7 @@ export function PageLayout({ eyebrow, title, intro, image, children }: PageLayou
             onClick={handleScrollDown}
             aria-label="Scroll down to page content"
             {...promptAnim}
-            style={reduced ? undefined : { opacity: promptOpacity, scale: promptScale }}
+            style={isMobile || reduced ? undefined : { opacity: promptOpacity, scale: promptScale }}
           >
             <span className="hero-scroll-indicator__text">Scroll to explore</span>
             <span className="hero-scroll-indicator__mouse" aria-hidden="true">
@@ -140,7 +159,7 @@ export function PageLayout({ eyebrow, title, intro, image, children }: PageLayou
         </div>
       </div>
 
-      {/* Page content — scrolls over the persistent backdrop */}
+      {/* Page content - scrolls naturally over the persistent backdrop */}
       <div className="pl-content">
         {children}
       </div>

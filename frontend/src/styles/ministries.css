@@ -442,3 +442,15 @@
   }
 }
 
+@media (max-width: 760px) {
+  .nav__dropdown-menu--ministries {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 55vh !important;
+    margin: 0.15rem 0 0.5rem !important;
+    padding: 0.35rem 0.5rem !important;
+    box-sizing: border-box !important;
+  }
+}
+

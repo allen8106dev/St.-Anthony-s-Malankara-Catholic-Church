@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useScroll, useTransform, useSpring, useReducedMotion, type MotionValue } from 'motion/react'
 import { Container } from '../../components/ui/Container'
@@ -99,12 +99,26 @@ export function HomePage() {
     offset: ['start start', 'end end'],
   })
 
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 760px)').matches : false
+  )
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 760px)')
+    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mql.addEventListener('change', onChange)
+    return () => mql.removeEventListener('change', onChange)
+  }, [])
+
   // Buttery-smooth spring interpolation for fluid gliding transitions
   const smoothProgress = useSpring(scrollYProgress, {
     stiffness: 65,
     damping: 22,
     restDelta: 0.0005,
   })
+
+  // On mobile: text scrolls naturally and smoothly fades out past height limit
+  const mobileHeroOpacity = useTransform(smoothProgress, [0, 0.045], [1, 0])
 
   // --------------------------------------------------------------------------
   // --------------------------------------------------------------------------
@@ -323,7 +337,7 @@ export function HomePage() {
         {/* Layer 0: Hero Slideshow / Sanctuary (Base) */}
         <motion.div
           className="hp-backdrop-layer hp-backdrop-layer--0"
-          style={reduced ? undefined : { scale: heroBgScale, y: heroBgY }}
+          style={isMobile || reduced ? undefined : { scale: heroBgScale, y: heroBgY }}
         >
           <HeroSlideshow
             slides={heroImages ?? []}
@@ -444,12 +458,15 @@ export function HomePage() {
           style={{ pointerEvents: reduced ? 'auto' : heroPointer }}
         >
           <Container className="hero__content">
-            <div className="hero-text-anim-wrap">
+            <motion.div
+              className="hero-text-anim-wrap"
+              style={isMobile ? { opacity: mobileHeroOpacity } : undefined}
+            >
               <motion.p
                 className="hp-hero-eyebrow"
-                {...eyebrowAnim}
+                {...(isMobile || reduced ? {} : eyebrowAnim)}
                 style={
-                  reduced
+                  isMobile || reduced
                     ? undefined
                     : {
                         opacity: heroEyebrowOpacity,
@@ -462,7 +479,7 @@ export function HomePage() {
               <motion.h1
                 className="hp-hero-display"
                 style={
-                  reduced
+                  isMobile || reduced
                     ? undefined
                     : {
                         opacity: heroHeadingOpacity,
@@ -471,18 +488,18 @@ export function HomePage() {
                       }
                 }
               >
-                <motion.span style={{ display: 'block' }} {...headingLine1Anim}>
+                <motion.span style={{ display: 'block' }} {...(isMobile || reduced ? {} : headingLine1Anim)}>
                   Faith, fellowship,
                 </motion.span>
-                <motion.span style={{ display: 'block' }} {...headingLine2Anim}>
+                <motion.span style={{ display: 'block' }} {...(isMobile || reduced ? {} : headingLine2Anim)}>
                   and a place to call home.
                 </motion.span>
               </motion.h1>
               <motion.p
                 className="hp-hero-lede"
-                {...ledeAnim}
+                {...(isMobile || reduced ? {} : ledeAnim)}
                 style={
-                  reduced
+                  isMobile || reduced
                     ? undefined
                     : {
                         opacity: heroLedeOpacity,
@@ -494,9 +511,9 @@ export function HomePage() {
               </motion.p>
               <motion.div
                 className="actions"
-                {...actionsAnim}
+                {...(isMobile || reduced ? {} : actionsAnim)}
                 style={
-                  reduced
+                  isMobile || reduced
                     ? undefined
                     : {
                         opacity: heroActionsOpacity,
@@ -509,7 +526,7 @@ export function HomePage() {
                   Discover our parish <span aria-hidden="true">↗</span>
                 </Link>
               </motion.div>
-            </div>
+            </motion.div>
           </Container>
 
           <motion.button
