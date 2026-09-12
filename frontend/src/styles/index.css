@@ -29,8 +29,8 @@
   text-rendering: optimizeLegibility;
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; background: var(--background); }
-body { margin: 0; min-width: 320px; background: var(--background); color: var(--foreground); }
+html { scroll-behavior: smooth; background: #081713; }
+body { margin: 0; min-width: 320px; background: #081713; color: var(--foreground); }
 button, input, textarea, select { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 a { color: inherit; text-decoration: none; }
@@ -1261,7 +1261,7 @@ img { max-width: 100%; display: block; }
 .cursor-dot { width:6px; height:6px; background:var(--accent); }
 .cursor-ring { width:30px; height:30px; border:1px solid rgba(183,125,76,.7); transition:width .18s ease,height .18s ease,background .18s ease; }
 .cursor-ring--active { width:46px; height:46px; background:rgba(183,125,76,.12); }
-@media (max-width:760px) { .container{width:min(100% - 2rem,76rem)} .nav__links { position:absolute; top:5.35rem; left:0; right:0; display:none; flex-direction:column; align-items:stretch; gap:0; padding:1rem; color:#fff; background:rgba(10,24,20,0.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); box-shadow:0 20px 40px rgba(0,0,0,0.5); border-bottom:1px solid rgba(255,255,255,0.12); }.nav__links--open{display:flex}.nav__links a{padding:1rem!important;color:rgba(255,255,255,0.92)!important}.nav__links .button{margin:.5rem 0}.nav__toggle{display:flex}.schedule__panel,.intro-grid,.visit{grid-template-columns:1fr}.schedule__list{grid-template-columns:1fr;padding:1rem 1.5rem}.schedule__item{border-left:0;border-top:1px solid var(--border);padding:1rem 0}.schedule__item:first-child{border-top:0}.event-grid,.ministry-grid{grid-template-columns:1fr}.section-head{display:block}.section-head .text-link{margin-top:1.2rem}.gallery{grid-template-columns:1fr 1fr}.gallery>div{min-height:13rem}.gallery>div:nth-child(1){grid-column:span 2}.gallery>div:nth-child(2){margin-top:0}.footer__grid{grid-template-columns:1fr 1fr}.feature-image{min-height:24rem}.visit__map{min-height:19rem} }
+@media (max-width:760px) { .container{width:min(100% - 2rem,76rem)} .schedule__panel,.intro-grid,.visit{grid-template-columns:1fr}.schedule__list{grid-template-columns:1fr;padding:1rem 1.5rem}.schedule__item{border-left:0;border-top:1px solid var(--border);padding:1rem 0}.schedule__item:first-child{border-top:0}.event-grid,.ministry-grid{grid-template-columns:1fr}.section-head{display:block}.section-head .text-link{margin-top:1.2rem}.gallery{grid-template-columns:1fr 1fr}.gallery>div{min-height:13rem}.gallery>div:nth-child(1){grid-column:span 2}.gallery>div:nth-child(2){margin-top:0}.footer__grid{grid-template-columns:1fr 1fr}.feature-image{min-height:24rem}.visit__map{min-height:19rem} }
 @media (hover:none),(pointer:coarse),(prefers-reduced-motion:reduce) { .cursor-dot,.cursor-ring{display:none} } @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; transition-duration:.01ms!important; animation-duration:.01ms!important; animation-iteration-count:1!important; } }
 /* Phase 3 public pages */
 .page-header{padding:11rem 0 5.5rem;background:var(--surface-muted)}
@@ -2407,7 +2407,6 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
 /* Mobile uses a direct reading flow instead of the desktop's pinned, scroll-led experience. */
 @media (max-width: 760px) {
   html { scroll-behavior: auto; }
-  .public-route *, .public-route *::before, .public-route *::after { animation: none !important; transition: none !important; }
 
   .nav__inner { min-height: 5.5rem; height: auto; padding: .7rem 0; align-items: flex-start; }
   .brand { width: calc(100% - 3.6rem); gap: .6rem; font-size: .88rem; line-height: 1.15; }
@@ -2478,27 +2477,24 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
     padding-bottom: 3.5rem;
   }
 
-  /* Mobile side drawer dimmed backdrop overlay */
+  /* Mobile side drawer dimmed backdrop overlay.
+     Conditionally mounted in the DOM (only rendered when open), so no need
+     for hidden/opacity:0 toggling — just position and stack correctly. */
   .nav__backdrop {
     display: block;
     position: fixed;
     inset: 0;
-    z-index: 31;
+    z-index: 90;
     background: rgba(4, 12, 10, 0.65);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition: opacity 0.32s ease, visibility 0.32s ease;
-  }
-  .nav__backdrop--open {
     opacity: 1;
-    visibility: visible;
     pointer-events: auto;
   }
 
   /* Mobile side drawer navigation */
+  /* Raise .nav above the backdrop (90) so the hamburger bar is always tappable */
+  .nav { z-index: 100; }
   .nav__links {
     position: fixed;
     inset: 0 0 0 auto;
@@ -2519,7 +2515,7 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
     opacity: 0;
     transform: translateX(100%);
     transition: opacity 0.28s ease, transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.28s ease;
-    z-index: 34;
+    z-index: 105;
   }
   .nav__links--open {
     visibility: visible;
@@ -2792,6 +2788,11 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
     height: 100svh;
     height: 100dvh;
     position: sticky;
+    top: 0;
+    /* Desktop uses margin-top: -100dvh to overlap a sticky backdrop.
+       On mobile the backdrop is position:fixed (out of flow), so reset
+       the margin, otherwise the foreground is pulled 100vh above the screen. */
+    margin-top: 0 !important;
   }
   .hp-panel {
     position: absolute;

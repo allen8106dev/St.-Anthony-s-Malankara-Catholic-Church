@@ -135,11 +135,13 @@ export function PublicNavbar() {
 
   return (
     <>
-      <div
-        className={`nav__backdrop ${open ? 'nav__backdrop--open' : ''}`}
-        onClick={closeDropdownMenus}
-        aria-hidden="true"
-      />
+      {open && (
+        <div
+          className="nav__backdrop nav__backdrop--open"
+          onClick={closeDropdownMenus}
+          aria-hidden="true"
+        />
+      )}
       <header
         ref={navRef}
         className={`nav ${scrolled ? 'nav--scrolled' : ''} ${open ? 'nav--open' : ''}`}
