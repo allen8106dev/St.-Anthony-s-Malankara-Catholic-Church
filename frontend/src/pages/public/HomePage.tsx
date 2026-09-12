@@ -825,13 +825,6 @@ export function HomePage() {
                   <Link className="button button--light" to="/contact">
                     Plan your visit <span aria-hidden="true">↗</span>
                   </Link>
-                  <Link
-                    className="button button--outline"
-                    to="/liturgy"
-                    style={{ color: '#fff', borderColor: 'rgba(255, 255, 255, 0.45)' }}
-                  >
-                    Liturgy & Traditions
-                  </Link>
                 </motion.div>
               </motion.div>
 

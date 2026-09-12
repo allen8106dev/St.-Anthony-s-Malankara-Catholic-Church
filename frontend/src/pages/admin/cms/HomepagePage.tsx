@@ -262,9 +262,21 @@ export function HomepagePage() {
                   <button
                     type="button"
                     className="gallery-image-card__remove"
-                    onClick={() => setRemoveTarget(img.id)}
-                    aria-label={`Remove ${img.alt_text}`}
-                  >×</button>
+                    onClick={e => {
+                      e.stopPropagation()
+                      setRemoveTarget(img.id)
+                    }}
+                    aria-label={`Remove ${img.alt_text || 'image'}`}
+                    title="Delete image"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M3 6h18" />
+                      <path d="M8 6V4h8v2" />
+                      <path d="M19 6l-1 14H6L5 6" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                    </svg>
+                  </button>
                 </div>
               ))}
             </div>
