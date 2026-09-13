@@ -403,6 +403,14 @@ export function HomePage() {
               {upcomingEvents.length > 0 ? (
                 upcomingEvents.slice(0, 3).map((event) => (
                   <article key={event.id} className="hp-card">
+                    <Link to="/events" className="hp-card-image-link" tabIndex={-1} aria-hidden="true">
+                      <img
+                        className="hp-card-image"
+                        src={event.image_url || demoImages.gathering.src}
+                        alt=""
+                        loading="lazy"
+                      />
+                    </Link>
                     <span className="hp-card-badge">
                       {new Date(event.start_datetime).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </span>
@@ -841,6 +849,14 @@ export function HomePage() {
                             }
                       }
                     >
+                      <Link to="/events" className="hp-card-image-link" tabIndex={-1} aria-hidden="true">
+                        <img
+                          className="hp-card-image"
+                          src={event.image_url || demoImages.gathering.src}
+                          alt=""
+                          loading="lazy"
+                        />
+                      </Link>
                       <span className="hp-card-badge">
                         {new Date(event.start_datetime).toLocaleDateString('en-US', {
                           month: 'short',
