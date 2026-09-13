@@ -35,19 +35,18 @@ export function PageLayout({ eyebrow, title, intro, image, children }: PageLayou
     return () => mql.removeEventListener('change', onChange)
   }, [])
 
-  // When navigating to a page with no hash, scroll past the hero to the main content.
+  // When navigating to a page with no hash, show the hero briefly then smoothly
+  // scroll to the main content so the user gets a moment to see the hero.
   useEffect(() => {
     if (location.hash) return
-    const el = heroTrackRef.current
-    if (!el) return
-    // On mobile the hero is just 100vh and the content starts right after,
-    // so we only do this for desktop (heroTrack is 200vh).
+    // On mobile the layout is flat — no tall hero track to scroll past.
     if (window.matchMedia('(max-width: 760px)').matches) return
-    // Use requestAnimationFrame to ensure the DOM has settled after navigation.
-    const raf = requestAnimationFrame(() => {
+    const timer = setTimeout(() => {
+      const el = heroTrackRef.current
+      if (!el) return
       window.scrollTo({ top: el.offsetHeight, behavior: 'smooth' })
-    })
-    return () => cancelAnimationFrame(raf)
+    }, 900)
+    return () => clearTimeout(timer)
   }, [location.pathname, location.hash])
 
 
