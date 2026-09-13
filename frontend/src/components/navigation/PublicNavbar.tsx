@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Container } from '../ui/Container'
 import { ministries, publicNavigation, siteName } from '../../data/siteContent'
 import { usePublicSettings, usePublicAnnouncements, usePublicLiturgy } from '../../hooks/usePublicContent'
@@ -10,6 +10,7 @@ function closeFocusedNav() {
 }
 
 export function PublicNavbar() {
+  const location = useLocation()
   const [scrolled, setScrolled] = useState(false)
   const [lockedOpen, setLockedOpen] = useState(false)
   const [hovered, setHovered] = useState(false)
@@ -26,9 +27,24 @@ export function PublicNavbar() {
   const churchName = s.church_name || siteName
   const hasAnnouncements = (announcementsData?.meta?.total ?? 0) > 0
 
-  const open = lockedOpen || hovered
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 760px)').matches : false
+  )
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 760px)')
+    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+
+  const open = isMobile ? lockedOpen : (lockedOpen || hovered)
 
   function closeDropdownMenus() {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current)
+      hoverTimeoutRef.current = null
+    }
     suppressAboutHover.current = true
     suppressMinistriesHover.current = true
     setAboutHover(false)
@@ -39,7 +55,13 @@ export function PublicNavbar() {
     closeFocusedNav()
   }
 
+  // Close menus whenever route changes
+  useEffect(() => {
+    closeDropdownMenus()
+  }, [location.pathname])
+
   const handleNavMouseEnter = () => {
+    if (isMobile || window.matchMedia('(hover: none)').matches) return
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current)
       hoverTimeoutRef.current = null
@@ -48,6 +70,7 @@ export function PublicNavbar() {
   }
 
   const handleNavMouseLeave = () => {
+    if (isMobile || window.matchMedia('(hover: none)').matches) return
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
     hoverTimeoutRef.current = window.setTimeout(() => {
       setHovered(false)
@@ -55,6 +78,7 @@ export function PublicNavbar() {
   }
 
   const handleToggleMouseEnter = () => {
+    if (isMobile || window.matchMedia('(hover: none)').matches) return
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current)
       hoverTimeoutRef.current = null
@@ -72,8 +96,10 @@ export function PublicNavbar() {
     }
   }
 
-  // Hovering mouse into top comfortable zone (Y <= 80px) uncollapses navbar & church name
+  // Hovering mouse into top comfortable zone (Y <= 80px) uncollapses navbar & church name (desktop only)
   useEffect(() => {
+    if (isMobile || window.matchMedia('(hover: none)').matches) return
+
     const handleMouseMove = (e: MouseEvent) => {
       if (window.scrollY > 24) {
         if (e.clientY <= 80) {
@@ -90,7 +116,7 @@ export function PublicNavbar() {
 
     window.addEventListener('mousemove', handleMouseMove, { passive: true })
     return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [lockedOpen])
+  }, [lockedOpen, isMobile])
 
   useEffect(() => {
     const onScroll = () => {
@@ -154,9 +180,8 @@ export function PublicNavbar() {
             to="/"
             aria-label={`${churchName} home`}
             onClick={() => {
-              if (window.location.pathname === '/') {
-                window.scrollTo({ top: 0, behavior: 'smooth' })
-              }
+              closeDropdownMenus()
+              window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
             }}
           >
             <img
