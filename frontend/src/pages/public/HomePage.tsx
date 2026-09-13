@@ -118,7 +118,8 @@ export function HomePage() {
   })
 
   // On mobile: text scrolls naturally and smoothly fades out past height limit
-  const mobileHeroOpacity = useTransform(smoothProgress, [0, 0.045], [1, 0])
+  const { scrollY } = useScroll()
+  const mobileHeroOpacity = useTransform(scrollY, [0, 240], [1, 0])
 
   // --------------------------------------------------------------------------
   // --------------------------------------------------------------------------
@@ -331,10 +332,18 @@ export function HomePage() {
     const heroImg = heroImages?.[0]?.image_url ?? demoImages.sanctuary.src
     return (
       <div className="hp-mobile">
-        {/* Hero — full-screen fixed background, text over scrim */}
-        <div className="hp-mobile-hero" style={{ backgroundImage: `url(${heroImg})` }}>
-          <div className="hp-mobile-hero__scrim" />
-          <div className="hp-mobile-hero__content">
+        {/* Persistent pinned backdrop — stays fixed in view while content scrolls */}
+        <div className="hp-mobile-backdrop" aria-hidden="true">
+          <img src={heroImg} alt="" className="hp-mobile-backdrop-img" />
+          <div className="hp-mobile-backdrop-scrim" />
+        </div>
+
+        {/* Hero — full viewport height, scrolls up naturally over backdrop */}
+        <div className="hp-mobile-hero">
+          <motion.div
+            className="hp-mobile-hero__content"
+            style={{ opacity: mobileHeroOpacity }}
+          >
             <p className="hp-hero-eyebrow">Welcome to our parish family</p>
             <h1 className="hp-hero-display">
               Faith, fellowship,{' '}
@@ -348,7 +357,7 @@ export function HomePage() {
                 Discover our parish <span aria-hidden="true">↗</span>
               </Link>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Ministries */}
