@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { motion, useScroll, useTransform, useSpring, useReducedMotion } from 'motion/react'
 import { demoImages, type DemoImage } from '../../data/siteContent'
 
@@ -21,6 +22,7 @@ export function PageLayout({ eyebrow, title, intro, image, children }: PageLayou
   const heroTrackRef = useRef<HTMLDivElement>(null)
   const reduced = useReducedMotion()
   const activeImage = image ?? demoImages.sanctuary
+  const location = useLocation()
 
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== 'undefined' ? window.matchMedia('(max-width: 760px)').matches : false
@@ -32,6 +34,22 @@ export function PageLayout({ eyebrow, title, intro, image, children }: PageLayou
     mql.addEventListener('change', onChange)
     return () => mql.removeEventListener('change', onChange)
   }, [])
+
+  // When navigating to a page with no hash, scroll past the hero to the main content.
+  useEffect(() => {
+    if (location.hash) return
+    const el = heroTrackRef.current
+    if (!el) return
+    // On mobile the hero is just 100vh and the content starts right after,
+    // so we only do this for desktop (heroTrack is 200vh).
+    if (window.matchMedia('(max-width: 760px)').matches) return
+    // Use requestAnimationFrame to ensure the DOM has settled after navigation.
+    const raf = requestAnimationFrame(() => {
+      window.scrollTo({ top: el.offsetHeight, behavior: 'smooth' })
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [location.pathname, location.hash])
+
 
   // Window scroll tracking for natural mobile fade-out
   const { scrollY } = useScroll()
