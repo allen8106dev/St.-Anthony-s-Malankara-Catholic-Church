@@ -86,10 +86,40 @@ export function PublicNavbar() {
     setHovered(true)
   }
 
+  const toggleDropdown = (menu: 'about' | 'liturgy' | 'ministries') => {
+    if (menu === 'about') {
+      setAboutHover(v => {
+        const next = !v
+        if (next) {
+          setLiturgyHover(false)
+          setMinistriesHover(false)
+        }
+        return next
+      })
+    } else if (menu === 'liturgy') {
+      setLiturgyHover(v => {
+        const next = !v
+        if (next) {
+          setAboutHover(false)
+          setMinistriesHover(false)
+        }
+        return next
+      })
+    } else if (menu === 'ministries') {
+      setMinistriesHover(v => {
+        const next = !v
+        if (next) {
+          setAboutHover(false)
+          setLiturgyHover(false)
+        }
+        return next
+      })
+    }
+  }
+
   const handleToggleClick = () => {
     if (lockedOpen) {
-      setLockedOpen(false)
-      setHovered(false)
+      closeDropdownMenus()
     } else {
       setLockedOpen(true)
       setHovered(true)
@@ -208,11 +238,13 @@ export function PublicNavbar() {
                   key={item.to}
                   className={`nav__item nav__item--dropdown ${aboutHover ? 'nav__item--dropdown-open' : ''}`}
                   onMouseEnter={() => {
-                    if (!suppressAboutHover.current) setAboutHover(true)
+                    if (!isMobile && !suppressAboutHover.current) setAboutHover(true)
                   }}
                   onMouseLeave={() => {
-                    suppressAboutHover.current = false
-                    setAboutHover(false)
+                    if (!isMobile) {
+                      suppressAboutHover.current = false
+                      setAboutHover(false)
+                    }
                   }}
                 >
                   <div className="nav__link-row">
@@ -228,7 +260,7 @@ export function PublicNavbar() {
                       className={`nav__caret-button ${aboutHover ? 'nav__caret-button--open' : ''}`}
                       onClick={(e) => {
                         e.stopPropagation()
-                        setAboutHover(v => !v)
+                        toggleDropdown('about')
                       }}
                       aria-expanded={aboutHover}
                       aria-label="Toggle About submenu"
@@ -282,11 +314,13 @@ export function PublicNavbar() {
                   key={item.to}
                   className={`nav__item nav__item--dropdown ${liturgyHover ? 'nav__item--dropdown-open' : ''}`}
                   onMouseEnter={() => {
-                    if (!suppressAboutHover.current) setLiturgyHover(true)
+                    if (!isMobile && !suppressAboutHover.current) setLiturgyHover(true)
                   }}
                   onMouseLeave={() => {
-                    suppressAboutHover.current = false
-                    setLiturgyHover(false)
+                    if (!isMobile) {
+                      suppressAboutHover.current = false
+                      setLiturgyHover(false)
+                    }
                   }}
                 >
                   <div className="nav__link-row">
@@ -302,7 +336,7 @@ export function PublicNavbar() {
                       className={`nav__caret-button ${liturgyHover ? 'nav__caret-button--open' : ''}`}
                       onClick={(e) => {
                         e.stopPropagation()
-                        setLiturgyHover(v => !v)
+                        toggleDropdown('liturgy')
                       }}
                       aria-expanded={liturgyHover}
                       aria-label="Toggle Liturgy submenu"
@@ -336,11 +370,13 @@ export function PublicNavbar() {
                   key={item.to}
                   className={`nav__item nav__item--dropdown ${ministriesHover ? 'nav__item--dropdown-open' : ''}`}
                   onMouseEnter={() => {
-                    if (!suppressMinistriesHover.current) setMinistriesHover(true)
+                    if (!isMobile && !suppressMinistriesHover.current) setMinistriesHover(true)
                   }}
                   onMouseLeave={() => {
-                    suppressMinistriesHover.current = false
-                    setMinistriesHover(false)
+                    if (!isMobile) {
+                      suppressMinistriesHover.current = false
+                      setMinistriesHover(false)
+                    }
                   }}
                 >
                   <div className="nav__link-row">
@@ -356,7 +392,7 @@ export function PublicNavbar() {
                       className={`nav__caret-button ${ministriesHover ? 'nav__caret-button--open' : ''}`}
                       onClick={(e) => {
                         e.stopPropagation()
-                        setMinistriesHover(v => !v)
+                        toggleDropdown('ministries')
                       }}
                       aria-expanded={ministriesHover}
                       aria-label="Toggle Ministries submenu"
