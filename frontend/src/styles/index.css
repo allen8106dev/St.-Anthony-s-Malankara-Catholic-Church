@@ -2506,14 +2506,14 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
     inset: 0 0 0 auto;
     display: flex;
     flex-direction: column;
-    width: min(70vw, 15.5rem);
+    width: min(72vw, 15.8rem);
     height: 100vh;
     height: 100dvh;
     max-height: 100dvh;
     overflow-y: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-    padding: 5.5rem 1.25rem 2.5rem;
+    padding: 5.5rem 1.15rem 2.5rem;
     background: linear-gradient(165deg, rgba(14, 38, 31, 0.84), rgba(6, 18, 15, 0.90));
     backdrop-filter: blur(20px) saturate(160%);
     -webkit-backdrop-filter: blur(20px) saturate(160%);
@@ -2563,27 +2563,29 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    gap: 0.45rem;
+  }
+  .nav__links > a:not(.button),
+  .nav__link-row > a:not(.button) {
+    position: relative;
+    padding: 0.85rem 0.2rem 0.85rem 0.85rem !important;
+    color: rgba(255, 255, 255, 0.92) !important;
+    font-size: 1.05rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    display: flex;
+    align-items: center;
+    text-align: left;
   }
   .nav__links > a:not(.button) {
-    padding: 0.85rem 0.2rem !important;
-    color: rgba(255, 255, 255, 0.92) !important;
-    font-size: 1.05rem;
-    font-weight: 500;
-    letter-spacing: 0.01em;
-    display: flex;
-    align-items: center;
     flex: 1;
   }
+  /* Fixed width equal to the largest page name ("Announcements") so all dropdown carets align in a straight column */
   .nav__link-row > a:not(.button) {
-    padding: 0.85rem 0.2rem !important;
-    color: rgba(255, 255, 255, 0.92) !important;
-    font-size: 1.05rem;
-    font-weight: 500;
-    letter-spacing: 0.01em;
-    display: flex;
-    align-items: center;
-    flex: 0 0 auto;
+    width: 10.2rem;
+    min-width: 10.2rem;
+    max-width: 10.2rem;
+    flex: 0 0 10.2rem;
+    box-sizing: border-box;
   }
   .nav__links a:not(.button)::after {
     display: none;
@@ -2592,14 +2594,23 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
     color: #f0d28c !important;
     font-weight: 600;
   }
+  /* Active page indicator dot positioned at left edge without displacing page name text */
   .nav__links a[aria-current='page']::before {
     content: '';
-    display: inline-block;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
     width: 0.35rem;
     height: 0.35rem;
-    margin: 0 0.55rem 0.12rem 0;
     border-radius: 50%;
     background: var(--accent);
+  }
+  .nav__links .nav__announcement-dot {
+    position: static;
+    margin-left: 0.45rem;
+    display: inline-block;
+    flex-shrink: 0;
   }
   .nav__caret-button {
     display: inline-flex;
@@ -2608,13 +2619,14 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
     width: 1.9rem;
     height: 1.9rem;
     padding: 0;
-    margin: 0;
+    margin: 0 0 0 0.35rem;
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(230, 200, 135, 0.25);
     color: rgba(255, 255, 255, 0.85);
     cursor: pointer;
     border-radius: 0.35rem;
     transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+    flex-shrink: 0;
   }
   .nav__caret-button:active,
   .nav__caret-button:hover {
