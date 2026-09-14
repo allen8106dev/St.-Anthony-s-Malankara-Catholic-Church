@@ -39,20 +39,22 @@ export function PageLayout({ eyebrow, title, intro, image, children }: PageLayou
   // scroll to the main content so the user gets a moment to see the hero.
   useEffect(() => {
     if (location.hash) return
-    // On mobile the layout is flat — no tall hero track to scroll past.
-    if (window.matchMedia('(max-width: 760px)').matches) return
+    const isMobileNow = window.matchMedia('(max-width: 760px)').matches
     const timer = setTimeout(() => {
-      const el = heroTrackRef.current
-      if (!el) return
-      window.scrollTo({ top: el.offsetHeight, behavior: 'smooth' })
+      if (isMobileNow) {
+        // On mobile, hero-track height is just the viewport — scroll to the
+        // pl-content element that follows it.
+        const content = document.querySelector('.pl-content') as HTMLElement | null
+        if (content) content.scrollIntoView({ behavior: 'smooth' })
+      } else {
+        const el = heroTrackRef.current
+        if (!el) return
+        window.scrollTo({ top: el.offsetHeight, behavior: 'smooth' })
+      }
     }, 900)
     return () => clearTimeout(timer)
   }, [location.pathname, location.hash])
 
-
-  // Window scroll tracking for natural mobile fade-out
-  const { scrollY } = useScroll()
-  const mobileHeroOpacity = useTransform(scrollY, [0, 240], [1, 0])
 
   // Track scroll on hero track for desktop parallax
   const { scrollYProgress } = useScroll({
@@ -129,11 +131,7 @@ export function PageLayout({ eyebrow, title, intro, image, children }: PageLayou
         <div className="pl-hero-sticky">
           <motion.div
             className="container pl-hero-content"
-            style={
-              isMobile
-                ? { opacity: mobileHeroOpacity }
-                : { pointerEvents: reduced ? 'auto' : pointerEvents }
-            }
+            style={isMobile ? undefined : { pointerEvents: reduced ? 'auto' : pointerEvents }}
           >
             <div className="hero-text-anim-wrap">
               <motion.p

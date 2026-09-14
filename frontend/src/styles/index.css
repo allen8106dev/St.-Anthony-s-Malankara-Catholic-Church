@@ -2417,14 +2417,35 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
   .nav__inner { min-height: 5.5rem; height: auto; padding: .7rem 0; align-items: flex-start; }
   .brand { width: calc(100% - 3.6rem); gap: .6rem; font-size: .88rem; line-height: 1.15; }
   .brand__logo { width: 2.45rem; height: 2.45rem; }
-  .brand__name, .nav--scrolled .brand__name, .nav--open .brand__name, .nav--scrolled.nav--open .brand__name {
+  /* Base mobile state — name fully visible, wraps to two lines if needed */
+  .brand__name {
     display: block;
-    max-width: none;
+    max-width: 16rem;
     margin: 0;
     opacity: 1;
-    transform: none;
+    transform: translateX(0);
     white-space: normal;
-    overflow: visible;
+    overflow: hidden;
+    pointer-events: auto;
+    transition: max-width 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.2s ease,
+                transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                margin 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  /* Collapse name into logo on scroll — faster than desktop (0.28s vs 0.45s) */
+  .nav--scrolled .brand__name {
+    max-width: 0;
+    opacity: 0;
+    transform: translateX(-10px);
+    margin-left: -0.6rem;
+    pointer-events: none;
+  }
+  /* When sidebar is open while scrolled, keep name visible */
+  .nav--scrolled.nav--open .brand__name {
+    max-width: 16rem;
+    opacity: 1;
+    transform: translateX(0);
+    margin-left: 0;
     pointer-events: auto;
   }
   /* Show hamburger; the desktop inline link bar is replaced by the slide-in drawer */
