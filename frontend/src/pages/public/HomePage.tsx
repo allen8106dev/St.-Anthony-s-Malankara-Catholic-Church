@@ -117,9 +117,6 @@ export function HomePage() {
     restDelta: 0.0005,
   })
 
-  // On mobile: text scrolls naturally and smoothly fades out past height limit
-  const { scrollY } = useScroll()
-  const mobileHeroOpacity = useTransform(scrollY, [0, 240], [1, 0])
 
   // --------------------------------------------------------------------------
   // --------------------------------------------------------------------------
@@ -340,10 +337,7 @@ export function HomePage() {
 
         {/* Hero — full viewport height, scrolls up naturally over backdrop */}
         <div className="hp-mobile-hero">
-          <motion.div
-            className="hp-mobile-hero__content"
-            style={{ opacity: mobileHeroOpacity }}
-          >
+          <div className="hp-mobile-hero__content">
             <p className="hp-hero-eyebrow">Welcome to our parish family</p>
             <h1 className="hp-hero-display">
               Faith, fellowship,{' '}
@@ -357,7 +351,7 @@ export function HomePage() {
                 Discover our parish <span aria-hidden="true">↗</span>
               </Link>
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* Ministries */}
@@ -641,10 +635,7 @@ export function HomePage() {
           style={{ pointerEvents: reduced ? 'auto' : heroPointer }}
         >
           <Container className="hero__content">
-            <motion.div
-              className="hero-text-anim-wrap"
-              style={isMobile ? { opacity: mobileHeroOpacity } : undefined}
-            >
+            <motion.div className="hero-text-anim-wrap">
               <motion.p
                 className="hp-hero-eyebrow"
                 {...(isMobile || reduced ? {} : eyebrowAnim)}

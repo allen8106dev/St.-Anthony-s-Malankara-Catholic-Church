@@ -2414,17 +2414,17 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
 @media (max-width: 760px) {
   html { scroll-behavior: auto; }
 
-  .nav__inner { min-height: 5.5rem; height: auto; padding: .7rem 0; align-items: flex-start; }
-  .brand { width: calc(100% - 3.6rem); gap: .6rem; font-size: .88rem; line-height: 1.15; }
-  .brand__logo { width: 2.45rem; height: 2.45rem; }
-  /* Base mobile state — name fully visible, wraps to two lines if needed */
+  .nav__inner { height: 3.75rem; min-height: 0; padding: .7rem 0; align-items: center; }
+  .brand { width: calc(100% - 3.6rem); gap: .6rem; font-size: .88rem; line-height: 1.15; align-items: center; flex-shrink: 0; }
+  .brand__logo { width: 2.45rem; height: 2.45rem; flex-shrink: 0; }
+  /* Base mobile state — name visible, clipped width, transitions smoothly */
   .brand__name {
-    display: block;
+    display: inline-block;
     max-width: 16rem;
     margin: 0;
     opacity: 1;
     transform: translateX(0);
-    white-space: normal;
+    white-space: nowrap;
     overflow: hidden;
     pointer-events: auto;
     transition: max-width 0.28s cubic-bezier(0.16, 1, 0.3, 1),
@@ -3008,6 +3008,47 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
   z-index: 2;
   padding: 3.5rem 0;
   background: transparent !important;
+}
+
+/* ── Decorative section dividers ──────────────────────────────────────────
+   Each mobile section gets a thin fading gold rule with a centred star
+   ornament at the top, and a plain fading rule at the bottom.
+   Both are pure CSS — no extra markup needed.
+   ─────────────────────────────────────────────────────────────────────── */
+
+/* Top ornamental divider — star flanked by fading lines */
+.hp-mobile-section::before {
+  content: '✦';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin: 0 auto 2.5rem;
+  width: min(88%, 28rem);
+  color: rgba(230, 200, 135, 0.65);
+  font-size: 0.52rem;
+  letter-spacing: 0;
+  line-height: 1;
+  background:
+    linear-gradient(90deg, transparent 0%, rgba(230,200,135,.45) 35%, transparent 50%) no-repeat left center / calc(50% - 0.9rem) 1px,
+    linear-gradient(90deg, transparent 50%, rgba(230,200,135,.45) 65%, transparent 100%) no-repeat right center / calc(50% - 0.9rem) 1px;
+}
+
+/* Bottom rule — plain fading line, no ornament */
+.hp-mobile-section::after {
+  content: '';
+  display: block;
+  margin: 2.5rem auto 0;
+  width: min(88%, 28rem);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(230, 200, 135, 0.18) 20%,
+    rgba(230, 200, 135, 0.48) 50%,
+    rgba(230, 200, 135, 0.18) 80%,
+    transparent 100%
+  );
 }
 
 .hp-mobile-section--contact {
