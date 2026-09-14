@@ -88,7 +88,25 @@ export function PublicFooter() {
             )}
           </div>
         </div>
-        <div className="footer__bottom"><span>© {year} {churchName}</span><span>Serving the parish community.</span><Link className="footer__admin-link" to="/login">Admin Login</Link></div>
+        <div className="footer__bottom">
+          <span>© {year} {churchName}</span>
+          <span className="footer__powered-by">
+            Powered by{' '}
+            <a
+              href="https://linktr.ee/allen8106.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer__creator-link"
+            >
+              ALLEN JOSEPH
+            </a>
+          </span>
+          <div className="footer__bottom-meta">
+            <span>Serving the parish community.</span>
+            <span className="footer__bottom-sep" aria-hidden="true">•</span>
+            <Link className="footer__admin-link" to="/login">Admin Login</Link>
+          </div>
+        </div>
       </Container>
     </footer>
   )
