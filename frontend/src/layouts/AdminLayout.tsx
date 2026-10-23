@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth, type AdminRole } from '../auth/AuthContext'
 import { GlobalLoadingIndicator } from '../components/ui/GlobalLoadingIndicator'
 
@@ -46,10 +46,16 @@ const bottomItems: NavItem[] = [
 
 export function AdminLayout() {
   const { currentUser, logout } = useAuth()
-  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
-  async function signOut() { await logout(); navigate('/', { replace: true }) }
+  async function signOut() {
+    try {
+      await logout()
+    } catch {
+      // AuthContext clears the local admin session even if the API request fails.
+    }
+    window.location.replace('/')
+  }
 
   function visible(item: NavItem) {
     return !item.roles || (currentUser && item.roles.includes(currentUser.role))
