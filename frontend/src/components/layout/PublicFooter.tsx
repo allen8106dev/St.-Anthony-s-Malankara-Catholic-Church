@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Container } from '../ui/Container'
 import { publicNavigation, siteName } from '../../data/siteContent'
 import { usePublicSettings } from '../../hooks/usePublicContent'
-import { scrollToTopInstantly } from '../../hooks/useScrollSpring'
+import { scrollToTopQuickly } from '../../hooks/useScrollSpring'
 
 const FacebookIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -90,7 +90,7 @@ export function PublicFooter() {
           </div>
         </div>
         <div className="footer__actions">
-          <button className="footer__back-to-top" type="button" onClick={scrollToTopInstantly} aria-label="Back to top">
+          <button className="footer__back-to-top" type="button" onClick={scrollToTopQuickly} aria-label="Back to top">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M12 19V5m-7 7 7-7 7 7" />
             </svg>
