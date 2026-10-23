@@ -48,5 +48,5 @@ export function PublicLayout() {
     document.querySelector('meta[name="description"]')?.setAttribute('content', meta.description)
   }, [location.pathname])
 
-  return <PublicStartupGate><div className="site-shell"><PublicNavbar /><main key={location.pathname} className="public-route"><Outlet /></main><PublicFooter /><CustomCursor /></div></PublicStartupGate>
+  return <PublicStartupGate><div className="site-shell"><PublicNavbar /><main key={location.pathname} className="public-route" tabIndex={-1}><Outlet /></main><PublicFooter /><CustomCursor /></div></PublicStartupGate>
 }

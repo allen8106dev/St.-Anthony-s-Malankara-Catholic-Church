@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { motion, useScroll, useTransform, useSpring, useReducedMotion } from 'motion/react'
+import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react'
+import { useScrollSpring } from '../../hooks/useScrollSpring'
 import { demoImages, type DemoImage } from '../../data/siteContent'
 
 interface PageLayoutProps {
@@ -62,7 +63,7 @@ export function PageLayout({ eyebrow, title, intro, image, children }: PageLayou
     offset: ['start start', 'end start'],
   })
 
-  const smoothProgress = useSpring(scrollYProgress, {
+  const smoothProgress = useScrollSpring(scrollYProgress, {
     stiffness: 75,
     damping: 24,
     restDelta: 0.0005,

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, useScroll, useTransform, useSpring, useReducedMotion, type MotionValue } from 'motion/react'
+import { motion, useScroll, useTransform, useReducedMotion, type MotionValue } from 'motion/react'
+import { useScrollSpring } from '../../hooks/useScrollSpring'
 import { Container } from '../../components/ui/Container'
 import { HeroSlideshow } from '../../components/public/HeroSlideshow'
 import { usePublicEvents, usePublicSettings, usePublicGallery, usePublicHeroImages } from '../../hooks/usePublicContent'
@@ -19,6 +20,10 @@ function useStaggeredChapter(
   const [outStart, outEnd] = exit
   const inDuration = inEnd - inStart
   const outDuration = outEnd - outStart
+
+  // Move the whole chapter in the natural scroll direction; scrolling up
+  // retraces the same path instead of triggering a separate entrance.
+  const y = useTransform(progress, [inStart, inEnd, outStart, outEnd], ['22vh', '0vh', '0vh', '-22vh'])
 
   // Header: leads entrance, leads exit
   const headInEnd = inStart + inDuration * 0.55
@@ -61,6 +66,7 @@ function useStaggeredChapter(
   )
 
   return {
+    y,
     head: { opacity: headOpacity, y: headY, scale: headScale },
     items: [
       { opacity: item0Opacity, y: item0Y, scale: item0Scale },
@@ -110,10 +116,10 @@ export function HomePage() {
     return () => mql.removeEventListener('change', onChange)
   }, [])
 
-  // Buttery-smooth spring interpolation for fluid gliding transitions
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 65,
-    damping: 22,
+  // Follow scrolling promptly while preserving smooth cinematic transitions.
+  const smoothProgress = useScrollSpring(scrollYProgress, {
+    stiffness: 110,
+    damping: 26,
     restDelta: 0.0005,
   })
 
@@ -123,7 +129,7 @@ export function HomePage() {
   // BACKGROUND CINEMATIC TRANSITIONS (3D Camera Push, Zoom & Rack-Focus Dissolve)
   // Layer 0: Hero Slideshow (Base)
   const heroBgScale = useTransform(smoothProgress, [0.12, 0.17], [1.00, 1.06])
-  const heroBgY = useTransform(smoothProgress, [0.12, 0.17], [0, -20])
+  const heroBgY = useTransform(smoothProgress, [0.12, 0.17], [0, -64])
 
   // Layer 1: Ministries Image
   const ministriesBgOpacity = useTransform(smoothProgress, [0.12, 0.17], [0, 1])
@@ -135,7 +141,7 @@ export function HomePage() {
   const ministriesBgY = useTransform(
     smoothProgress,
     [0.12, 0.17, 0.39, 0.44],
-    [28, 0, 0, -20]
+    [64, 0, 0, -64]
   )
   const ministriesBgBlur = useTransform(
     smoothProgress,
@@ -153,7 +159,7 @@ export function HomePage() {
   const eventsBgY = useTransform(
     smoothProgress,
     [0.39, 0.44, 0.65, 0.70],
-    [28, 0, 0, -20]
+    [64, 0, 0, -64]
   )
   const eventsBgBlur = useTransform(
     smoothProgress,
@@ -171,7 +177,7 @@ export function HomePage() {
   const galleryBgY = useTransform(
     smoothProgress,
     [0.65, 0.70, 0.90, 0.94],
-    [28, 0, 0, -20]
+    [64, 0, 0, -64]
   )
   const galleryBgBlur = useTransform(
     smoothProgress,
@@ -182,7 +188,7 @@ export function HomePage() {
   // Layer 4: Contact Image
   const contactBgOpacity = useTransform(smoothProgress, [0.90, 0.94], [0, 1])
   const contactBgScale = useTransform(smoothProgress, [0.90, 0.94], [1.10, 1.02])
-  const contactBgY = useTransform(smoothProgress, [0.90, 0.94], [28, 0])
+  const contactBgY = useTransform(smoothProgress, [0.90, 0.94], [64, 0])
   const contactBgBlur = useTransform(
     smoothProgress,
     [0.90, 0.935],
@@ -205,6 +211,7 @@ export function HomePage() {
 
   // --------------------------------------------------------------------------
   // CHAPTER 0: HERO (Waterfall cascade dissolution on scroll)
+  const heroPanelY = useTransform(smoothProgress, [0, 0.08], ['0vh', '-22vh'])
   const heroPromptOpacity = useTransform(smoothProgress, [0, 0.025], [1, 0])
   const heroPromptScale = useTransform(smoothProgress, [0, 0.025], [1, 0.88])
 
@@ -247,6 +254,7 @@ export function HomePage() {
 
   // --------------------------------------------------------------------------
   // CHAPTER 4: CONTACT (Staggered two-column reveal, completely hidden before 0.92)
+  const contactPanelY = useTransform(smoothProgress, [0.92, 0.97], ['22vh', '0vh'])
   const contactBoxOpacity = useTransform(smoothProgress, [0.93, 0.96], [0, 1])
   const contactBoxY = useTransform(smoothProgress, [0.93, 0.96], [40, 0])
   const contactBoxScale = useTransform(smoothProgress, [0.93, 0.96], [0.95, 1])
@@ -632,7 +640,7 @@ export function HomePage() {
         {/* ---------------- CHAPTER 0: HERO ---------------- */}
         <motion.div
           className="hp-panel hp-panel--hero"
-          style={{ pointerEvents: reduced ? 'auto' : heroPointer }}
+          style={{ pointerEvents: reduced ? 'auto' : heroPointer, y: reduced ? 0 : heroPanelY }}
         >
           <Container className="hero__content">
             <motion.div className="hero-text-anim-wrap">
@@ -708,8 +716,10 @@ export function HomePage() {
             className="hero-scroll-indicator"
             onClick={() => {
               if (stageRef.current) {
-                const stageHeight = stageRef.current.offsetHeight
-                window.scrollTo({ top: stageHeight * 0.26, behavior: 'smooth' })
+                const stage = stageRef.current
+                const stageTop = stage.getBoundingClientRect().top + window.scrollY
+                const scrollDistance = Math.max(0, stage.offsetHeight - window.innerHeight)
+                window.scrollTo({ top: stageTop + scrollDistance * 0.27, behavior: reduced ? 'instant' : 'smooth' })
               } else {
                 window.scrollTo({ top: window.innerHeight * 2, behavior: 'smooth' })
               }
@@ -735,7 +745,7 @@ export function HomePage() {
         {/* ---------------- CHAPTER 1: MINISTRIES ---------------- */}
         <motion.div
           className="hp-panel"
-          style={{ pointerEvents: reduced ? 'auto' : ministriesChapter.pointer }}
+          style={{ pointerEvents: reduced ? 'auto' : ministriesChapter.pointer, y: reduced ? 0 : ministriesChapter.y }}
         >
           <Container>
             <div className="hp-content-card">
@@ -808,7 +818,7 @@ export function HomePage() {
         {/* ---------------- CHAPTER 2: EVENTS ---------------- */}
         <motion.div
           className="hp-panel"
-          style={{ pointerEvents: reduced ? 'auto' : eventsChapter.pointer }}
+          style={{ pointerEvents: reduced ? 'auto' : eventsChapter.pointer, y: reduced ? 0 : eventsChapter.y }}
         >
           <Container>
             <div className="hp-content-card">
@@ -902,7 +912,7 @@ export function HomePage() {
         {/* ---------------- CHAPTER 3: GALLERY ---------------- */}
         <motion.div
           className="hp-panel"
-          style={{ pointerEvents: reduced ? 'auto' : galleryChapter.pointer }}
+          style={{ pointerEvents: reduced ? 'auto' : galleryChapter.pointer, y: reduced ? 0 : galleryChapter.y }}
         >
           <Container>
             <div className="hp-content-card">
@@ -976,6 +986,7 @@ export function HomePage() {
           style={{
             pointerEvents: reduced ? 'auto' : contactPointer,
             visibility: reduced ? 'visible' : contactVisibility,
+            y: reduced ? 0 : contactPanelY,
           }}
         >
           <Container>

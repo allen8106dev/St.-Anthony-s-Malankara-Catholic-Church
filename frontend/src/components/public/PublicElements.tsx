@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, useReducedMotion, useScroll, useTransform, useSpring } from 'motion/react'
+import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react'
+import { useScrollSpring } from '../../hooks/useScrollSpring'
 import { demoImages, type Album, type Announcement, type DemoImage, type Event, type Ministry } from '../../data/siteContent'
 
 export function PageHeader({ eyebrow, title, intro, image }: { eyebrow: string; title: string; intro: string; image?: DemoImage }) {
@@ -16,7 +17,7 @@ export function PageHeader({ eyebrow, title, intro, image }: { eyebrow: string; 
     offset: ['start start', 'end start'],
   })
 
-  const smoothProgress = useSpring(scrollYProgress, {
+  const smoothProgress = useScrollSpring(scrollYProgress, {
     stiffness: 75,
     damping: 24,
     restDelta: 0.0005,
