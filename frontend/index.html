@@ -1,1 +1,41 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8" /><link rel="icon" type="image/png" href="/favicon-circle.png" /><link rel="apple-touch-icon" href="/favicon-circle.png" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="A welcoming online home for parish life, prayer, and community." /><title>St. Anthony's Malankara Catholic Church</title></head><body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/favicon-circle.png" />
+    <link rel="apple-touch-icon" href="/favicon-circle.png" />
+    <link rel="preload" as="image" href="/st-anthony-logo.jpg" fetchpriority="high" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A welcoming online home for parish life, prayer, and community." />
+    <title>St. Anthony's Malankara Catholic Church</title>
+    <style>
+      html, body { margin: 0; background: #081713; }
+      .startup-shell { position: fixed; inset: 0; display: grid; place-items: center; background: #081713; }
+      .startup-shell__logo { position: relative; width: min(66vw, 46svh, 24rem); aspect-ratio: 1; }
+      .startup-shell img { display: block; width: 100%; height: 100%; border-radius: 50%; }
+      .startup-shell svg { position: absolute; inset: -5%; width: 110%; height: 110%; fill: none; stroke: #d9b875; stroke-width: .65; animation: startup-spin 1.8s linear infinite; }
+      .startup-shell circle { stroke-linecap: round; }
+      html[data-parish-ready] .startup-shell { display: none; }
+      @keyframes startup-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .startup-shell svg { animation: none; } }
+    </style>
+    <script>
+      try {
+        const saved = JSON.parse(sessionStorage.getItem('church:public-session:v1') || 'null');
+        if (saved?.completed === true && Array.isArray(saved.cache?.queries)) document.documentElement.setAttribute('data-parish-ready', '');
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <div id="root">
+      <div class="startup-shell" role="status" aria-label="Loading parish website">
+        <div class="startup-shell__logo">
+          <img src="/st-anthony-logo.jpg" alt="" width="1024" height="1024" fetchpriority="high" />
+          <svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="47" pathLength="100" stroke-dasharray="25 75" /></svg>
+        </div>
+      </div>
+    </div>
+    <noscript><p style="color: #cfcbc0; text-align: center; position: relative; z-index: 1">Please enable JavaScript to visit our parish website.</p></noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

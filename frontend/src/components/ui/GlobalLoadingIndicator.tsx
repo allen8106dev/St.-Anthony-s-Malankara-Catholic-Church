@@ -1,5 +1,5 @@
 import { useIsFetching } from '@tanstack/react-query'
-import { BibleLoader } from './BibleLoader'
+import { ChurchLoader } from './ChurchLoader'
 
 export function GlobalLoadingIndicator() {
   const isFetching = useIsFetching()
@@ -8,14 +8,14 @@ export function GlobalLoadingIndicator() {
 
   return (
     <div
-      className="global-bible-loader"
+      className="global-loading-indicator"
       role="status"
       aria-live="polite"
       aria-label="Updating parish data..."
     >
-      <div className="global-bible-loader__pill">
-        <BibleLoader size="xs" inline ariaLabel="Synchronizing" />
-        <span className="global-bible-loader__text">Loading…</span>
+      <div className="global-loading-indicator__pill">
+        <ChurchLoader size="xs" inline ariaLabel="Synchronizing" />
+        <span className="global-loading-indicator__text">Loading…</span>
       </div>
     </div>
   )

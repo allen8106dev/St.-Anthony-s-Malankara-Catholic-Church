@@ -1,5 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
+import { queryOptions, useQuery } from '@tanstack/react-query'
 import { apiClient } from '../services/apiClient'
+
+const publicRequest = { timeout: 12_000 }
 
 interface PublicEvent {
   id: string; slug: string; title: string; description: string | null
@@ -18,74 +20,70 @@ interface PublicServiceTime { id: string; day_of_week: number; start_time: strin
 interface PublicSetting { key: string; value: string }
 interface Paged<T> { items: T[]; meta: { offset: number; limit: number; total: number } }
 
-export function usePublicEvents(params?: { timeframe?: 'upcoming' | 'past'; limit?: number }) {
-  return useQuery({
+export const publicQueries = {
+  events: (params?: { timeframe?: 'upcoming' | 'past'; limit?: number }) => queryOptions({
     queryKey: ['public', 'events', params],
     queryFn: () => {
       const p: Record<string, string | number> = { limit: params?.limit ?? 20 }
       if (params?.timeframe) p.timeframe = params.timeframe
-      return apiClient.get<Paged<PublicEvent>>('/public/events', { params: p }).then(r => r.data)
+      return apiClient.get<Paged<PublicEvent>>('/public/events', { ...publicRequest, params: p }).then(r => r.data)
     },
     staleTime: 60_000,
-  })
-}
+  }),
 
-export function usePublicAnnouncements(limit = 10) {
-  return useQuery({
+  announcements: (limit = 10) => queryOptions({
     queryKey: ['public', 'announcements', limit],
-    queryFn: () => apiClient.get<Paged<PublicAnnouncement>>('/public/announcements', { params: { limit } }).then(r => r.data),
+    queryFn: () => apiClient.get<Paged<PublicAnnouncement>>('/public/announcements', { ...publicRequest, params: { limit } }).then(r => r.data),
     staleTime: 60_000,
-  })
-}
+  }),
 
-export function usePublicGallery(limit = 20) {
-  return useQuery({
+  gallery: (limit = 20) => queryOptions({
     queryKey: ['public', 'gallery', limit],
-    queryFn: () => apiClient.get<Paged<PublicAlbum>>('/public/gallery', { params: { limit } }).then(r => r.data),
+    queryFn: () => apiClient.get<Paged<PublicAlbum>>('/public/gallery', { ...publicRequest, params: { limit } }).then(r => r.data),
     staleTime: 120_000,
-  })
-}
-export function usePublicLiturgy() { return useQuery({ queryKey: ['public', 'liturgy'], queryFn: () => apiClient.get<PublicLiturgyCollection[]>('/public/liturgy').then(r => r.data) }) }
+  }),
+  liturgy: () => queryOptions({ queryKey: ['public', 'liturgy'], staleTime: 120_000, queryFn: () => apiClient.get<PublicLiturgyCollection[]>('/public/liturgy', publicRequest).then(r => r.data) }),
 
-export function usePublicAlbum(albumId: string | undefined) {
-  return useQuery({
+  album: (albumId: string | undefined) => queryOptions({
     queryKey: ['public', 'gallery', 'album', albumId],
-    queryFn: () => apiClient.get<PublicAlbum>(`/public/gallery/${albumId}`).then(r => r.data),
+    queryFn: () => apiClient.get<PublicAlbum>(`/public/gallery/${albumId}`, publicRequest).then(r => r.data),
     enabled: !!albumId,
     staleTime: 60_000,
-  })
-}
+  }),
 
-export function usePublicHeroImages() {
-  return useQuery({
+  heroImages: () => queryOptions({
     queryKey: ['public', 'hero-images'],
-    queryFn: () => apiClient.get<PublicHeroImage[]>('/public/hero-images').then(r => r.data),
+    queryFn: () => apiClient.get<PublicHeroImage[]>('/public/hero-images', publicRequest).then(r => r.data),
     staleTime: 120_000,
-  })
-}
+  }),
 
-export function usePublicContent(page: string) {
-  return useQuery({
+  content: (page: string) => queryOptions({
     queryKey: ['public', 'content', page],
-    queryFn: () => apiClient.get<PublicContent[]>('/public/content', { params: { page } }).then(r => r.data),
+    queryFn: () => apiClient.get<PublicContent[]>('/public/content', { ...publicRequest, params: { page } }).then(r => r.data),
     staleTime: 120_000,
-  })
-}
+  }),
 
-export function usePublicSettings() {
-  return useQuery({
+  settings: () => queryOptions({
     queryKey: ['public', 'settings'],
-    queryFn: () => apiClient.get<PublicSetting[]>('/public/settings').then(r => r.data),
+    queryFn: () => apiClient.get<PublicSetting[]>('/public/settings', publicRequest).then(r => r.data),
     staleTime: 300_000,
-  })
+  }),
+
+  serviceTimes: () => queryOptions({
+    queryKey: ['public', 'service-times'],
+    queryFn: () => apiClient.get<PublicServiceTime[]>('/public/service-times', publicRequest).then(r => r.data),
+    staleTime: 300_000,
+  }),
 }
 
-export function usePublicServiceTimes() {
-  return useQuery({
-    queryKey: ['public', 'service-times'],
-    queryFn: () => apiClient.get<PublicServiceTime[]>('/public/service-times').then(r => r.data),
-    staleTime: 300_000,
-  })
-}
+export function usePublicEvents(params?: { timeframe?: 'upcoming' | 'past'; limit?: number }) { return useQuery(publicQueries.events(params)) }
+export function usePublicAnnouncements(limit = 10) { return useQuery(publicQueries.announcements(limit)) }
+export function usePublicGallery(limit = 20) { return useQuery(publicQueries.gallery(limit)) }
+export function usePublicLiturgy() { return useQuery(publicQueries.liturgy()) }
+export function usePublicAlbum(albumId: string | undefined) { return useQuery(publicQueries.album(albumId)) }
+export function usePublicHeroImages() { return useQuery(publicQueries.heroImages()) }
+export function usePublicContent(page: string) { return useQuery(publicQueries.content(page)) }
+export function usePublicSettings() { return useQuery(publicQueries.settings()) }
+export function usePublicServiceTimes() { return useQuery(publicQueries.serviceTimes()) }
 
 export type { PublicEvent, PublicAlbum, PublicContent, PublicSetting }

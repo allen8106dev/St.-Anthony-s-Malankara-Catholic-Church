@@ -3,7 +3,7 @@ import { useEffect, useLayoutEffect } from 'react'
 import { CustomCursor } from '../components/animation/CustomCursor'
 import { PublicFooter } from '../components/layout/PublicFooter'
 import { PublicNavbar } from '../components/navigation/PublicNavbar'
-import { GlobalLoadingIndicator } from '../components/ui/GlobalLoadingIndicator'
+import { PublicStartupGate } from '../components/public/PublicStartupGate'
 import { ministries } from '../data/siteContent'
 
 const pageMeta: Record<string, { title: string; description: string }> = {
@@ -48,5 +48,5 @@ export function PublicLayout() {
     document.querySelector('meta[name="description"]')?.setAttribute('content', meta.description)
   }, [location.pathname])
 
-  return <div className="site-shell"><PublicNavbar /><main key={location.pathname} className="public-route"><Outlet /></main><PublicFooter /><CustomCursor /><GlobalLoadingIndicator /></div>
+  return <PublicStartupGate><div className="site-shell"><PublicNavbar /><main key={location.pathname} className="public-route"><Outlet /></main><PublicFooter /><CustomCursor /></div></PublicStartupGate>
 }
