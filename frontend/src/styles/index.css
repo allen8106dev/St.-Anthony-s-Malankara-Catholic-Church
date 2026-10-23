@@ -2102,7 +2102,9 @@ body:has(.admin-shell) { overflow-x: hidden; background: var(--admin-bg); }
 .admin-user { margin-top: auto; padding: 1rem .85rem; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 1rem; font-size: .86rem; }
 .admin-user strong { display: block; font-size: .92rem; color: #f8fafc; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .admin-user span { display: block; font-size: .74rem; color: #94a3b8; margin-top: .15rem; }
-.admin-user span:last-child { color: #64748b; margin-top: .25rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .72rem; }
+.admin-user .admin-user__email { color: #64748b; margin-top: .25rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .72rem; }
+.admin-user .admin-user__logout { display: flex; align-items: center; gap: .55rem; width: 100%; min-height: 2.6rem; margin-top: .85rem; padding: .55rem .7rem; border: 1px solid rgba(248, 113, 113, .2); border-radius: .65rem; background: rgba(248, 113, 113, .08); color: #fca5a5; font-size: .82rem; font-weight: 600; text-align: left; }
+.admin-user .admin-user__logout:hover { background: rgba(248, 113, 113, .16); border-color: rgba(248, 113, 113, .4); color: #fecaca; }
 .admin-main { min-height: 100vh; margin-left: var(--admin-sidebar-width); padding: clamp(2rem, 3.5vw, 3.5rem) clamp(1.5rem, 3.5vw, 3.5rem); background: var(--admin-bg); }
 .admin-main > * { width: min(100%, 80rem); margin-inline: auto; }
 .admin-menu, .admin-logout { border: 0; color: inherit; background: none; font: inherit; cursor: pointer; }

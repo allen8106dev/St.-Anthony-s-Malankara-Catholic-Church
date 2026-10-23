@@ -49,7 +49,7 @@ export function AdminLayout() {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
 
-  async function signOut() { await logout(); navigate('/login', { replace: true }) }
+  async function signOut() { await logout(); navigate('/', { replace: true }) }
 
   function visible(item: NavItem) {
     return !item.roles || (currentUser && item.roles.includes(currentUser.role))
@@ -92,7 +92,13 @@ export function AdminLayout() {
         <div className="admin-user">
           <strong>{currentUser?.name}</strong>
           <span>{currentUser?.role.replace(/_/g, ' ')}</span>
-          <span>{currentUser?.email}</span>
+          <span className="admin-user__email">{currentUser?.email}</span>
+          <button className="admin-logout admin-user__logout" type="button" onClick={() => void signOut()}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+            </svg>
+            Log out
+          </button>
         </div>
       </aside>
 
